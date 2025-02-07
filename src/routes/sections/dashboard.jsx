@@ -101,7 +101,7 @@ export const dashboardRoutes = [
                 ],
             },
             {
-                path: 'sprints',
+                path: 'sprints/:project_id',
                 children: [
                     { element: <SprintTimeline />, index: true },
                     { path: 'timeline', element: <SprintTimeline /> },
@@ -109,11 +109,11 @@ export const dashboardRoutes = [
                 ],
             },
             {
-                path: 'employee',
+                path: 'employee/:project_id',
                 children: [{ path: 'list', element: <EmployeeList /> }],
             },
             {
-                path: 'stages',
+                path: 'stages/:project_id',
                 children: [
                     { element: <StageCreate />, index: true },
                     { path: 'new', element: <StageCreate /> },
@@ -123,11 +123,11 @@ export const dashboardRoutes = [
             },
 
         {
-            path: 'filemanager',
+            path: 'filemanager/:project_id',
             children: [{ element: <FileManager />, index: true }],
         },
         {
-            path: 'settings',
+            path: 'settings/:project_id',
             children: [
                 { element: <SettingsDetailsPage />, index: true },
                 { path: 'details', element: <SettingsDetailsPage /> },

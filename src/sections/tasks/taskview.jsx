@@ -39,7 +39,7 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
     const [showAttachedFiles, setShowAttachedFiles] = useState([]);
     const stages = useSelector((state) => state.stages.stages);
     const Stage = id ? stages.find((stage) => stage.id === id) : null;
-
+    console.log("DescriptionSection>>>",tempTask.task_name)
     const handleAttachFile = () => {
         fileInputRef.current.click();
     };
@@ -116,7 +116,7 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                             project_id: Stage.project_id || 'No Project Name',
                             email: employees[tempTask.reporter_id]?.email || '',
                             stage: Stage.stage_name,
-                            link: `/dashboard/stages/${Stage.id}/view`
+                            link: `/dashboard/stages/${Stage.project_id}/${Stage.id}/view`
                         };
 
                         await axiosInstance.post(endpoints.tasks.reporter, reporterPayload, {
@@ -136,7 +136,7 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                             project_id: Stage.project_id,
                             email: employees[tempTask.assignee_id]?.email || '',
                             stage: Stage.stage_name,
-                            link: `/dashboard/stages/${Stage.id}/view`
+                            link: `/dashboard/stages/${Stage.project_id}/${Stage.id}/view`
                         };
                         await axiosInstance.post(endpoints.tasks.assignee, assigneePayload, {
                             headers: {
@@ -144,8 +144,6 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                             },
                         });
                     }
-
-                    // toast.success('Notifications sent successfully');
                 } catch (notifyErr) {
                     console.error('Failed to send notifications:', notifyErr);
                     toast.error('Failed to send notifications');

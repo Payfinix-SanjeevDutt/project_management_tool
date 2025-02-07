@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
+import { useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import { useTheme, Typography } from '@mui/material';
 
 import TasksIcon from 'src/assets/data/tasks.svg';
 import StageIcon from 'src/assets/data/stages.svg';
@@ -12,9 +12,7 @@ import { BookingBooked } from '../booking-booked';
 import EmployeeOverview from '../employee-overview';
 import { CourseWidgetSummary } from '../course-widget-summary';
 import { BookingTotalIncomes } from '../booking-total-incomes';
-import { EcommerceBestSalesman } from '../ecommerce-best-salesman';
 import { BookingCheckInWidgets } from '../booking-check-in-widgets';
-import { EcommerceSaleByGender } from '../ecommerce-sale-by-gender';
 
 // ----------------------------------------------------------------------
 
@@ -32,62 +30,60 @@ export function DashboardStageView() {
 
     const deadlineData = [
         {
-          id: 1,
-          name: 'John Doe', // Assigned
-          category: 'Design Homepage', // Task name
-          country: 5, // Days left
-          totalAmount: '2024-12-15', // EndDate
-          rank: 'High', // Priority
+            id: 1,
+            name: 'John Doe', // Assigned
+            category: 'Design Homepage', // Task name
+            country: 5, // Days left
+            totalAmount: '2024-12-15', // EndDate
+            rank: 'High', // Priority
         },
         {
-          id: 2,
-          name: 'Jane Smith', 
-          category: 'Develop Login Module', 
-          country: 10, 
-          totalAmount: '2024-12-20', 
-          rank: 'Medium',
+            id: 2,
+            name: 'Jane Smith',
+            category: 'Develop Login Module',
+            country: 10,
+            totalAmount: '2024-12-20',
+            rank: 'Medium',
         },
         {
-          id: 3,
-          name: 'Alice Brown', 
-          category: 'Test API Integration', 
-          country: 3, 
-          totalAmount: '2024-12-13', 
-          rank: 'High',
+            id: 3,
+            name: 'Alice Brown',
+            category: 'Test API Integration',
+            country: 3,
+            totalAmount: '2024-12-13',
+            rank: 'High',
         },
         {
-          id: 4,
-          name: 'Michael Scott', 
-          category: 'Write Documentation', 
-          country: 7, 
-          totalAmount: '2024-12-17', 
-          rank: 'Low',
+            id: 4,
+            name: 'Michael Scott',
+            category: 'Write Documentation',
+            country: 7,
+            totalAmount: '2024-12-17',
+            rank: 'Low',
         },
         {
-          id: 5,
-          name: 'Emma Wilson', 
-          category: 'Setup CI/CD', 
-          country: 12, 
-          totalAmount: '2024-12-22', 
-          rank: 'Medium',
+            id: 5,
+            name: 'Emma Wilson',
+            category: 'Setup CI/CD',
+            country: 12,
+            totalAmount: '2024-12-22',
+            rank: 'Medium',
         },
-      ];
-      
+    ];
 
     return (
         <DashboardContent maxWidth="xl">
             <Grid container spacing={3} disableEqualOverflow>
                 <Grid xs={12}>
                     <Box sx={{ mb: 2 }}>
-                        <Typography variant="h4" sx={{ mb: 1 }}>
+                        {/* <Typography variant="h4" sx={{ mb: 1 }}>
                             Hi, Frankie 👋
                         </Typography>
                         <Typography
                             sx={{ color: 'text.secondary' }}
-                        >{`Let's learn something new today!`}</Typography>
+                        >{`Let's learn something new today!`}</Typography> */}
                     </Box>
                 </Grid>
-                {/* <Grid container spacing={2} columns={12}> */}
                 <Grid item xs={12} md={3}>
                     <CourseWidgetSummary
                         title="Total Stages"
@@ -117,7 +113,7 @@ export function DashboardStageView() {
                     />
                 </Grid>
 
-                <Grid item xs={11} md={3}>
+                <Grid item xs={12} md={3}>
                     <CourseWidgetSummary
                         title="Total SubTasks"
                         total={2}
@@ -152,7 +148,7 @@ export function DashboardStageView() {
                 </Grid>
 
                 <Grid container xs={12}>
-                    <Grid xs={12} md={7} lg={8}>
+                    <Grid item xs={12} md={7} lg={8}>
                         <Box
                             sx={{
                                 mb: 3,
@@ -162,6 +158,7 @@ export function DashboardStageView() {
                                 borderRadius: { md: 2 },
                                 flexDirection: 'column',
                                 bgcolor: { md: 'background.neutral' },
+                                width: '100%', // Ensures it takes full width
                             }}
                         >
                             <Box
@@ -175,6 +172,7 @@ export function DashboardStageView() {
                                         xs: 'repeat(1, 1fr)',
                                         md: 'repeat(2, 1fr)',
                                     },
+                                    width: '100%', // Ensures it scales properly
                                 }}
                             >
                                 <BookingTotalIncomes
@@ -200,7 +198,7 @@ export function DashboardStageView() {
                                 <BookingBooked
                                     title="Task Tracker"
                                     data={taskTracker}
-                                    sx={{ boxShadow: { md: 'none' } }}
+                                    sx={{ boxShadow: { md: 'none' }, width: '100%' }} // Ensures it fills the parent
                                 />
                             </Box>
 
@@ -208,18 +206,14 @@ export function DashboardStageView() {
                                 chart={{
                                     series: [
                                         { label: 'Top Priority Task', percent: 73.9, total: 1856 },
-                                        {
-                                            label: 'Low Priority Task',
-                                            percent: 45.6,
-                                            total: 1847,
-                                        },
+                                        { label: 'Low Priority Task', percent: 45.6, total: 1847 },
                                     ],
                                 }}
-                                sx={{ boxShadow: { md: 'none' } }}
+                                sx={{ boxShadow: { md: 'none' }, width: '100%' }} // Ensures full width
                             />
                         </Box>
                     </Grid>
-                    <Grid xs={12} md={6} lg={4}>
+                    {/* <Grid xs={12} md={6} lg={4}>
                         <EcommerceSaleByGender
                             title="Subtasks Flow"
                             total={324}
@@ -231,9 +225,9 @@ export function DashboardStageView() {
                                 ],
                             }}
                         />
-                    </Grid>
+                    </Grid> */}
 
-                    <Grid xs={12} md={6} lg={8}>
+                    {/* <Grid xs={12} md={6} lg={8}>
                         <EcommerceBestSalesman
                             title="Tasks Deadline"
                             tableData={deadlineData}
@@ -245,9 +239,20 @@ export function DashboardStageView() {
                                 { id: 'rank', label: 'Priority', align: 'right' },
                             ]}
                         />
-                    </Grid>
+                    </Grid> */}
                 </Grid>
             </Grid>
         </DashboardContent>
     );
 }
+
+// import React from 'react'
+
+// function DashboardStageView() {
+//   return (
+//     <div>
+//       <p>stage dashboard</p>
+//     </div>
+//   )
+// }
+// export default DashboardStageView

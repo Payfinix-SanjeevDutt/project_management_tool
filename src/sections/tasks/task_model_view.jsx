@@ -21,7 +21,7 @@ const TaskModelView = ({ open, onClose, issueKey, isChild , taskname}) => (
                     p: 3,
                     borderRadius: 2,
                     minHeight: '85vh',
-                    maxHeight: '90vh',
+                    maxHeight: '100vh',
                 }}
             >
                 {/* Pass the issueKey as a prop to Taskview */}

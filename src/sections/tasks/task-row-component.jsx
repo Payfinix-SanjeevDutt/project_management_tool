@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -46,18 +45,17 @@ const PRIORITY_TYPE = {
 };
 
 export default function CustomTableRow({ task, isChild = false, selected, onSelectRow, loading }) {
+    const { employees } = useSelector((state) => state.assignee);
     const { subTasks, deleteTask, deleteSubTask } = useTasks();
-    const {employees} = useSelector((state)=>state.assignee)
     const popover = usePopover();
     const dispatch = useDispatch();
     const modalOpen = useBoolean();
     const createSubtask = useBoolean();
     const dropDown = useBoolean();
-    const { id: stage_id } = useParams();
     const [openDialog, setOpenDialog] = useState(false);
 
-    const reporter_info = employees[task.reporter_id]
-    const assignee_info = employees[task.assignee_id]
+    const reporter_info = employees[task.reporter_id];
+    const assignee_info = employees[task.assignee_id];
 
     if (loading) {
         return (
@@ -157,7 +155,7 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                         {task.task_id}
                     </Typography>
                 </TableCell> */}
-                <TableCell
+                {/* <TableCell
                     align="left"
                     size="small"
                     sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 300 }}
@@ -165,7 +163,24 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
 
                 >
                     <Typography variant="body2">{task.task_name}</Typography>
+                </TableCell> */}
+                <TableCell
+                    align="left"
+                    size="small"
+                    sx={{
+                        borderRight: '1px dashed rgba(0, 0, 0, 0.1)',
+                        minWidth: 300,
+                        cursor: 'pointer', 
+                        '&:hover': {
+                            textDecoration: 'underline',
+                            bgcolor: 'rgba(0, 0, 0, 0.05)', 
+                        },
+                    }}
+                    onClick={modalOpen.onTrue}
+                >
+                    <Typography variant="body2">{task.task_name}</Typography>
                 </TableCell>
+
                 <TableCell
                     align="center"
                     size="small"
@@ -184,7 +199,7 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                         variant={task.sprint_id && 'overline'}
                         sx={{ textDecoration: 'underline', cursor: 'pointer' }}
                     >
-                        {task.sprint_id || <Label>Un-Assigned</Label>}
+                        {task.sprint_id || <Label>Un-Defined</Label>}
                     </Typography>
                 </TableCell>
 
@@ -286,7 +301,7 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                     sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
                 >
                     <Typography variant="overline">
-                        {fDate(task.actual_start_date) || <Label>Un-Assigned</Label>}
+                        {fDate(task.actual_start_date) || <Label>Un-Defined</Label>}
                     </Typography>
                 </TableCell>
                 <TableCell
@@ -295,7 +310,7 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                     sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
                 >
                     <Typography variant="overline">
-                        {fDate(task.actual_end_date) || <Label>Un-Assigned</Label>}
+                        {fDate(task.actual_end_date) || <Label>Un-Defined</Label>}
                     </Typography>
                 </TableCell>
 

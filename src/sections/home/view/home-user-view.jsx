@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux';
 import React, { useState, useEffect } from 'react';
 
 import {
@@ -19,6 +18,8 @@ import {
     TablePagination,
 } from '@mui/material';
 
+import { useParams } from 'src/routes/hooks';
+
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { Iconify } from 'src/components/iconify';
@@ -31,9 +32,8 @@ function HomeUserView() {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('name');
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const projectId = useSelector((state) => state.projects.currentProjectId);
-
+    const [rowsPerPage, setRowsPerPage] = useState(25);
+    const { project_id } = useParams()
     const columns = [
         { key: 'name', label: 'Employee name', icon: 'solar:user-outline', sortable: true },
         { key: 'total_tasks', label: 'Total Tasks', icon: 'bi:list-task', sortable: true },
@@ -74,18 +74,18 @@ function HomeUserView() {
             setLoading(true);
             try {
                 const response = await axiosInstance.post(endpoints.tasks.taskEmployeeReport, {
-                    project_id: projectId,
+                    project_id,
                 });
                 setReport(response.data);
                 setLoading(false);
             } catch (err) {
-                setError('Failed to fetch data');
-                setLoading(false);
+                // setError('Failed to fetch data');
+                setLoading(true);
             }
         };
 
         fetchReport();
-    }, [projectId]);
+    }, [project_id]);
 
     const handleRequestSort = (property) => {
         const isAscending = orderBy === property && order === 'asc';

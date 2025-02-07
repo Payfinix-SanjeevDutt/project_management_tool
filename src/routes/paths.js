@@ -18,6 +18,7 @@ export const paths = {
     main: {
         dashboard:{
             user: `${ROOTS.MAIN_PAGE}/dashboard/user-dashboard`,
+            project: `${ROOTS.MAIN_PAGE}/dashboard/user-dashboard`,
             root: `${ROOTS.MAIN_PAGE}/dashboard`
         },
         project: {
@@ -40,24 +41,24 @@ export const paths = {
             homeusers: (projectId) => `${ROOTS.DASHBOARD}/projectdashboard/${projectId}/homeusers`,
         },
         stages: {
-            root: `${ROOTS.DASHBOARD}/stages/`,
-            create: `${ROOTS.DASHBOARD}/stages/new`,
-            task: (id) => `${ROOTS.DASHBOARD}/stages/${id}/view`,
+            root: (projectId) =>  `${ROOTS.DASHBOARD}/${projectId}/stages`,
+            create:(projectId) => `${ROOTS.DASHBOARD}/stages/${projectId}/new`,
+            task: (projectId,id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/view`,
             edit: (id) => `${ROOTS.DASHBOARD}/stages/${id}/edit`,
         },
         sprints: {
-            root: `${ROOTS.DASHBOARD}/sprints/`,
-            backlog: `${ROOTS.DASHBOARD}/sprints/backlog`,
-            timeline: `${ROOTS.DASHBOARD}/sprints/timeline`,
+            root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}/sprints/`,
+            backlog: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}/backlog`,
+            timeline: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}/timeline`,
         },
         employees: {
-            list: `${ROOTS.DASHBOARD}/employee/list`,
+            list: (projectId) =>  `${ROOTS.DASHBOARD}/employee/${projectId}/list`,
         },
         settings: {
-            root: `${ROOTS.DASHBOARD}/settings/`,
-            details: `${ROOTS.DASHBOARD}/settings/details`,
+            root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}/settings/`,
+            details:(projectId) => `${ROOTS.DASHBOARD}/settings/${projectId}/details`,
         },
-        fileManager: `${ROOTS.DASHBOARD}/filemanager/`,
+        fileManager: (projectId) => `${ROOTS.DASHBOARD}/filemanager/${projectId}`,
         reports: {
             root: `${ROOTS.DASHBOARD}/reports/`,
             employeeReports: `${ROOTS.DASHBOARD}/reports/employeeReports`,

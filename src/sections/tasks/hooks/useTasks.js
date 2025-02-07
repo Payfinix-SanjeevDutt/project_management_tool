@@ -1,5 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 
+import { useParams } from 'src/routes/hooks';
+
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import {
@@ -17,11 +19,13 @@ import {
 export default function useTasks() {
     const dispatch = useDispatch();
     const tasks = useSelector((state) => state.tasks);
-
+    const { project_id } = useParams()
+    
     const fetchTasks = async (stage_id) => {
         try {
             const response = await axiosInstance.get(endpoints.tasks.list, {
                 params: {
+                    project_id,
                     stage_id,
                 },
             });

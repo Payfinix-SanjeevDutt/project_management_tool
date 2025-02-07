@@ -50,7 +50,7 @@ export default function TaskCreate() {
     const [loading, setLoading] = useState(true);
     const [anchorEl, setAnchorEl] = useState(null);
     const [isModaOpen, setIsModalOpen] = useState(false);
-
+    const { project_id } = useParams()
     const handleOpenModal = () => {
         setIsModalOpen(true);
     };

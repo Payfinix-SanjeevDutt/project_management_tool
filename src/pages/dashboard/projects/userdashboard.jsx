@@ -31,7 +31,7 @@ function HomeUserView() {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('name');
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(25);
     const projectId = useSelector((state) => state.projects.currentProjectId);
 
     const columns = [
@@ -83,8 +83,8 @@ function HomeUserView() {
                 setReport(response.data);
                 setLoading(false);
             } catch (err) {
-                setError('Failed to fetch data');
-                setLoading(false);
+                // setError('Failed to fetch data');
+                setLoading(true);
             }
         };
 
