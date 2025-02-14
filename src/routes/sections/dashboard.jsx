@@ -29,6 +29,7 @@ const ReportsSample = lazy(() => import('src/pages/dashboard/reports/sample'));
 const ProjectCreate = lazy(() => import('src/pages/dashboard/projects/create'));
 const ProjectList = lazy(() => import('src/pages/dashboard/projects/lists'));
 const ProjectDashboard = lazy(() => import('src/pages/dashboard/projects/userdashboard'));
+const MainProjectDashboard = lazy(() => import('src/pages/dashboard/projects/projectdashboard'));
 const SettingsDetailsPage = lazy(() => import('src/pages/dashboard/settings/details'));
 
 // ----------------------------------------------------------------------
@@ -78,6 +79,7 @@ export const dashboardRoutes = [
                 children: [
                     { element: <ProjectDashboard />, index: true },
                     { path: 'user-dashboard', element: <Userdashboard /> },
+                    { path: 'project-dashboard', element: <MainProjectDashboard /> },
                 ],
             },
         ],
