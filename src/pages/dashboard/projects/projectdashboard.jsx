@@ -6,8 +6,6 @@ import ProjectDashboardView from 'src/sections/project/project-dashboard/project
 
 export default function MainProjectDashboard() {
     return (
-        <>
-            <ProjectDashboardView />
-        </>
+        <ProjectDashboardView />
     );
 }

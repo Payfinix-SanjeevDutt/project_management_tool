@@ -1,7 +1,7 @@
-import { useSelector } from 'react-redux';
 import React, { useState, useEffect } from 'react';
 
 import {
+    Box,
     Card,
     Table,
     Paper,
@@ -13,9 +13,11 @@ import {
     TableBody,
     TableCell,
     TableHead,
+    TextField,
     Typography,
     TableContainer,
     TableSortLabel,
+    InputAdornment,
     TablePagination,
 } from '@mui/material';
 
@@ -32,7 +34,35 @@ function HomeUserView() {
     const [orderBy, setOrderBy] = useState('name');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(25);
-    const projectId = useSelector((state) => state.projects.currentProjectId);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
+
+    const filteredReport = report.filter((row) =>
+        row.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const sortedFilteredReport = filteredReport.slice().sort((a, b) => {
+        if (orderBy) {
+            const aValue = a[orderBy];
+            const bValue = b[orderBy];
+
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return order === 'asc'
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            }
+
+            if (typeof aValue === 'number' && typeof bValue === 'number') {
+                return order === 'asc' ? aValue - bValue : bValue - aValue;
+            }
+
+            return 0;
+        }
+        return 0;
+    });
 
     const columns = [
         { key: 'name', label: 'Employee name', icon: 'solar:user-outline', sortable: true },
@@ -140,10 +170,33 @@ function HomeUserView() {
                     sx={{
                         display: 'flex',
                         justifyContent: 'space-between',
+                        alignItems: 'center',
                         padding: { xs: 1, sm: 2 },
                     }}
                 >
-                    <Typography variant="subtitle1">Project Employee Summary</Typography>
+                    <Typography variant="h6" sx={{ whiteSpace: 'nowrap', mr: 2 }}>
+                        Project Employee Summary
+                    </Typography>
+
+                    <Box sx={{ flexGrow: 1, maxWidth: 1000 }}>
+                        {' '}
+                        <TextField
+                            fullWidth
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            placeholder="Search Employee..."
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Iconify
+                                            icon="eva:search-fill"
+                                            sx={{ color: 'text.disabled' }}
+                                        />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </Box>
                 </Toolbar>
 
                 {loading ? (
@@ -160,7 +213,7 @@ function HomeUserView() {
                                     <TableCell
                                         key={col.key}
                                         sx={{
-                                            minWidth: 220,
+                                            minWidth: 120,
                                             textAlign: 'center',
                                         }}
                                     >
@@ -210,7 +263,7 @@ function HomeUserView() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {sortedReport.length === 0 ? (
+                            {sortedFilteredReport.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={columns.length} align="center">
                                         <EmptyContent
@@ -220,7 +273,7 @@ function HomeUserView() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                sortedReport
+                                sortedFilteredReport
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                     .map((row) => (
                                         <TableRow key={row.employee_id}>
@@ -274,19 +327,42 @@ function HomeUserView() {
                                                                     variant="body2"
                                                                     fontWeight="bold"
                                                                     color="text.primary"
+                                                                    align="left"
                                                                 >
                                                                     {row.name}
                                                                 </Typography>
-                                                                <Typography
+                                                                {/* <Typography
                                                                     variant="caption"
                                                                     color="text.secondary"
                                                                 >
                                                                     {row.email}
-                                                                </Typography>
+                                                                </Typography> */}
                                                             </Stack>
                                                         </Stack>
                                                     ) : (
-                                                        row[col.key]
+                                                        <Box
+                                                            sx={{
+                                                                display: 'inline-block',
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontWeight: 'bold',
+                                                                color: (theme) =>
+                                                                    row[col.key] === 0
+                                                                        ? 'inherit' 
+                                                                        : col.key.includes(
+                                                                                'completed_overrun'
+                                                                            ) ||
+                                                                            col.key.includes(
+                                                                                'inprogress_overrun'
+                                                                            )
+                                                                          ? theme.palette.error.main
+                                                                          : theme.palette.text
+                                                                                .primary,
+                                                            }}
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
                                                     )}
                                                 </TableCell>
                                             ))}

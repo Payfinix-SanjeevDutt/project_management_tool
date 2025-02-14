@@ -44,7 +44,7 @@ export const paths = {
             root: (projectId) =>  `${ROOTS.DASHBOARD}/${projectId}/stages`,
             create:(projectId) => `${ROOTS.DASHBOARD}/stages/${projectId}/new`,
             task: (projectId,id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/view`,
-            edit: (id) => `${ROOTS.DASHBOARD}/stages/${id}/edit`,
+            edit: (projectId,id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/edit`,
         },
         sprints: {
             root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}/sprints/`,

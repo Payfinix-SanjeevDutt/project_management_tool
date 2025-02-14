@@ -1,21 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Tree, TreeNode } from 'react-organizational-chart';
+import React, { useState, useEffect, useContext } from 'react';
+
 import {
     Box,
     Grid,
     Card,
-    CardContent,
-    Typography,
-    Avatar,
-    CircularProgress,
     Backdrop,
     Container,
+    Typography,
+    CardContent,
+    CircularProgress,
 } from '@mui/material';
-import { Tree, TreeNode } from 'react-organizational-chart';
-import { Iconify } from 'src/components/iconify';
-import { AuthContext } from 'src/auth/context/auth-context';
-import { useSettingsContext } from 'src/components/settings';
-import { toast } from 'sonner';
+
 import axiosInstance, { endpoints } from 'src/utils/axios';
+
+import { Iconify } from 'src/components/iconify';
+import { useSettingsContext } from 'src/components/settings';
+
+import { AuthContext } from 'src/auth/context/auth-context';
+
 import ComponentBlock from './component-block';
 
 const projectData = [

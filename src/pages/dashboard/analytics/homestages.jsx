@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import {DashboardStageView}  from 'src/sections/home/homestages/view/home-stage-view';
+import DashboardStageView  from 'src/sections/home/homestages/view/home-stage-view';
 
 // ----------------------------------------------------------------------
 

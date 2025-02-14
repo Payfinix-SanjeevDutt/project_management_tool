@@ -38,7 +38,7 @@ export const navData = [
                 path: paths.main.dashboard.root,
                 icon: ICONS.dashboard,
                 children: [
-                    { title: 'dashboard', path: paths.main.dashboard.user },
+                    { title: 'Employee dashboard', path: paths.main.dashboard.user },
                     { title: 'Project dashboard', path: paths.main.dashboard.project },
                 ],
             },

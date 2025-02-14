@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import {
+    Box,
     Card,
     Table,
     Paper,
@@ -33,7 +34,7 @@ function HomeUserView() {
     const [orderBy, setOrderBy] = useState('name');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(25);
-    const { project_id } = useParams()
+    const { project_id } = useParams();
     const columns = [
         { key: 'name', label: 'Employee name', icon: 'solar:user-outline', sortable: true },
         { key: 'total_tasks', label: 'Total Tasks', icon: 'bi:list-task', sortable: true },
@@ -156,7 +157,7 @@ function HomeUserView() {
                                     <TableCell
                                         key={col.key}
                                         sx={{
-                                            minWidth: 220,
+                                            minWidth: 160,
                                             textAlign: 'center',
                                         }}
                                     >
@@ -209,7 +210,8 @@ function HomeUserView() {
                             {sortedReport.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={columns.length} align="center">
-                                        <EmptyContent sx={{py:10}}
+                                        <EmptyContent
+                                            sx={{ py: 10 }}
                                             title="No employee task data found."
                                         />
                                     </TableCell>
@@ -248,8 +250,8 @@ function HomeUserView() {
                                                                     height: 32,
                                                                     borderRadius: '50%',
                                                                     bgcolor: row.avatar,
-                                                                        // ? 'transparent'
-                                                                        // : 'primary.main',
+                                                                    // ? 'transparent'
+                                                                    // : 'primary.main',
                                                                     color: 'white',
                                                                     fontSize: 20,
                                                                 }}
@@ -269,19 +271,42 @@ function HomeUserView() {
                                                                     variant="body2"
                                                                     fontWeight="bold"
                                                                     color="text.primary"
+                                                                    align="left"
                                                                 >
                                                                     {row.name}
                                                                 </Typography>
-                                                                <Typography
+                                                                {/* <Typography
                                                                     variant="caption"
                                                                     color="text.secondary"
                                                                 >
                                                                     {row.email}
-                                                                </Typography>
+                                                                </Typography> */}
                                                             </Stack>
                                                         </Stack>
                                                     ) : (
-                                                        row[col.key]
+                                                        <Box
+                                                            sx={{
+                                                                display: 'inline-block',
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontWeight: 'bold',
+                                                                color: (theme) =>
+                                                                    row[col.key] === 0
+                                                                        ? 'inherit'
+                                                                        : col.key.includes(
+                                                                                'completed_overrun'
+                                                                            ) ||
+                                                                            col.key.includes(
+                                                                                'inprogress_overrun'
+                                                                            )
+                                                                          ? theme.palette.error.main
+                                                                          : theme.palette.text
+                                                                                .primary,
+                                                            }}
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
                                                     )}
                                                 </TableCell>
                                             ))}

@@ -91,7 +91,7 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
 
     const handleDeleteClick = () => {
         popover.onClose();
-        setOpenDialog(true);
+        setOpenDialog(true);    
     };
 
     return (
@@ -120,7 +120,6 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                             >
                                 <Iconify icon="mingcute:add-circle-line" />
                             </IconButton>
-
                             {(task?.children || []).length > 0 && (
                                 <IconButton onClick={dropDown.onToggle}>
                                     <Iconify
@@ -142,28 +141,6 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                         </Stack>
                     )}
                 </TableCell>
-                {/* <TableCell
-                    align="center"
-                    size="small"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)' }}
-                >
-                    <Typography
-                        variant="overline"
-                        sx={{ textDecoration: 'underline', cursor: 'pointer' }}
-                        // onClick={modalOpen.onTrue}
-                    >
-                        {task.task_id}
-                    </Typography>
-                </TableCell> */}
-                {/* <TableCell
-                    align="left"
-                    size="small"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 300 }}
-                    onClick={modalOpen.onTrue}
-
-                >
-                    <Typography variant="body2">{task.task_name}</Typography>
-                </TableCell> */}
                 <TableCell
                     align="left"
                     size="small"
@@ -180,7 +157,6 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                 >
                     <Typography variant="body2">{task.task_name}</Typography>
                 </TableCell>
-
                 <TableCell
                     align="center"
                     size="small"
@@ -193,6 +169,49 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                 <TableCell
                     align="center"
                     size="small"
+                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
+                >
+                    <Typography variant="overline">{fDate(task.start_date)}</Typography>
+                </TableCell>
+                <TableCell
+                    align="center"
+                    size="small"
+                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
+                >
+                    <Typography variant="overline">{fDate(task.end_date)}</Typography>
+                </TableCell>
+                <TableCell
+                    align="center"
+                    size="small"
+                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
+                >
+                    <Typography variant="overline">
+                        {fDate(task.actual_start_date) || <Label>Un-Defined</Label>}
+                    </Typography>
+                </TableCell>
+                <TableCell
+                    align="center"
+                    size="small"
+                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
+                >
+                    <Typography variant="overline">
+                        {fDate(task.actual_end_date) || <Label>Un-Defined</Label>}
+                    </Typography>
+                </TableCell>
+
+                    <TableCell
+                        align="center"
+                        size="small"
+                        borderRight="1px dashed grey"
+                        sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)' }}
+                    >
+                        <Label color={PRIORITY_TYPE[task.priority].color}>
+                            {PRIORITY_TYPE[task.priority].label}
+                        </Label>
+                    </TableCell>
+                <TableCell
+                    align="center"
+                    size="small"
                     sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)' }}
                 >
                     <Typography
@@ -200,6 +219,15 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                         sx={{ textDecoration: 'underline', cursor: 'pointer' }}
                     >
                         {task.sprint_id || <Label>Un-Defined</Label>}
+                    </Typography>
+                </TableCell>
+                <TableCell
+                    align="center"
+                    size="small"
+                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)' }}
+                >
+                    <Typography variant="overline" sx={{ textDecoration: 'underline' }}>
+                        {task.parent_id}
                     </Typography>
                 </TableCell>
 
@@ -281,58 +309,7 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                         <Label>Un-Assigned</Label>
                     )}
                 </TableCell>
-                <TableCell
-                    align="center"
-                    size="small"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
-                >
-                    <Typography variant="overline">{fDate(task.start_date)}</Typography>
-                </TableCell>
-                <TableCell
-                    align="center"
-                    size="small"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
-                >
-                    <Typography variant="overline">{fDate(task.end_date)}</Typography>
-                </TableCell>
-                <TableCell
-                    align="center"
-                    size="small"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
-                >
-                    <Typography variant="overline">
-                        {fDate(task.actual_start_date) || <Label>Un-Defined</Label>}
-                    </Typography>
-                </TableCell>
-                <TableCell
-                    align="center"
-                    size="small"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)', minWidth: 200 }}
-                >
-                    <Typography variant="overline">
-                        {fDate(task.actual_end_date) || <Label>Un-Defined</Label>}
-                    </Typography>
-                </TableCell>
-
-                <TableCell
-                    align="center"
-                    size="small"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)' }}
-                >
-                    <Typography variant="overline" sx={{ textDecoration: 'underline' }}>
-                        {task.parent_id}
-                    </Typography>
-                </TableCell>
-                <TableCell
-                    align="center"
-                    size="small"
-                    borderRight="1px dashed grey"
-                    sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)' }}
-                >
-                    <Label color={PRIORITY_TYPE[task.priority].color}>
-                        {PRIORITY_TYPE[task.priority].label}
-                    </Label>
-                </TableCell>
+                
 
                 <TableCell align="center" size="small">
                     <IconButton
