@@ -11,11 +11,10 @@ import { Box, Stack, Checkbox, Typography } from '@mui/material';
 import { Iconify } from 'src/components/iconify';
 
 const HEADERS = [
-    { id: 'type', label: 'Type', align: 'center', icon: '', hide: false, width: 100 },
-    // { id: 'key', label: 'Key', align: 'center', icon: 'ph:hash-bold', hide: false, width: 200 },
+    { id: 'type',Label:'', align: 'center', icon: '', hide: false, width: 50 },
     {
         id: 'description',
-        label: 'Summary',
+        label: 'Task name',
         align: 'left',
         icon: 'fluent:text-description-32-filled',
         hide: false,
@@ -28,30 +27,6 @@ const HEADERS = [
         icon: 'lets-icons:status',
         hide: false,
         width: 100,
-    },
-    {
-        id: 'sprint_id',
-        label: 'Sprint',
-        align: 'center',
-        icon: 'fluent:arrow-sprint-20-filled',
-        hide: false,
-        width: 150,
-    },
-    {
-        id: 'reporter_id',
-        label: 'Creator',
-        align: 'center',
-        icon: 'heroicons:at-symbol-20-solid',
-        hide: false,
-        width: 200,
-    },
-    {
-        id: 'assignee_id',
-        label: 'Assignee',
-        align: 'center',
-        icon: 'heroicons:at-symbol-20-solid',
-        hide: false,
-        width: 200,
     },
     {
         id: 'start_date',
@@ -86,6 +61,22 @@ const HEADERS = [
         width: 200,
     },
     {
+        id: 'priority',
+        label: 'Priority',
+        align: 'left',
+        icon: 'iconoir:priority-down-solid',
+        hide: false,
+        width: 100,
+    },
+    {
+        id: 'sprint_id',
+        label: 'Sprint',
+        align: 'center',
+        icon: 'fluent:arrow-sprint-20-filled',
+        hide: false,
+        width: 150,
+    },
+    {
         id: 'parent_id',
         label: 'Parent',
         align: 'center',
@@ -94,13 +85,22 @@ const HEADERS = [
         width: 230,
     },
     {
-        id: 'priority',
-        label: 'Priority',
-        align: 'left',
-        icon: 'iconoir:priority-down-solid',
+        id: 'reporter_id',
+        label: 'Creator',
+        align: 'center',
+        icon: 'heroicons:at-symbol-20-solid',
         hide: false,
-        width: 100,
+        width: 200,
     },
+    {
+        id: 'assignee_id',
+        label: 'Assignee',
+        align: 'center',
+        icon: 'heroicons:at-symbol-20-solid',
+        hide: false,
+        width: 200,
+    },
+   
     {
         width: 100,
         hide: false,

@@ -140,7 +140,7 @@ export default function StageCreateForm() {
                     })
                 );
 
-                dispatch(fetchStages(projectId));
+                dispatch(fetchStages(project_id));
 
                 toast.success('Stage updated successfully!');
                 navigate(paths.dashboard.stages.task(project_id,formData.stageId));

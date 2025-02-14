@@ -82,6 +82,7 @@ export const endpoints = {
         update: '/stage/update-stage',
         delete:'/stage/delete-stage',
         singlelist:'/stage/getstage',
+        stageEmployeeReport : "/stage/stage-employee-report"
     },
     sprints:{
         create:'/sprint/createsprint',
