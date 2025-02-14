@@ -189,7 +189,7 @@ export default function ProjectDashboardView() {
     );
 
     const projectIds = Array.isArray(projectList) ? projectList.map((project) => project.id) : [];
-    console.log("projectIds", projectIds);
+    console.log('projectIds', projectIds);
 
     const handleListStage = async () => {
         try {
@@ -203,7 +203,7 @@ export default function ProjectDashboardView() {
             }
             setStagesList(data);
         } catch (error) {
-            console.error("API Error:", error);
+            console.error('API Error:', error);
         }
     };
 
@@ -324,10 +324,18 @@ export default function ProjectDashboardView() {
                                                 <Typography variant="h6">
                                                     {selectedProject.name}
                                                 </Typography>
-                                                <Typography variant="caption" color="textSecondary">
+                                                <Typography
+                                                    variant="caption"
+                                                    color="textSecondary"
+                                                    sx={{ display: 'block', marginTop: 1 }}
+                                                >
                                                     Start: {selectedProject.startDate}
                                                 </Typography>
-                                                <Typography variant="caption" color="textSecondary">
+                                                <Typography
+                                                    variant="caption"
+                                                    color="textSecondary"
+                                                    sx={{ display: 'block' }}
+                                                >
                                                     End: {selectedProject.endDate}
                                                 </Typography>
                                             </Card>
@@ -372,12 +380,14 @@ export default function ProjectDashboardView() {
                                                         <Typography
                                                             variant="caption"
                                                             color="textSecondary"
+                                                            sx={{ display: 'block', marginTop: 1 }}
                                                         >
                                                             Start: {stage.startDate}
                                                         </Typography>
                                                         <Typography
                                                             variant="caption"
                                                             color="textSecondary"
+                                                            sx={{ display: 'block' }}
                                                         >
                                                             End: {stage.endDate}
                                                         </Typography>
@@ -498,12 +508,17 @@ export default function ProjectDashboardView() {
                                                                     <Typography
                                                                         variant="caption"
                                                                         color="textSecondary"
+                                                                        sx={{
+                                                                            display: 'block',
+                                                                            marginTop: 1,
+                                                                        }}
                                                                     >
                                                                         Start: {subStage.startDate}
                                                                     </Typography>
                                                                     <Typography
                                                                         variant="caption"
                                                                         color="textSecondary"
+                                                                        sx={{ display: 'block' }}
                                                                     >
                                                                         End: {subStage.endDate}
                                                                     </Typography>
