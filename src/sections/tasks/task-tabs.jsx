@@ -1,3 +1,4 @@
+
 import { Tab, Tabs } from '@mui/material';
 
 import { varAlpha } from 'src/theme/styles';
@@ -11,8 +12,7 @@ const STATUS_OPTIONS = [
     { value: 'DONE', label: 'Done' },
 ];
 
-export default function TaskTabs({ handleFilterStatus, filters }) {
-    
+export default function TaskTabs({ handleFilterStatus, filters ,taskCounts}) {
     return (
         <Tabs
             value={filters.state.status}
@@ -49,10 +49,8 @@ export default function TaskTabs({ handleFilterStatus, filters }) {
                                     : {}
                             }
                         >
-                            {['all', 'DONE', 'IN_PROGRESS', 'TODO'].includes(tab.value) && tab.label}
-                            {/* {['completed', 'pending', 'cancelled', 'refunded'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
-                      : tableData.length} */}
+                            {['all', 'DONE', 'IN_PROGRESS', 'TODO'].includes(tab.value) &&
+                                `${tab.label}  ( ${taskCounts[tab.value] || 0} )`}
                         </Label>
                     }
                 />

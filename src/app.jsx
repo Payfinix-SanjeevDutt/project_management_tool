@@ -33,7 +33,7 @@ export default function App() {
                                     <Snackbar />
                                     <ProgressBar />
                                     <SettingsDrawer />
-                                    <Router />
+                                    <Router />   
                                 </MotionLazy>
                             </ThemeProvider>
                         </SettingsProvider>

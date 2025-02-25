@@ -104,7 +104,8 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                     padding="checkbox"
                     sx={{ borderRight: '1px dashed rgba(0, 0, 0, 0.1)' }}
                 >
-                    <Checkbox checked={selected} onClick={onSelectRow} />
+                    {!isChild && (<Checkbox checked={selected} onClick={onSelectRow} />)}
+                    
                 </TableCell>
                 <TableCell
                     alignItems="center"

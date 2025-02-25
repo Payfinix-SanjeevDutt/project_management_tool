@@ -19,6 +19,7 @@ import {
 export default function useTasks() {
     const dispatch = useDispatch();
     const tasks = useSelector((state) => state.tasks);
+    const subTasks = useSelector((state) => state.sub_tasks)
     const { project_id } = useParams()
     
     const fetchTasks = async (stage_id) => {
@@ -183,6 +184,7 @@ export default function useTasks() {
 
     return {
         ...tasks,
+        ...subTasks,
         deleteTask,
         setFilters,
         fetchTasks,
