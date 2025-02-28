@@ -52,6 +52,16 @@ export const navData = [
                 ],
             },
             {
+                title: 'Timesheet',
+                path: paths.main.timesheet.root,
+                icon: ICONS.library,
+                children: [
+                    {
+                        title : 'Time sheet', path : paths.main.timesheet.root
+                    }
+                ]
+            },
+            {
                 title: 'User',
                 path: paths.main.user.root,
                 icon: ICONS.user,
