@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import {
     Box,
@@ -25,7 +25,7 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
-function DashboardStageView() {
+function ProjectListDashboardView() {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('name');
     const [page, setPage] = useState(0);
@@ -33,12 +33,14 @@ function DashboardStageView() {
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { project_id } = useParams();
-    console.log("project_id>>", project_id);
-    
+    // const { project_id } = useParams();
+    const project_id = useMemo(() => ['EIKEGIJKGMGGGKK9538330'], []);
+    console.log('reportData>', reportData);
+    console.log('project_id>', project_id);
 
     const columns = [
-        { key: 'stage_name', label: 'Stages', icon: 'solar:user-outline', sortable: true },
+        { key: 'project_name', label: 'Projects', icon: 'solar:user-outline', sortable: true },
+        { key: 'total_stages', label: 'Total Stages', icon: 'bi:list-task', sortable: true },
         { key: 'total_tasks', label: 'Total Tasks', icon: 'bi:list-task', sortable: true },
         {
             key: 'completed_tasks',
@@ -85,7 +87,7 @@ function DashboardStageView() {
         setError(null);
 
         axiosInstance
-            .post(endpoints.stages.stageEmployeeReport, { project_id })
+            .post(endpoints.project.project_stage_report, { project_id })
             .then((response) => {
                 setReportData(response.data);
                 setLoading(false);
@@ -102,13 +104,32 @@ function DashboardStageView() {
         setOrderBy(property);
     };
 
-    const sortedReport = [...reportData].sort((a, b) => {
-        const aValue = a[orderBy];
-        const bValue = b[orderBy];
-        if (typeof aValue === 'string')
-            return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-        return order === 'asc' ? aValue - bValue : bValue - aValue;
-    });
+    // const sortedReport = [...reportData].sort((a, b) => {
+    //     const aValue = a[orderBy];
+    //     const bValue = b[orderBy];
+    //     if (typeof aValue === 'string')
+    //         return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    //     return order === 'asc' ? aValue - bValue : bValue - aValue;
+    // });
+
+    const sortedReport =
+        Array.isArray(reportData.projects) && reportData.projects.length > 0
+            ? [...reportData.projects].sort((a, b) => {
+                  const aValue = a[orderBy] ?? '';
+                  const bValue = b[orderBy] ?? '';
+
+                  if (typeof aValue === 'string') {
+                      return order === 'asc'
+                          ? aValue.localeCompare(bValue)
+                          : bValue.localeCompare(aValue);
+                  }
+                  return order === 'asc'
+                      ? (aValue || 0) - (bValue || 0)
+                      : (bValue || 0) - (aValue || 0);
+              })
+            : [];
+
+    console.log('sortedReport>>', sortedReport);
 
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
@@ -147,7 +168,7 @@ function DashboardStageView() {
                                 {columns.map((col) => (
                                     <TableCell
                                         key={col.key}
-                                        sx={{ minWidth: 120, textAlign: 'center' }}
+                                        sx={{ minWidth: 160, textAlign: 'center' }}
                                     >
                                         {col.sortable ? (
                                             <TableSortLabel
@@ -195,12 +216,14 @@ function DashboardStageView() {
                                                 <TableCell
                                                     key={col.key}
                                                     align={
-                                                        col.key === 'stage_name' ? 'left' : 'center'
+                                                        col.key === 'project_name'
+                                                            ? 'left'
+                                                            : 'center'
                                                     }
                                                     sx={{
                                                         minWidth: 120,
                                                         textAlign:
-                                                            col.key === 'stage_name'
+                                                            col.key === 'project_name'
                                                                 ? 'left'
                                                                 : 'center',
                                                         verticalAlign: 'middle',
@@ -216,7 +239,7 @@ function DashboardStageView() {
                                                             fontWeight: 'bold',
                                                             color: (theme) =>
                                                                 row[col.key] === 0
-                                                                    ? 'inherit' 
+                                                                    ? 'inherit'
                                                                     : col.key.includes(
                                                                             'completed_overrun'
                                                                         ) ||
@@ -254,4 +277,4 @@ function DashboardStageView() {
     );
 }
 
-export default DashboardStageView;
+export default ProjectListDashboardView;

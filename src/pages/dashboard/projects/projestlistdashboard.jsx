@@ -1,4 +1,4 @@
-import ProjectDashboardView from 'src/sections/project/project-dashboard/project-dashboard-view';
+import ProjectListDashboardView from 'src/sections/project/project-list-dashboard/project-list-dashboard-view';
 
 
 // ----------------------------------------------------------------------
@@ -6,9 +6,6 @@ import ProjectDashboardView from 'src/sections/project/project-dashboard/project
 
 export default function ProjectListDashboard() {
     return (
-        // <ProjectDashboardView />
-        <>
-        <h1>List dashboard</h1>
-        </>
+        <ProjectListDashboardView />
     );
 }

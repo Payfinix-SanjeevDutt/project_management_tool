@@ -35,6 +35,8 @@ function HomeUserView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(25);
     const [searchQuery, setSearchQuery] = useState('');
+    console.log("report>", report);
+    
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
