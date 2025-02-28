@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 
-import { MenuItem, MenuList, TableRow, TableCell, IconButton, Typography } from '@mui/material';
+import { MenuItem, MenuList, TableRow, TableCell, IconButton } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -39,11 +39,9 @@ export default function ChildIssuesRow({ issue ,issueKey}) {
     return (
         <>
             <TableRow>
-                <TableCell sx={{ p: 0 }} align="left">
-                    {/* <Button href={`#${task_id}`} variant="text" sx={{ textTransform: 'none' }}> */}
+                {/* <TableCell sx={{ p: 0 }} align="left">
                        <Typography variant='subtitle2'> {task_id}</Typography>
-                    {/* </Button> */}
-                </TableCell>
+                </TableCell> */}
 
                 <TableCell sx={{ p: 0 }} align="center">
                     {task_name}

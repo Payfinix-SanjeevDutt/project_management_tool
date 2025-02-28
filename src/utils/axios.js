@@ -45,7 +45,9 @@ export const endpoints = {
     user: {
         list: '/employee/',
         account: '/employee/update',
-        security: '/employee/security'
+        security: '/employee/security',
+        completed_overrun: '/employee/completed-overrun',
+        inprogress_overrun: 'employee/inprogress-overrun',
     },
     project:{
         create: '/project/create-project',
