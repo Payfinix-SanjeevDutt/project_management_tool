@@ -32,6 +32,7 @@ const ProjectCreate = lazy(() => import('src/pages/dashboard/projects/create'));
 const ProjectList = lazy(() => import('src/pages/dashboard/projects/lists'));
 const ProjectDashboard = lazy(() => import('src/pages/dashboard/projects/userdashboard'));
 const MainProjectDashboard = lazy(() => import('src/pages/dashboard/projects/projectdashboard'));
+const ListProjectDashboard = lazy(() => import('src/pages/dashboard/projects/projestlistdashboard'));
 const SettingsDetailsPage = lazy(() => import('src/pages/dashboard/settings/details'));
 
 // ----------------------------------------------------------------------
@@ -82,6 +83,7 @@ export const dashboardRoutes = [
                     { element: <ProjectDashboard />, index: true },
                     { path: 'user-dashboard', element: <Userdashboard /> },
                     { path: 'project-dashboard', element: <MainProjectDashboard /> },
+                    { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
                 ],
             },
             {

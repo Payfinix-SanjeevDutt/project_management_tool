@@ -40,6 +40,7 @@ export const navData = [
                 children: [
                     { title: 'Employee dashboard', path: paths.main.dashboard.user },
                     { title: 'Project dashboard', path: paths.main.dashboard.project },
+                    { title: 'List Project dashboard', path: paths.main.dashboard.listProject}
                 ],
             },
             {

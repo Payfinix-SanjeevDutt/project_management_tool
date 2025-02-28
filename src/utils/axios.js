@@ -59,7 +59,8 @@ export const endpoints = {
         send_invite:'/project/send-invite',
         delete:'/project/delete-project',
         project_employee_report: '/project/project-employee-report',
-        project_user_delete: '/project/project-user-delete'
+        project_user_delete: '/project/project-user-delete',
+        project_stage_report: '/project/project-stages-report'
     },
     tasks:{
         create:'/task/create-task',
