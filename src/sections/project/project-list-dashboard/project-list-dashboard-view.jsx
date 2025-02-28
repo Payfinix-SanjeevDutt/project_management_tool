@@ -81,13 +81,13 @@ function ProjectListDashboardView() {
     ];
 
     useEffect(() => {
-        if (!project_id) return;
+        // if (!project_id) return;
 
         setLoading(true);
         setError(null);
 
         axiosInstance
-            .post(endpoints.project.project_stage_report, { project_id })
+            .get(endpoints.project.project_stage_report)
             .then((response) => {
                 setReportData(response.data);
                 setLoading(false);
@@ -96,7 +96,7 @@ function ProjectListDashboardView() {
                 setError(err.message || 'Failed to fetch data');
                 setLoading(false);
             });
-    }, [project_id]);
+    }, []);
 
     const handleRequestSort = (property) => {
         const isAscending = orderBy === property && order === 'asc';
@@ -150,7 +150,7 @@ function ProjectListDashboardView() {
                         padding: { xs: 1, sm: 2 },
                     }}
                 >
-                    <Typography variant="subtitle1">Stages Report</Typography>
+                    <Typography variant="subtitle1">Project List Dashboard</Typography>
                 </Toolbar>
 
                 {loading ? (
