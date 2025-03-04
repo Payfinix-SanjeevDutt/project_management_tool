@@ -60,7 +60,7 @@ function ProjectListDashboardView() {
         },
         {
             key: 'pending_tasks',
-            label: 'Delete Tasks',
+            label: 'Delayed Tasks',
             icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
