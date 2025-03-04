@@ -24,6 +24,7 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
+import ListProjectOverrunModal from '../list-completed-overrun-modal';
 
 function ProjectListDashboardView() {
     const [order, setOrder] = useState('asc');
@@ -35,6 +36,9 @@ function ProjectListDashboardView() {
     const [error, setError] = useState(null);
     // const { project_id } = useParams();
     const project_id = useMemo(() => ['EIKEGIJKGMGGGKK9538330'], []);
+    const [openModal, setOpenModal] = useState(false);
+    const [selectedOverrunType, setSelectedOverrunType] = useState('');
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
     console.log('reportData>', reportData);
     console.log('project_id>', project_id);
 
@@ -56,7 +60,7 @@ function ProjectListDashboardView() {
         },
         {
             key: 'pending_tasks',
-            label: 'Pending Tasks',
+            label: 'Delete Tasks',
             icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
@@ -73,7 +77,7 @@ function ProjectListDashboardView() {
             sortable: true,
         },
         {
-            key: 'num_unique_employees',
+            key: 'number_employees',
             label: 'Total Employees',
             icon: 'bi:list-task',
             sortable: true,
@@ -135,6 +139,12 @@ function ProjectListDashboardView() {
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
+    };
+
+    const handleOpenModal = (employeeId, overrunType) => {
+        setSelectedEmployeeId(employeeId);
+        setSelectedOverrunType(overrunType);
+        setOpenModal(true);
     };
 
     return (
@@ -202,7 +212,7 @@ function ProjectListDashboardView() {
                                 <TableRow>
                                     <TableCell colSpan={columns.length} align="center">
                                         <EmptyContent
-                                            title="No stage data found."
+                                            title="No project data found."
                                             sx={{ py: 10 }}
                                         />
                                     </TableCell>
@@ -230,28 +240,65 @@ function ProjectListDashboardView() {
                                                         padding: '4px 8px',
                                                     }}
                                                 >
-                                                    <Box
-                                                        sx={{
-                                                            display: 'inline-block',
-                                                            px: 1.5,
-                                                            py: 0.5,
-                                                            borderRadius: 1,
-                                                            fontWeight: 'bold',
-                                                            color: (theme) =>
-                                                                row[col.key] === 0
-                                                                    ? 'inherit'
-                                                                    : col.key.includes(
-                                                                            'completed_overrun'
-                                                                        ) ||
-                                                                        col.key.includes(
-                                                                            'inprogress_overrun'
-                                                                        )
-                                                                      ? theme.palette.error.main
-                                                                      : theme.palette.text.primary,
-                                                        }}
-                                                    >
-                                                        {row[col.key]}
-                                                    </Box>
+                                                    {col.key.includes('completed_overrun') ||
+                                                    col.key.includes('inprogress_overrun') ? (
+                                                        row[col.key] !== 0 ? (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'inline-block',
+                                                                    px: 1.5,
+                                                                    py: 0.5,
+                                                                    borderRadius: 1,
+                                                                    fontWeight: 'bold',
+                                                                    color: 'error.main',
+                                                                    cursor: 'pointer',
+                                                                    textDecoration: 'underline',
+                                                                    '&:hover': {
+                                                                        color: 'error.dark',
+                                                                    },
+                                                                }}
+                                                                onClick={() =>
+                                                                    handleOpenModal(
+                                                                        row.employee_id,
+                                                                        col.key
+                                                                    )
+                                                                }
+                                                            >
+                                                                {row[col.key]}
+                                                            </Box>
+                                                        ) : (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'inline-block',
+                                                                    px: 1.5,
+                                                                    py: 0.5,
+                                                                    borderRadius: 1,
+                                                                    fontWeight: 'bold',
+                                                                    color: (theme) =>
+                                                                        theme.palette.text.primary,
+                                                                }}
+                                                            >
+                                                                {row[col.key]}
+                                                            </Box>
+                                                        )
+                                                    ) : (
+                                                        <Box
+                                                            sx={{
+                                                                display: 'inline-block',
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontWeight: 'bold',
+                                                                color: (theme) =>
+                                                                    row[col.key] === 0
+                                                                        ? 'inherit'
+                                                                        : theme.palette.text
+                                                                              .primary,
+                                                            }}
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
+                                                    )}
                                                 </TableCell>
                                             ))}
                                         </TableRow>
@@ -261,6 +308,12 @@ function ProjectListDashboardView() {
                     </Table>
                 )}
             </TableContainer>
+            <ListProjectOverrunModal
+                open={openModal}
+                handleClose={() => setOpenModal(false)}
+                assigneeId={selectedEmployeeId}
+                overrunType={selectedOverrunType}
+            />
 
             {sortedReport.length > 0 && (
                 <TablePagination
