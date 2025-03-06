@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 import {
     Box,
@@ -17,8 +17,6 @@ import {
     TablePagination,
     CircularProgress,
 } from '@mui/material';
-
-import { useParams } from 'src/routes/hooks';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
@@ -56,7 +54,7 @@ function ProjectListDashboardView() {
         },
         {
             key: 'pending_tasks',
-            label: 'Pending Tasks',
+            label: 'Delayed Tasks',
             icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
@@ -81,7 +79,6 @@ function ProjectListDashboardView() {
     ];
 
     useEffect(() => {
-        // if (!project_id) return;
 
         setLoading(true);
         setError(null);
@@ -104,13 +101,6 @@ function ProjectListDashboardView() {
         setOrderBy(property);
     };
 
-    // const sortedReport = [...reportData].sort((a, b) => {
-    //     const aValue = a[orderBy];
-    //     const bValue = b[orderBy];
-    //     if (typeof aValue === 'string')
-    //         return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-    //     return order === 'asc' ? aValue - bValue : bValue - aValue;
-    // });
 
     const sortedReport =
         Array.isArray(reportData.projects) && reportData.projects.length > 0

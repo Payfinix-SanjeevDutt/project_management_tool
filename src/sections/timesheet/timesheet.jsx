@@ -1,20 +1,29 @@
-import {  useNavigate } from 'react-router';
+import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import isoWeek from 'dayjs/plugin/isoWeek';
 
 import TimerIcon from '@mui/icons-material/Timer';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import {
+    Box,
     Card,
     Button,
     Select,
+    Tooltip,
     MenuItem,
     TextField,
+    Typography,
     InputLabel,
     FormControl,
     FormHelperText,
 } from '@mui/material';
 
-import { EmptyContent } from 'src/components/empty-content';
 import { paths } from 'src/routes/paths';
+
+import { EmptyContent } from 'src/components/empty-content';
+
+dayjs.extend(isoWeek);
 
 export default function TimeLogs() {
     const [time] = useState('00:00:00');
@@ -23,39 +32,71 @@ export default function TimeLogs() {
     const [description, setDescription] = useState('');
     const [billable, setBillable] = useState('billable');
     const [errors, setErrors] = useState({});
-    const navigate = useNavigate
+    const [selectedDate, setSelectedDate] = useState(dayjs());
+    const [showArrows, setShowArrows] = useState(true);
+    const navigate = useNavigate();
 
-    const handleSubmit = () => {
-        navigate(paths.main.timesheet.create) 
-    };
+    const handleSubmit = () => navigate(paths.main.timesheet.create);
+
+    const handleDateChange = (date) => setSelectedDate(date);
+
+    const changeWeek = (offset) => setSelectedDate((prevDate) => prevDate.add(offset, 'week'));
+
+    const startOfWeek = selectedDate.startOf('isoWeek');
+    const endOfWeek = selectedDate.endOf('isoWeek');
 
     return (
-        <div style={{ padding: 24, backgroundColor: '#f3f4f6' }}>
-            <div
-                style={{
-                    backgroundColor: 'white',
-                    boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                    borderRadius: 8,
-                    padding: 16,
-                }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        borderBottom: '1px solid #e0e0e0',
-                        paddingBottom: 16,
-                    }}
+        <Box p={3} bgcolor="#f3f4f6">
+            <Card sx={{ p: 3, boxShadow: 3 }}>
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    borderBottom={1}
+                    borderColor="#e0e0e0"
+                    pb={2}
                 >
-                    <h1 style={{ fontSize: 18, fontWeight: 600 }}>Time Logs</h1>
+                    <Typography variant="h6" fontWeight={600}>
+                        Time Logs
+                    </Typography>
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
+                        position="relative"
+                        p={1}
+                        border={1}
+                        borderColor="#ccc"
+                        borderRadius={1}
+                        bgcolor="#fff"
+                        onMouseEnter={() => setShowArrows(true)}
+                    >
+                        {showArrows && (
+                            <Tooltip title="Previous">
+                                <Button onClick={() => changeWeek(-1)} size="small">
+                                    &#9665;
+                                </Button>
+                            </Tooltip>
+                        )}
+                        <CalendarTodayIcon />
+                        {showArrows && (
+                            <Tooltip title="Next">
+                                <Button onClick={() => changeWeek(1)} size="small">
+                                    &#9655;
+                                </Button>
+                            </Tooltip>
+                        )}
+                        <Typography>
+                            {startOfWeek.format('DD-MMM-YYYY')} to {endOfWeek.format('DD-MMM-YYYY')}
+                        </Typography>
+                    </Box>
                     <Button variant="contained" onClick={handleSubmit}>
                         Log Time
                     </Button>
-                </div>
+                </Box>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 0' }}>
-                    <FormControl style={{ width: 240 }} error={!!errors.project}>
+                <Box display="flex" alignItems="center" gap={2} py={2}>
+                    <FormControl sx={{ width: 240 }} error={!!errors.project}>
                         <InputLabel>Select Project</InputLabel>
                         <Select value={project} onChange={(e) => setProject(e.target.value)}>
                             <MenuItem value="">Select Project</MenuItem>
@@ -65,7 +106,7 @@ export default function TimeLogs() {
                         {errors.project && <FormHelperText>{errors.project}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl style={{ width: 240 }} error={!!errors.job}>
+                    <FormControl sx={{ width: 240 }} error={!!errors.job}>
                         <InputLabel>Select Job</InputLabel>
                         <Select value={job} onChange={(e) => setJob(e.target.value)}>
                             <MenuItem value="">Select Job</MenuItem>
@@ -75,7 +116,7 @@ export default function TimeLogs() {
                         {errors.job && <FormHelperText>{errors.job}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl style={{ flexGrow: 1 }} error={!!errors.description}>
+                    <FormControl sx={{ flexGrow: 1 }} error={!!errors.description}>
                         <TextField
                             label="What are you working on?"
                             variant="outlined"
@@ -88,7 +129,7 @@ export default function TimeLogs() {
                         )}
                     </FormControl>
 
-                    <FormControl style={{ width: 240 }} error={!!errors.billable}>
+                    <FormControl sx={{ width: 240 }} error={!!errors.billable}>
                         <InputLabel>Billable</InputLabel>
                         <Select value={billable} onChange={(e) => setBillable(e.target.value)}>
                             <MenuItem value="billable">Billable</MenuItem>
@@ -97,44 +138,25 @@ export default function TimeLogs() {
                         {errors.billable && <FormHelperText>{errors.billable}</FormHelperText>}
                     </FormControl>
 
-                    <div
-                        style={{
-                            backgroundColor: 'black',
-                            color: 'white',
-                            padding: '8px 16px',
-                            borderRadius: 4,
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}
+                    <Box
+                        bgcolor="black"
+                        color="white"
+                        p={1}
+                        borderRadius={1}
+                        display="flex"
+                        alignItems="center"
                     >
-                        <TimerIcon style={{ marginRight: 8 }} /> {time}
-                    </div>
-                </div>
+                        <TimerIcon sx={{ mr: 1 }} /> {time}
+                    </Box>
+                </Box>
 
-                <Card style={{ marginTop: 16 }}>
+                <Card sx={{ mt: 2, textAlign: 'center', p: 25 }}>
                     <EmptyContent
                         title="No Logs"
                         description="No time logs added currently. To add new time logs, click Log Time"
-                        sx={{ textAlign: 'center', padding: 20 }}
                     />
                 </Card>
-
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: 14,
-                        color: '#757575',
-                        marginTop: 16,
-                        borderTop: '1px solid #e0e0e0',
-                        paddingTop: 8,
-                    }}
-                >
-                    <span>00:00 Hrs Total</span>
-                    <span>00:00 Hrs Submitted</span>
-                    <span>00:00 Hrs Not Submitted</span>
-                </div>
-            </div>
-        </div>
+            </Card>
+        </Box>
     );
 }

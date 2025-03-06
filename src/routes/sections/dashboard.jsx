@@ -9,7 +9,6 @@ import Userdashboard from 'src/pages/dashboard/projects/userdashboard';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import { AuthGuard } from 'src/auth/guard';
-import { element } from 'prop-types';
 // ----------------------------------------------------------------------
 
 // Overview

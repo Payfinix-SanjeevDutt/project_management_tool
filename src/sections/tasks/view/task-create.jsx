@@ -143,11 +143,6 @@ export default function TaskCreate() {
         // eslint-disable-next-line
     }, [stage_id]);
 
-    const mergedTasks = dataFiltered.reduce((acc, [taskKey, taskValue]) => {
-        acc[taskKey] = taskValue;
-        return acc;
-    }, {});
-
     const handleDelete = () => {
         deleteAllTasks([...table.selected])
             .then((success) => {
@@ -160,14 +155,25 @@ export default function TaskCreate() {
             });
     };
 
-    const taskArray = Array.isArray(tasks) ? tasks : Object.values(tasks || {});
-    const taskCounts = {
-        all: taskArray.length,
-        TODO: taskArray.filter((task) => task?.status === 'TODO').length,
-        IN_PROGRESS: taskArray.filter((task) => task?.status === 'IN_PROGRESS').length,
-        DONE: taskArray.filter((task) => task?.status === 'DONE').length,
+    // const taskArray = Array.isArray(tasks) ? tasks : Object.values(tasks || {});
+    const getAllTasks = (taskList) => {
+        const taskArray = Array.isArray(taskList) ? taskList : Object.values(taskList || {});
+    
+        return taskArray.flatMap(task => 
+            task.subTasks ? [task, ...getAllTasks(task.subTasks)] : [task]
+        );
     };
-
+    
+    const allTasks = getAllTasks([...Object.values(tasks || {}), ...Object.values(subTasks || {})]);
+    
+    const taskCounts = {
+        all: allTasks.length,
+        TODO: allTasks.filter((task) => task?.status === 'TODO').length,
+        IN_PROGRESS: allTasks.filter((task) => task?.status === 'IN_PROGRESS').length,
+        DONE: allTasks.filter((task) => task?.status === 'DONE').length,
+    };
+    
+      
     return (
         <DashboardContent>
             <Stack gap={3}>
