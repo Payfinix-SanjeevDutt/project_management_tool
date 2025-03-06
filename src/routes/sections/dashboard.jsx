@@ -25,7 +25,8 @@ const EmployeeCreate = lazy(() => import('src/pages/dashboard/employees/create')
 const EmployeeAccount = lazy(() => import('src/pages/dashboard/employees/account'));
 const FileManager = lazy(() => import('src/pages/dashboard/file-manager/manager'));
 const ReportsSample = lazy(() => import('src/pages/dashboard/reports/sample'));
-
+const Timesheet = lazy(() => import('src/pages/dashboard/timesheet/view'))
+const TimesheetCreate = lazy(() => import('src/sections/timesheet/timesheet-create'))
 const ProjectCreate = lazy(() => import('src/pages/dashboard/projects/create'));
 const ProjectList = lazy(() => import('src/pages/dashboard/projects/lists'));
 const ProjectDashboard = lazy(() => import('src/pages/dashboard/projects/userdashboard'));
@@ -83,6 +84,14 @@ export const dashboardRoutes = [
                     { path: 'project-dashboard', element: <MainProjectDashboard /> },
                     { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
                 ],
+            },
+            {
+                path : 'timesheet',
+                children: [
+                    { element: <Timesheet />,index : true },
+                    { path: 'timesheet' ,element: <Timesheet/>},
+                    { path : 'create' ,element: <TimesheetCreate/>},
+                ]        
             },
         ],
     },

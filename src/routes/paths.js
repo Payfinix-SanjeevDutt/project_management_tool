@@ -27,6 +27,10 @@ export const paths = {
             create: `${ROOTS.MAIN_PAGE}/projects/create`,
             access: (token) => `${ROOTS.MAIN_PAGE}/project-access/${token}`,
         },
+        timesheet: {
+            root: `${ROOTS.MAIN_PAGE}/timesheet`,
+            create: `${ROOTS.MAIN_PAGE}/timesheet/create`,
+        },
         user: {
             root: `${ROOTS.MAIN_PAGE}/user`,
             account: `${ROOTS.MAIN_PAGE}/user/account`,
