@@ -59,7 +59,7 @@ function ProjectListDashboardView() {
             sortable: true,
         },
         {
-            key: 'pending_tasks',
+            key: 'delayed_tasks',
             label: 'Delayed Tasks',
             icon: 'qlementine-icons:task-past-16',
             sortable: true,
