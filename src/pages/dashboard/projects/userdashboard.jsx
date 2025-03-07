@@ -92,7 +92,7 @@ function HomeUserView() {
         },
         {
             key: 'pending_tasks',
-            label: 'Pending Tasks',
+            label: 'Pending Tasks\n(To-Do tasks)',
             icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
@@ -351,7 +351,8 @@ function HomeUserView() {
                                                                 </Stack>
                                                             </Stack>
                                                         ) : col.key === 'completed_overrun' ||
-                                                          col.key === 'inprogress_overrun' ? (
+                                                          col.key === 'inprogress_overrun' || 
+                                                          col.key === 'pending_tasks' ? (
                                                             row[col.key] !== 0 ? (
                                                                 <Box
                                                                     sx={{

@@ -48,6 +48,7 @@ export const endpoints = {
         security: '/employee/security',
         completed_overrun: '/employee/completed-overrun',
         inprogress_overrun: 'employee/inprogress-overrun',
+        todo: '/employee/todo',
     },
     project:{
         create: '/project/create-project',

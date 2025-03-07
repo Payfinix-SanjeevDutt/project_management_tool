@@ -24,45 +24,40 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
     const [error, setError] = useState('');
     const [employeeName, setEmployeeName] = useState('');
     console.log(overrunType);
-
     useEffect(() => {
         if (open && assigneeId && overrunType) {
             setLoading(true);
             setError('');
             setTaskData([]);
-
-            const fetchCompletedOverrun = axiosInstance.post(endpoints.user.completed_overrun, {
-                assignee_id: assigneeId,
-            });
-            const fetchInprogressOverrun = axiosInstance.post(endpoints.user.inprogress_overrun, {
-                assignee_id: assigneeId,
-            });
-
-            Promise.all([fetchCompletedOverrun, fetchInprogressOverrun])
-                .then(([completedRes, inprogressRes]) => {
-                    let combinedData = [];
-
-                    if (completedRes.data?.status) {
-                        combinedData = [...completedRes.data.data];
-                        setEmployeeName(completedRes.data.employee_name || 'Unknown Employee');
-                    }
-
-                    if (inprogressRes.data?.status) {
-                        combinedData = [...combinedData, ...inprogressRes.data.data];
-                    }
-
-                    if (combinedData.length > 0) {
-                        setTaskData(combinedData);
-                    } else {
-                        setError('No tasks found.');
-                    }
-                })
-                .catch(() => {
-                    setError('Error fetching data.');
-                })
-                .finally(() => setLoading(false));
+    
+            let fetchOverrun;
+            if (overrunType === 'completed_overrun') {
+                fetchOverrun = axiosInstance.post(endpoints.user.completed_overrun, { assignee_id: assigneeId });
+            } else if (overrunType === 'inprogress_overrun') {
+                fetchOverrun = axiosInstance.post(endpoints.user.inprogress_overrun, { assignee_id: assigneeId });
+            }
+            else {
+                fetchOverrun = axiosInstance.post(endpoints.user.todo, {assignee_id : assigneeId})
+            }
+    
+            if (fetchOverrun) {
+                fetchOverrun
+                    .then((res) => {
+                        if (res.data?.status) {
+                            setTaskData(res.data.data);
+                            setEmployeeName(res.data.employee_name || 'Unknown Employee');
+                        } else {
+                            setError('No tasks found.');
+                        }
+                    })
+                    .catch(() => {
+                        setError('Error fetching data.');
+                    })
+                    .finally(() => setLoading(false));
+            }
         }
     }, [open, assigneeId, overrunType]);
+    
 
     return (
         <Modal
@@ -131,14 +126,19 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                         <TableCell align="center">
                                             <b>End Date</b>
                                         </TableCell>
+                                        {overrunType !== 'pending_tasks' &&(
                                         <TableCell align="center">
-                                            <b>Actual Start Date</b>
+                                            <b>Actual start date</b>
                                         </TableCell>
-                                        {overrunType !== 'inprogress_overrun' && (
+                                        )}
+                                        {(overrunType !== 'inprogress_overrun' && overrunType !== 'pending_tasks' ) && (
                                             <TableCell align="center">
                                                 <b>Actual End Date</b>
                                             </TableCell>
                                         )}
+                                        <TableCell align="center">
+                                            <b>Extra days</b>
+                                        </TableCell>
                                     </TableRow>
                                 </TableHead>
 
@@ -171,10 +171,11 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                                   <TableCell align="center">
                                                       {task.end_date}
                                                   </TableCell>
-                                                  <TableCell align="center">
+                                                  {overrunType !== 'pending_tasks' &&(
+                                                    <TableCell align="center">
                                                       {task.actual_start_date}
-                                                  </TableCell>
-                                                  {overrunType !== 'inprogress_overrun' && (
+                                                  </TableCell>)}
+                                                  {(overrunType !== 'inprogress_overrun' && overrunType !== 'pending_tasks') && (
                                                       <TableCell
                                                           align="center"
                                                           sx={{
@@ -185,6 +186,13 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                                           {task.actual_end_date}
                                                       </TableCell>
                                                   )}
+                                                  <TableCell align="center"
+                                                          sx={{
+                                                              color: 'error.main',
+                                                              fontWeight: 'bold',
+                                                          }}>
+                                                      {task.extra_days}
+                                                  </TableCell>
                                               </TableRow>
                                           ))}
                                 </TableBody>

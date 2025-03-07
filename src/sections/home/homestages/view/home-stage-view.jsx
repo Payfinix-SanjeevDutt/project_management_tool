@@ -54,7 +54,12 @@ function DashboardStageView() {
         },
         {
             key: 'pending_tasks',
-            label: 'Pending Tasks',
+            label: (
+                <div style={{ whiteSpace: 'nowrap' }}>
+                    Pending Tasks <br />
+                    (To-Do tasks)
+                </div>
+            ),
             icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
@@ -147,7 +152,7 @@ function DashboardStageView() {
                                 {columns.map((col) => (
                                     <TableCell
                                         key={col.key}
-                                        sx={{ minWidth: 120, textAlign: 'center' }}
+                                        sx={{ minWidth: 100, textAlign: 'center' }}
                                     >
                                         {col.sortable ? (
                                             <TableSortLabel
@@ -155,12 +160,21 @@ function DashboardStageView() {
                                                 direction={orderBy === col.key ? order : 'asc'}
                                                 onClick={() => handleRequestSort(col.key)}
                                             >
+                                                 <span
+                                                    style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                    }}
+                                                >
                                                 <Iconify
                                                     icon={col.icon}
                                                     width={20}
                                                     sx={{ color: 'grey.500' }}
                                                 />
                                                 {col.label}
+                                                </span>
                                             </TableSortLabel>
                                         ) : (
                                             <span>
@@ -171,6 +185,7 @@ function DashboardStageView() {
                                                 />
                                                 {col.label}
                                             </span>
+                                            
                                         )}
                                     </TableCell>
                                 ))}
@@ -222,6 +237,8 @@ function DashboardStageView() {
                                                                         ) ||
                                                                         col.key.includes(
                                                                             'inprogress_overrun'
+                                                                        )|| col.key.includes(
+                                                                            'pending_tasks'
                                                                         )
                                                                       ? theme.palette.error.main
                                                                       : theme.palette.text.primary,

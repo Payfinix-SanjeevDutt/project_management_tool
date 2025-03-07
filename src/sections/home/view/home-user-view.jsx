@@ -52,7 +52,12 @@ function HomeUserView() {
         },
         {
             key: 'pending_tasks',
-            label: 'Pending Tasks',
+            label: (
+                <div style={{ whiteSpace: 'nowrap' }}>
+                    Pending Tasks <br />
+                    (To-Do tasks)
+                </div>
+            ),
             icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
@@ -275,12 +280,6 @@ function HomeUserView() {
                                                                 >
                                                                     {row.name}
                                                                 </Typography>
-                                                                {/* <Typography
-                                                                    variant="caption"
-                                                                    color="text.secondary"
-                                                                >
-                                                                    {row.email}
-                                                                </Typography> */}
                                                             </Stack>
                                                         </Stack>
                                                     ) : (
@@ -299,8 +298,9 @@ function HomeUserView() {
                                                                             ) ||
                                                                             col.key.includes(
                                                                                 'inprogress_overrun'
-                                                                            )
-                                                                          ? theme.palette.error.main
+                                                                            ) || col.key.includes(
+                                                                                'pending_tasks'
+                                                                            )? theme.palette.error.main
                                                                           : theme.palette.text
                                                                                 .primary,
                                                             }}
