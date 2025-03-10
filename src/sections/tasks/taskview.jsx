@@ -39,7 +39,6 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
     const [showAttachedFiles, setShowAttachedFiles] = useState([]);
     const stages = useSelector((state) => state.stages.stages);
     const Stage = id ? stages.find((stage) => stage.id === id) : null;
-    console.log("DescriptionSection>>>",tempTask.task_name)
     const handleAttachFile = () => {
         fileInputRef.current.click();
     };

@@ -5,8 +5,6 @@ import { Box, Stack, Typography } from '@mui/material';
 import { Field } from 'src/components/hook-form';
 
 const DescriptionSection = ({ description, setDescription }) => {
-    console.log("description", description);
-    
     const methods = useForm();
 
     return (

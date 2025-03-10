@@ -46,13 +46,13 @@ export const paths = {
             homeusers: (projectId) => `${ROOTS.DASHBOARD}/projectdashboard/${projectId}/homeusers`,
         },
         stages: {
-            root: (projectId) =>  `${ROOTS.DASHBOARD}/${projectId}/stages`,
+            root: (projectId) =>  `${ROOTS.DASHBOARD}/stages/${projectId}`,
             create:(projectId) => `${ROOTS.DASHBOARD}/stages/${projectId}/new`,
             task: (projectId,id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/view`,
             edit: (projectId,id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/edit`,
         },
         sprints: {
-            root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}/sprints/`,
+            root: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}`,
             backlog: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}/backlog`,
             timeline: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}/timeline`,
         },
@@ -60,7 +60,7 @@ export const paths = {
             list: (projectId) =>  `${ROOTS.DASHBOARD}/employee/${projectId}/list`,
         },
         settings: {
-            root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}/settings/`,
+            root: (projectId) => `${ROOTS.DASHBOARD}/settings/${projectId}`,
             details:(projectId) => `${ROOTS.DASHBOARD}/settings/${projectId}/details`,
         },
         fileManager: (projectId) => `${ROOTS.DASHBOARD}/filemanager/${projectId}`,

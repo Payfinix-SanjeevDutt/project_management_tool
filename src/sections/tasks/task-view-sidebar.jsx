@@ -1,20 +1,25 @@
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 
 import { DatePicker } from '@mui/x-date-pickers';
 import { Stack, Alert, MenuItem, Snackbar, TextField, Autocomplete } from '@mui/material';
 
 import { fDate } from 'src/utils/format-time';
 
+import { AuthContext } from 'src/auth/context/auth-context';
+
 const Sidebar = ({ task, HandleTaskChanges }) => {
     const [error, setError] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [actualEndDate, setActualEndDate] = useState(task.actual_end_date || null);
     const { employees } = useSelector((state) => state.assignee);
-
+    const { user } = useContext(AuthContext);
     const reporter_info = employees[task.reporter_id];
     const assignee_info = employees[task.assignee_id];
+    const loggedInEmployee = employees[user.employee_id]; 
+    const userRole = loggedInEmployee ? loggedInEmployee.role : null;
+    const isAdmin = userRole && ['admin', 'Admin', 'ADMIN'].includes(userRole);
 
     useEffect(() => {
         setActualEndDate(task.actual_end_date || null);
@@ -90,6 +95,7 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                     variant="outlined"
                     fullWidth
                     value={task.priority || ''}
+                    disabled={!isAdmin}
                     onChange={(e) => HandleTaskChanges({ name: 'priority', value: e.target.value })}
                 >
                     <MenuItem value="LOW">Low</MenuItem>
@@ -107,6 +113,7 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                             value: selectedOption ? selectedOption.id : null,
                         });
                     }}
+                    disabled={!isAdmin}
                     renderInput={(params) => <TextField {...params} label="Creator" />}
                 />
 
@@ -121,28 +128,38 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                             value: selectedOption ? selectedOption.id : null,
                         });
                     }}
+                    disabled={!isAdmin}
                     renderInput={(params) => <TextField {...params} fullWidth label="Assignee" />}
                 />
 
                 <DatePicker
-                    label="Start Date"
+                label="Start Date"
                     value={task.start_date ? dayjs(task.start_date) : null}
                     onChange={(date) =>
-                        HandleTaskChanges({ name: 'start_date', value: fDate(date) })
+                        isAdmin && HandleTaskChanges({ name: 'start_date', value: fDate(date) })
                     }
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    disabled={!isAdmin}
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth disabled={!isAdmin} />
+                    )}
                 />
 
                 <DatePicker
                     label="End Date"
                     value={task.end_date ? dayjs(task.end_date) : null}
                     onChange={(date) => {
-                        if (!task.start_date || dayjs(date).isAfter(dayjs(task.start_date))) {
+                        if (
+                            isAdmin &&
+                            (!task.start_date || dayjs(date).isAfter(dayjs(task.start_date)))
+                        ) {
                             HandleTaskChanges({ name: 'end_date', value: fDate(date) });
                         }
                     }}
                     minDate={task.start_date ? dayjs(task.start_date) : null}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    disabled={!isAdmin}
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth disabled={!isAdmin} />
+                    )}
                 />
 
                 <DatePicker
@@ -153,12 +170,17 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
 
                         const selectedDate = fDate(date);
 
-                        HandleTaskChanges({ name: 'actual_start_date', value: selectedDate });
+                        if (isAdmin) {
+                            HandleTaskChanges({ name: 'actual_start_date', value: selectedDate });
+                        }
 
                         setError('');
                     }}
                     minDate={task.start_date ? dayjs(task.start_date) : null}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    disabled={!isAdmin}
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth disabled={!isAdmin} />
+                    )}
                 />
 
                 <DatePicker
@@ -184,7 +206,9 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
 
                         const formattedDate = fDate(date);
                         setActualEndDate(formattedDate);
-                        HandleTaskChanges({ name: 'actual_end_date', value: formattedDate });
+                        if (isAdmin) {
+                            HandleTaskChanges({ name: 'actual_end_date', value: formattedDate });
+                        }
                         setError('');
                     }}
                     minDate={
@@ -194,7 +218,10 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                               ? dayjs(task.start_date)
                               : null
                     }
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    disabled={!isAdmin}
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth disabled={!isAdmin} />
+                    )}
                 />
 
                 <TextField

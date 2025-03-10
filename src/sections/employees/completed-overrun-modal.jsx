@@ -18,12 +18,13 @@ import {
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
+import { EmptyContent } from 'src/components/empty-content';
+
 const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
     const [taskData, setTaskData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [employeeName, setEmployeeName] = useState('');
-    console.log(overrunType);
     useEffect(() => {
         if (open && assigneeId && overrunType) {
             setLoading(true);
@@ -73,7 +74,7 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: { xs: '90%', sm: '80%', md: '70%' },
+                    width: { xs: '100%', sm: '85%', md: '85%' },
                     maxHeight: '90vh',
                     overflowY: 'auto',
                     bgcolor: 'background.paper',
@@ -83,7 +84,7 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
             >
                 {error ? (
                     <Typography variant="body2" color="error" textAlign="center">
-                        {error}
+                        <EmptyContent title='no data'/>
                     </Typography>
                 ) : (
                     <>
@@ -109,11 +110,18 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                 mt: 2,
                                 borderRadius: 2,
                                 boxShadow: 3,
+                                 borderRight: '1px solid rgba(224, 224, 224, 1)'
                             }}
                         >
                             <Table stickyHeader>
                                 <TableHead>
                                     <TableRow>
+                                    <TableCell align='center'>
+                                    <b>Project Name</b>
+                                    </TableCell>
+                                    <TableCell align='center'>
+                                        <b>Stage Name</b>
+                                    </TableCell>
                                         <TableCell>
                                             <b>Task Name</b>
                                         </TableCell>
@@ -160,7 +168,9 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                               </TableRow>
                                           ))
                                         : taskData.map((task) => (
-                                              <TableRow key={task.task_id}>
+                                            <TableRow key={task.task_id}>
+                                                <TableCell align='center'>{task.project_name}</TableCell>
+                                                <TableCell align='center'>{task.stage_name}</TableCell>
                                                   <TableCell>{task.task_name}</TableCell>
                                                   <TableCell align="center">
                                                       {task.status}
