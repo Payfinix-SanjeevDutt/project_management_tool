@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import {
     Box,
@@ -18,12 +18,15 @@ import {
     CircularProgress,
 } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
-import ListProjectOverrunModal from '../list-completed-overrun-modal';
+import ProjectOverrunModal from '../list-completed-overrun-modal';
 
 function ProjectListDashboardView() {
     const [order, setOrder] = useState('asc');
@@ -33,13 +36,10 @@ function ProjectListDashboardView() {
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    // const { project_id } = useParams();
-    const project_id = useMemo(() => ['EIKEGIJKGMGGGKK9538330'], []);
     const [openModal, setOpenModal] = useState(false);
     const [selectedOverrunType, setSelectedOverrunType] = useState('');
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
-    console.log('reportData>', reportData);
-    console.log('project_id>', project_id);
+    const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const router = useRouter();
 
     const columns = [
         { key: 'project_name', label: 'Projects', icon: 'solar:user-outline', sortable: true },
@@ -84,7 +84,6 @@ function ProjectListDashboardView() {
     ];
 
     useEffect(() => {
-
         setLoading(true);
         setError(null);
 
@@ -106,7 +105,6 @@ function ProjectListDashboardView() {
         setOrderBy(property);
     };
 
-
     const sortedReport =
         Array.isArray(reportData.projects) && reportData.projects.length > 0
             ? [...reportData.projects].sort((a, b) => {
@@ -124,19 +122,30 @@ function ProjectListDashboardView() {
               })
             : [];
 
-    console.log('sortedReport>>', sortedReport);
-
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
 
-    const handleOpenModal = (employeeId, overrunType) => {
-        setSelectedEmployeeId(employeeId);
+    const handleOpenModal = (ProjectId, overrunType) => {
+        setSelectedProjectId(ProjectId);
         setSelectedOverrunType(overrunType);
         setOpenModal(true);
     };
+
+    const handleViewRow = useCallback(
+        (id) => {
+            router.push(paths.dashboard.projectdashboard.homestages(id));
+        },
+        [router]
+    );
+    const handleViewRow2 = useCallback(
+        (id) => {
+            router.push(paths.dashboard.projectdashboard.homeusers(id));
+        },
+        [router]
+    );
 
     return (
         <Card
@@ -151,7 +160,7 @@ function ProjectListDashboardView() {
                         padding: { xs: 1, sm: 2 },
                     }}
                 >
-                    <Typography variant="subtitle1">Project List Dashboard</Typography>
+                    <Typography variant="subtitle1">Project Dashboard</Typography>
                 </Toolbar>
 
                 {loading ? (
@@ -216,11 +225,6 @@ function ProjectListDashboardView() {
                                             {columns.map((col) => (
                                                 <TableCell
                                                     key={col.key}
-                                                    align={
-                                                        col.key === 'project_name'
-                                                            ? 'left'
-                                                            : 'center'
-                                                    }
                                                     sx={{
                                                         minWidth: 120,
                                                         textAlign:
@@ -232,6 +236,7 @@ function ProjectListDashboardView() {
                                                     }}
                                                 >
                                                     {col.key.includes('completed_overrun') ||
+                                                    col.key.includes('delayed_tasks') ||
                                                     col.key.includes('inprogress_overrun') ? (
                                                         row[col.key] !== 0 ? (
                                                             <Box
@@ -250,7 +255,7 @@ function ProjectListDashboardView() {
                                                                 }}
                                                                 onClick={() =>
                                                                     handleOpenModal(
-                                                                        row.employee_id,
+                                                                        row.project_id,
                                                                         col.key
                                                                     )
                                                                 }
@@ -272,6 +277,42 @@ function ProjectListDashboardView() {
                                                                 {row[col.key]}
                                                             </Box>
                                                         )
+                                                    ) : col.key.includes('project_name') ? (
+                                                        <Box
+                                                            sx={{
+                                                                px: 2,
+                                                                py: 0.5,
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline',
+                                                                color: 'black', 
+                                                                '&:hover': {
+                                                                    color: 'green',
+                                                                },
+                                                            }}
+                                                            onClick={() =>
+                                                                handleViewRow(row.project_id)
+                                                            }
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
+                                                    ) : col.key.includes('number_employees') ? (
+                                                        <Box
+                                                            sx={{
+                                                                px: 2,
+                                                                py: 0.5,
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline',
+                                                                color: 'black', 
+                                                                '&:hover': {
+                                                                    color: 'green',
+                                                                },
+                                                            }}
+                                                            onClick={() =>
+                                                                handleViewRow2(row.project_id)
+                                                            }
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
                                                     ) : (
                                                         <Box
                                                             sx={{
@@ -299,10 +340,10 @@ function ProjectListDashboardView() {
                     </Table>
                 )}
             </TableContainer>
-            <ListProjectOverrunModal
+            <ProjectOverrunModal
                 open={openModal}
                 handleClose={() => setOpenModal(false)}
-                assigneeId={selectedEmployeeId}
+                assigneeId={selectedProjectId}
                 overrunType={selectedOverrunType}
             />
 

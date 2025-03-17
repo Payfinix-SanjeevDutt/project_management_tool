@@ -51,24 +51,12 @@ const PROJECT_STATUS = [
         label: 'On Going',
     },
     {
-        value: 'MAINTENANCE',
-        label: 'Maintenance',
-    },
-    {
         value: 'COMPLETED',
         label: 'Completed',
     },
     {
         value: 'PLANNED',
         label: 'Planned',
-    },
-    {
-        value: 'CANCELLED',
-        label: 'Cancelled',
-    },
-    {
-        value: 'ON_HOLD',
-        label: 'On Hold',
     },
 ];
 

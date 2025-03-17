@@ -61,7 +61,10 @@ export const endpoints = {
         delete:'/project/delete-project',
         project_employee_report: '/project/project-employee-report',
         project_user_delete: '/project/project-user-delete',
-        project_stage_report: '/project/project-stages-report'
+        project_stage_report: '/project/project-stages-report',
+        project_completed_overrun: '/project/project-task-overdue',
+        project_inprogress_overrun: '/project/project-task-inprogress',
+        project_todo_overrun: 'project/project-task-todo',
     },
     tasks:{
         create:'/task/create-task',

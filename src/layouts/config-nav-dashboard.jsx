@@ -59,15 +59,15 @@ export function useNavConfig() {
                     icon: ICONS.dashboard,
                     children: [
                         {
-                            title: 'Stages Dashboard',
+                            title: 'Stages',
                             path: paths.dashboard.projectdashboard.homestages(project_id),
                         },
                         {
-                            title: 'Sprints Dashboard',
+                            title: 'Sprints',
                             path: paths.dashboard.projectdashboard.homesprints(project_id),
                         },
                         {
-                            title: 'Users Dashboard',
+                            title: 'Users',
                             path: paths.dashboard.projectdashboard.homeusers(project_id),
                         },
                     ],

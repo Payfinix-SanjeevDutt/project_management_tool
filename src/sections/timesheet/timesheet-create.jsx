@@ -241,6 +241,11 @@ export default function StageCreateForm() {
                             <MenuItem value="Non-Billable">Non-Billable</MenuItem>
                         </Select>
                     </FormControl>
+                    
+                    <Button className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400">
+                        Cancel
+                    </Button>
+
                 </Stack>
             </CardContent>
         </Card>

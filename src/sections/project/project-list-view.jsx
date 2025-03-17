@@ -190,7 +190,6 @@ export default function CustomProjectView() {
                 </Stack>
             ),
         },
-        
 
         {
             field: 'status',
