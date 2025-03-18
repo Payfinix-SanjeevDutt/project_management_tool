@@ -30,17 +30,20 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
             setLoading(true);
             setError('');
             setTaskData([]);
-    
+
             let fetchOverrun;
             if (overrunType === 'completed_overrun') {
-                fetchOverrun = axiosInstance.post(endpoints.user.completed_overrun, { assignee_id: assigneeId });
+                fetchOverrun = axiosInstance.post(endpoints.user.completed_overrun, {
+                    assignee_id: assigneeId,
+                });
             } else if (overrunType === 'inprogress_overrun') {
-                fetchOverrun = axiosInstance.post(endpoints.user.inprogress_overrun, { assignee_id: assigneeId });
+                fetchOverrun = axiosInstance.post(endpoints.user.inprogress_overrun, {
+                    assignee_id: assigneeId,
+                });
+            } else {
+                fetchOverrun = axiosInstance.post(endpoints.user.todo, { assignee_id: assigneeId });
             }
-            else {
-                fetchOverrun = axiosInstance.post(endpoints.user.todo, {assignee_id : assigneeId})
-            }
-    
+
             if (fetchOverrun) {
                 fetchOverrun
                     .then((res) => {
@@ -58,7 +61,6 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
             }
         }
     }, [open, assigneeId, overrunType]);
-    
 
     return (
         <Modal
@@ -84,7 +86,7 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
             >
                 {error ? (
                     <Typography variant="body2" color="error" textAlign="center">
-                        <EmptyContent title='no data'/>
+                        <EmptyContent title="no data" />
                     </Typography>
                 ) : (
                     <>
@@ -110,18 +112,18 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                 mt: 2,
                                 borderRadius: 2,
                                 boxShadow: 3,
-                                 borderRight: '1px solid rgba(224, 224, 224, 1)'
+                                borderRight: '1px solid rgba(224, 224, 224, 1)',
                             }}
                         >
                             <Table stickyHeader>
                                 <TableHead>
                                     <TableRow>
-                                    <TableCell align='center'>
-                                    <b>Project Name</b>
-                                    </TableCell>
-                                    <TableCell align='center'>
-                                        <b>Stage Name</b>
-                                    </TableCell>
+                                        <TableCell align="center">
+                                            <b>Project Name</b>
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <b>Stage Name</b>
+                                        </TableCell>
                                         <TableCell>
                                             <b>Task Name</b>
                                         </TableCell>
@@ -134,16 +136,17 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                         <TableCell align="center">
                                             <b>End Date</b>
                                         </TableCell>
-                                        {overrunType !== 'pending_tasks' &&(
-                                        <TableCell align="center">
-                                            <b>Actual start date</b>
-                                        </TableCell>
-                                        )}
-                                        {(overrunType !== 'inprogress_overrun' && overrunType !== 'pending_tasks' ) && (
+                                        {overrunType !== 'pending_tasks' && (
                                             <TableCell align="center">
-                                                <b>Actual End Date</b>
+                                                <b>Actual Start Date</b>
                                             </TableCell>
                                         )}
+                                        {overrunType !== 'inprogress_overrun' &&
+                                            overrunType !== 'pending_tasks' && (
+                                                <TableCell align="center">
+                                                    <b>Actual End Date</b>
+                                                </TableCell>
+                                            )}
                                         <TableCell align="center">
                                             <b>Extra days</b>
                                         </TableCell>
@@ -167,25 +170,53 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                                   ))}
                                               </TableRow>
                                           ))
-                                        : taskData.map((task) => (
-                                            <TableRow key={task.task_id}>
-                                                <TableCell align='center'>{task.project_name}</TableCell>
-                                                <TableCell align='center'>{task.stage_name}</TableCell>
-                                                  <TableCell>{task.task_name}</TableCell>
-                                                  <TableCell align="center">
-                                                      {task.status}
-                                                  </TableCell>
-                                                  <TableCell align="center">
-                                                      {task.start_date}
-                                                  </TableCell>
-                                                  <TableCell align="center">
-                                                      {task.end_date}
-                                                  </TableCell>
-                                                  {overrunType !== 'pending_tasks' &&(
-                                                    <TableCell align="center">
-                                                      {task.actual_start_date}
-                                                  </TableCell>)}
-                                                  {(overrunType !== 'inprogress_overrun' && overrunType !== 'pending_tasks') && (
+                                        : taskData.map((task) => {
+                                              const formatDate = (dateStr) => {
+                                                  if (!dateStr) return '-';
+                                                  const date = new Date(dateStr);
+                                                  return `${date.getFullYear()}-${date.toLocaleString(
+                                                      'en-US',
+                                                      {
+                                                          month: 'short',
+                                                      }
+                                                  )}-${date.getDate()}`;
+                                              };
+
+                                              return (
+                                                  <TableRow key={task.task_id}>
+                                                      <TableCell align="center">
+                                                          {task.project_name}
+                                                      </TableCell>
+                                                      <TableCell align="center">
+                                                          {task.stage_name}
+                                                      </TableCell>
+                                                      <TableCell>{task.task_name}</TableCell>
+                                                      <TableCell align="center">
+                                                          {task.status}
+                                                      </TableCell>
+                                                      <TableCell align="center">
+                                                          {formatDate(task.start_date)}
+                                                      </TableCell>
+                                                      <TableCell align="center">
+                                                          {formatDate(task.end_date)}
+                                                      </TableCell>
+                                                      {overrunType !== 'pending_tasks' && (
+                                                          <TableCell align="center">
+                                                              {formatDate(task.actual_start_date)}
+                                                          </TableCell>
+                                                      )}
+                                                      {overrunType !== 'inprogress_overrun' &&
+                                                          overrunType !== 'pending_tasks' && (
+                                                              <TableCell
+                                                                  align="center"
+                                                                  sx={{
+                                                                      color: 'error.main',
+                                                                      fontWeight: 'bold',
+                                                                  }}
+                                                              >
+                                                                  {formatDate(task.actual_end_date)}
+                                                              </TableCell>
+                                                          )}
                                                       <TableCell
                                                           align="center"
                                                           sx={{
@@ -193,18 +224,11 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                                               fontWeight: 'bold',
                                                           }}
                                                       >
-                                                          {task.actual_end_date}
+                                                          {task.extra_days}
                                                       </TableCell>
-                                                  )}
-                                                  <TableCell align="center"
-                                                          sx={{
-                                                              color: 'error.main',
-                                                              fontWeight: 'bold',
-                                                          }}>
-                                                      {task.extra_days}
-                                                  </TableCell>
-                                              </TableRow>
-                                          ))}
+                                                  </TableRow>
+                                              );
+                                          })}
                                 </TableBody>
                             </Table>
                         </TableContainer>

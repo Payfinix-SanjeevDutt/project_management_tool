@@ -63,7 +63,9 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                     project_id: assigneeId,
                 });
             } else {
-                fetchOverrun = axiosInstance.post(endpoints.project.project_todo_overrun, { project_id: assigneeId });
+                fetchOverrun = axiosInstance.post(endpoints.project.project_todo_overrun, {
+                    project_id: assigneeId,
+                });
             }
             if (fetchOverrun) {
                 fetchOverrun
@@ -93,7 +95,7 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
         setTaskData(sortedData);
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     };
-    
+
     return (
         <Modal
             open={open}
@@ -151,7 +153,11 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="center">
-                                        <TableSortLabel active direction={sortOrder} onClick={handleSort}>
+                                            <TableSortLabel
+                                                active
+                                                direction={sortOrder}
+                                                onClick={handleSort}
+                                            >
                                                 <b>Employee Name</b>
                                             </TableSortLabel>
                                         </TableCell>
@@ -175,13 +181,12 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                                                 <b>Actual start date</b>
                                             </TableCell>
                                         )}
-                                        {overrunType !== 'inprogress_overrun'&& overrunType !== 'delayed_tasks'&&(
-                                            <TableCell align="center">
-                                            <b>Actual end date</b>
-                                        </TableCell>
-                                        )
-                                          
-                                    }
+                                        {overrunType !== 'inprogress_overrun' &&
+                                            overrunType !== 'delayed_tasks' && (
+                                                <TableCell align="center">
+                                                    <b>Actual end date</b>
+                                                </TableCell>
+                                            )}
                                         <TableCell align="center">
                                             <b>Extra days</b>
                                         </TableCell>
@@ -205,77 +210,90 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                                                   ))}
                                               </TableRow>
                                           ))
-                                        : taskData.map((task) => (
-                                              <TableRow key={task.task_id}>
-                                                  <TableCell>
-                                                      <Stack
-                                                          direction="row"
-                                                          spacing={2}
-                                                          alignItems="center"
-                                                      >
-                                                          <Avatar
-                                                              sx={{
-                                                                px: 2,
-                                                                py: 0.5,
-                                                                  bgcolor: getAvatarColor(
-                                                                      task.employee_name
-                                                                  ),
-                                                                  width: 32,
-                                                                  height: 32,
-                                                                  fontSize: 16,
-                                                              }}
-                                                          >
-                                                              {task.employee_name
-                                                                  ? task.employee_name
-                                                                        .charAt(0)
-                                                                        .toUpperCase()
-                                                                  : '?'}
-                                                          </Avatar>
-                                                          {task.employee_name}
-                                                      </Stack>
-                                                  </TableCell>
+                                        : taskData.map((task) => {
+                                              const formatDate = (dateStr) => {
+                                                  if (!dateStr) return '-';
+                                                  const date = new Date(dateStr);
+                                                  return `${date.getFullYear()}-${date.toLocaleString(
+                                                      'en-US',
+                                                      {
+                                                          month: 'short',
+                                                      }
+                                                  )}-${date.getDate()}`;
+                                              };
 
-                                                  <TableCell align="center">
-                                                      {task.stage_name}
-                                                  </TableCell>
-                                                  <TableCell>{task.task_name}</TableCell>
-                                                  <TableCell align="center">
-                                                      {task.status}
-                                                  </TableCell>
-                                                  <TableCell align="center">
-                                                      {task.start_date}
-                                                  </TableCell>
-                                                  <TableCell align="center">
-                                                      {task.end_date}
-                                                  </TableCell>
-                                                  {overrunType !== 'delayed_tasks' &&  (
-                                                      <TableCell align="center">
-                                                          {task.actual_start_date}
-                                                      </TableCell>
-                                                  )}
-                                                  {overrunType !== 'inprogress_overrun' &&
-                                                      overrunType !== 'delayed_tasks' && (
-                                                          <TableCell
-                                                              align="center"
-                                                              sx={{
-                                                                  color: 'error.main',
-                                                                  fontWeight: 'bold',
-                                                              }}
+                                              return (
+                                                  <TableRow key={task.task_id}>
+                                                      <TableCell>
+                                                          <Stack
+                                                              direction="row"
+                                                              spacing={2}
+                                                              alignItems="center"
                                                           >
-                                                              {task.actual_end_date}
+                                                              <Avatar
+                                                                  sx={{
+                                                                      px: 2,
+                                                                      py: 0.5,
+                                                                      bgcolor: getAvatarColor(
+                                                                          task.employee_name
+                                                                      ),
+                                                                      width: 32,
+                                                                      height: 32,
+                                                                      fontSize: 16,
+                                                                  }}
+                                                              >
+                                                                  {task.employee_name
+                                                                      ? task.employee_name
+                                                                            .charAt(0)
+                                                                            .toUpperCase()
+                                                                      : '?'}
+                                                              </Avatar>
+                                                              {task.employee_name}
+                                                          </Stack>
+                                                      </TableCell>
+
+                                                      <TableCell align="center">
+                                                          {task.stage_name}
+                                                      </TableCell>
+                                                      <TableCell>{task.task_name}</TableCell>
+                                                      <TableCell align="center">
+                                                          {task.status}
+                                                      </TableCell>
+                                                      <TableCell align="center">
+                                                          {formatDate(task.start_date)}
+                                                      </TableCell>
+                                                      <TableCell align="center">
+                                                          {formatDate(task.end_date)}
+                                                      </TableCell>
+                                                      {overrunType !== 'delayed_tasks' && (
+                                                          <TableCell align="center">
+                                                              {formatDate(task.actual_start_date)}
                                                           </TableCell>
                                                       )}
-                                                  <TableCell
-                                                      align="center"
-                                                      sx={{
-                                                          color: 'error.main',
-                                                          fontWeight: 'bold',
-                                                      }}
-                                                  >
-                                                      {task.extra_days}
-                                                  </TableCell>
-                                              </TableRow>
-                                          ))}
+                                                      {overrunType !== 'inprogress_overrun' &&
+                                                          overrunType !== 'delayed_tasks' && (
+                                                              <TableCell
+                                                                  align="center"
+                                                                  sx={{
+                                                                      color: 'error.main',
+                                                                      fontWeight: 'bold',
+                                                                  }}
+                                                              >
+                                                                  {formatDate(task.actual_end_date)}
+                                                              </TableCell>
+                                                          )}
+                                                      <TableCell
+                                                          align="center"
+                                                          sx={{
+                                                              color: 'error.main',
+                                                              fontWeight: 'bold',
+                                                          }}
+                                                      >
+                                                          {task.extra_days}
+                                                      </TableCell>
+                                                  </TableRow>
+                                              );
+                                          })}
                                 </TableBody>
                             </Table>
                         </TableContainer>
