@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import {
     Box,
@@ -18,12 +18,14 @@ import {
     CircularProgress,
 } from '@mui/material';
 
-import { useParams } from 'src/routes/hooks';
+import { useRouter } from 'src/routes/hooks';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
-
+import { paths } from 'src/routes/paths';
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
+import ProjectOverrunModal from 'src/sections/project/list-completed-overrun-modal';
+import { useParams } from 'react-router';
 
 function DashboardStageView() {
     const [order, setOrder] = useState('asc');
@@ -34,8 +36,9 @@ function DashboardStageView() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { project_id } = useParams();
-    console.log("project_id>>", project_id);
-    
+    console.log('project_id>>', project_id);
+
+    const router = useRouter();
 
     const columns = [
         { key: 'stage_name', label: 'Stages', icon: 'solar:user-outline', sortable: true },
@@ -106,6 +109,9 @@ function DashboardStageView() {
         setOrder(isAscending ? 'desc' : 'asc');
         setOrderBy(property);
     };
+    const [openModal, setOpenModal] = useState(false);
+    const [selectedOverrunType, setSelectedOverrunType] = useState('');
+    const [selectedProjectId, setSelectedProjectId] = useState(null);
 
     const sortedReport = [...reportData].sort((a, b) => {
         const aValue = a[orderBy];
@@ -114,6 +120,23 @@ function DashboardStageView() {
             return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         return order === 'asc' ? aValue - bValue : bValue - aValue;
     });
+    const handleOpenModal = (ProjectId, overrunType) => {
+        setSelectedProjectId(ProjectId);
+        setSelectedOverrunType(overrunType);
+        setOpenModal(true);
+    };
+    const handleViewRow = useCallback(
+        (id) => {
+            router.push(paths.dashboard.projectdashboard.homestages(id));
+        },
+        [router]
+    );
+    const handleViewRow2 = useCallback(
+        (id) => {
+            router.push(paths.dashboard.projectdashboard.homeusers(id));
+        },
+        [router]
+    );
 
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
@@ -138,7 +161,7 @@ function DashboardStageView() {
                 </Toolbar>
 
                 {loading ? (
-                    <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
+                    <Box display="flex" justifyContent="center" alignItems="left" sx={{ py: 5 }}>
                         <CircularProgress />
                     </Box>
                 ) : error ? (
@@ -160,7 +183,7 @@ function DashboardStageView() {
                                                 direction={orderBy === col.key ? order : 'asc'}
                                                 onClick={() => handleRequestSort(col.key)}
                                             >
-                                                 <span
+                                                <span
                                                     style={{
                                                         display: 'flex',
                                                         justifyContent: 'center',
@@ -168,12 +191,12 @@ function DashboardStageView() {
                                                         gap: '6px',
                                                     }}
                                                 >
-                                                <Iconify
-                                                    icon={col.icon}
-                                                    width={20}
-                                                    sx={{ color: 'grey.500' }}
-                                                />
-                                                {col.label}
+                                                    <Iconify
+                                                        icon={col.icon}
+                                                        width={20}
+                                                        sx={{ color: 'grey.500' }}
+                                                    />
+                                                    {col.label}
                                                 </span>
                                             </TableSortLabel>
                                         ) : (
@@ -185,7 +208,6 @@ function DashboardStageView() {
                                                 />
                                                 {col.label}
                                             </span>
-                                            
                                         )}
                                     </TableCell>
                                 ))}
@@ -196,7 +218,7 @@ function DashboardStageView() {
                                 <TableRow>
                                     <TableCell colSpan={columns.length} align="center">
                                         <EmptyContent
-                                            title="No stage data found."
+                                            title="No project data found."
                                             sx={{ py: 10 }}
                                         />
                                     </TableCell>
@@ -209,43 +231,112 @@ function DashboardStageView() {
                                             {columns.map((col) => (
                                                 <TableCell
                                                     key={col.key}
-                                                    align={
-                                                        col.key === 'stage_name' ? 'left' : 'center'
-                                                    }
                                                     sx={{
                                                         minWidth: 120,
                                                         textAlign:
-                                                            col.key === 'stage_name'
+                                                            col.key === 'stages'
                                                                 ? 'left'
                                                                 : 'center',
                                                         verticalAlign: 'middle',
                                                         padding: '4px 8px',
                                                     }}
                                                 >
-                                                    <Box
-                                                        sx={{
-                                                            display: 'inline-block',
-                                                            px: 1.5,
-                                                            py: 0.5,
-                                                            borderRadius: 1,
-                                                            fontWeight: 'bold',
-                                                            color: (theme) =>
-                                                                row[col.key] === 0
-                                                                    ? 'inherit' 
-                                                                    : col.key.includes(
-                                                                            'completed_overrun'
-                                                                        ) ||
-                                                                        col.key.includes(
-                                                                            'inprogress_overrun'
-                                                                        )|| col.key.includes(
-                                                                            'pending_tasks'
-                                                                        )
-                                                                      ? theme.palette.error.main
-                                                                      : theme.palette.text.primary,
-                                                        }}
-                                                    >
-                                                        {row[col.key]}
-                                                    </Box>
+                                                    {col.key.includes('completed_overrun') ||
+                                                    col.key.includes('pending_tasks') ||
+                                                    col.key.includes('inprogress_overrun') ? (
+                                                        row[col.key] !== 0 ? (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'inline-block',
+                                                                    px: 1.5,
+                                                                    py: 0.5,
+                                                                    borderRadius: 1,
+                                                                    fontWeight: 'bold',
+                                                                    color: 'error.main',
+                                                                    cursor: 'pointer',
+                                                                    textDecoration: 'underline',
+                                                                    '&:hover': {
+                                                                        color: 'error.dark',
+                                                                    },
+                                                                }}
+                                                                onClick={() =>
+                                                                    handleOpenModal(
+                                                                        row.project_id,
+                                                                        col.key
+                                                                    )
+                                                                }
+                                                            >
+                                                                {row[col.key]}
+                                                            </Box>
+                                                        ) : (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'inline-block',
+                                                                    px: 1.5,
+                                                                    py: 0.5,
+                                                                    borderRadius: 1,
+                                                                    fontWeight: 'bold',
+                                                                    color: (theme) =>
+                                                                        theme.palette.text.primary,
+                                                                }}
+                                                            >
+                                                                {row[col.key]}
+                                                            </Box>
+                                                        )
+                                                    ) : col.key.includes('project_name') ? (
+                                                        <Box
+                                                            sx={{
+                                                                px: 2,
+                                                                py: 0.5,
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline',
+                                                                color: 'black',
+                                                                '&:hover': {
+                                                                    color: 'green',
+                                                                },
+                                                            }}
+                                                            onClick={() =>
+                                                                handleViewRow(row.project_id)
+                                                            }
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
+                                                    ) : col.key.includes('number_employees') ? (
+                                                        <Box
+                                                            sx={{
+                                                                px: 2,
+                                                                py: 0.5,
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline',
+                                                                color: 'black',
+                                                                '&:hover': {
+                                                                    color: 'green',
+                                                                },
+                                                            }}
+                                                            onClick={() =>
+                                                                handleViewRow2(row.project_id)
+                                                            }
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
+                                                    ) : (
+                                                        <Box
+                                                            sx={{
+                                                                display: 'inline-block',
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontWeight: 'bold',
+                                                                color: (theme) =>
+                                                                    row[col.key] === 0
+                                                                        ? 'inherit'
+                                                                        : theme.palette.text
+                                                                              .primary,
+                                                            }}
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
+                                                    )}
                                                 </TableCell>
                                             ))}
                                         </TableRow>
@@ -255,6 +346,12 @@ function DashboardStageView() {
                     </Table>
                 )}
             </TableContainer>
+            <ProjectOverrunModal
+                open={openModal}
+                handleClose={() => setOpenModal(false)}
+                assigneeId={selectedProjectId}
+                overrunType={selectedOverrunType}
+            />
 
             {sortedReport.length > 0 && (
                 <TablePagination
