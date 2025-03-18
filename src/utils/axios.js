@@ -104,5 +104,9 @@ export const endpoints = {
     },
     history:{
         list:'/task/history',
+    },
+    timesheet:{
+        create :'/timesheet/create',
     }
+
 };

@@ -8,6 +8,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import {
     Box,
     Card,
+    Menu,
     Button,
     Select,
     Tooltip,
@@ -15,13 +16,16 @@ import {
     TextField,
     Typography,
     InputLabel,
+    IconButton,
     FormControl,
     FormHelperText,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { EmptyContent } from 'src/components/empty-content';
+import { Iconify } from 'src/components/iconify';
+
+import TimesheetTable from './list-timesheet';
 
 dayjs.extend(isoWeek);
 
@@ -30,13 +34,25 @@ export default function TimeLogs() {
     const [project, setProject] = useState('');
     const [job, setJob] = useState('');
     const [description, setDescription] = useState('');
+    const [workItem, setworkItem] = useState('');
     const [billable, setBillable] = useState('billable');
     const [errors, setErrors] = useState({});
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [showArrows, setShowArrows] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     const navigate = useNavigate();
 
-    const handleSubmit = () => navigate(paths.main.timesheet.create);
+    const handleDayCreate = () => navigate(paths.main.timesheet.daily);
+    const handleWeekCreate = () => navigate(paths.main.timesheet.weekly);
 
     const handleDateChange = (date) => setSelectedDate(date);
 
@@ -90,9 +106,13 @@ export default function TimeLogs() {
                             {startOfWeek.format('DD-MMM-YYYY')} to {endOfWeek.format('DD-MMM-YYYY')}
                         </Typography>
                     </Box>
-                    <Button variant="contained" onClick={handleSubmit}>
+                    <Button variant="contained" onClick={handleClick}>
                         Log Time
                     </Button>
+                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                        <MenuItem onClick={handleDayCreate}>Log Daily</MenuItem>
+                        <MenuItem onClick={handleWeekCreate}>Log Weekly</MenuItem>
+                    </Menu>
                 </Box>
 
                 <Box display="flex" alignItems="center" gap={2} py={2}>
@@ -116,18 +136,45 @@ export default function TimeLogs() {
                         {errors.job && <FormHelperText>{errors.job}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl sx={{ flexGrow: 1 }} error={!!errors.description}>
-                        <TextField
-                            label="What are you working on?"
-                            variant="outlined"
-                            fullWidth
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                        />
-                        {errors.description && (
-                            <FormHelperText>{errors.description}</FormHelperText>
-                        )}
-                    </FormControl>
+                    <Box display="flex" alignItems="center" gap={2} width="40%">
+                        <FormControl sx={{ flexGrow: 1 }} error={!!errors.workItem}>
+                            <TextField
+                                label="What are you working on?"
+                                variant="outlined"
+                                fullWidth
+                                value={workItem}
+                                onChange={(e) => setworkItem(e.target.value)}
+                            />
+                            {errors.workItem && <FormHelperText>{errors.workItem}</FormHelperText>}
+                        </FormControl>
+
+                        <FormControl sx={{ width: 'auto' }} error={!!errors.description}>
+                            {isEditing ? (
+                                <TextField
+                                    label="Enter description"
+                                    variant="outlined"
+                                    autoFocus
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    onBlur={() => setIsEditing(false)}
+                                    sx={{ width: 200 }}
+                                />
+                            ) : (
+                                <Tooltip title="Click to edit description">
+                                    <IconButton onClick={() => setIsEditing(true)}>
+                                        <Iconify
+                                            icon="tabler:file-description-filled"
+                                            width={25}
+                                            height={25}
+                                        />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                            {errors.description && (
+                                <FormHelperText>{errors.description}</FormHelperText>
+                            )}
+                        </FormControl>
+                    </Box>
 
                     <FormControl sx={{ width: 240 }} error={!!errors.billable}>
                         <InputLabel>Billable</InputLabel>
@@ -151,10 +198,7 @@ export default function TimeLogs() {
                 </Box>
 
                 <Card sx={{ mt: 2, textAlign: 'center', p: 25 }}>
-                    <EmptyContent
-                        title="No Logs"
-                        description="No time logs added currently. To add new time logs, click Log Time"
-                    />
+                    <TimesheetTable/>
                 </Card>
             </Card>
         </Box>

@@ -33,6 +33,7 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                     label="Status"
                     variant="outlined"
                     fullWidth
+                    disabled={!isAdmin}
                     value={task.status || ''}
                     onChange={(e) => {
                         const newStatus = e.target.value;

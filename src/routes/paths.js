@@ -29,7 +29,8 @@ export const paths = {
         },
         timesheet: {
             root: `${ROOTS.MAIN_PAGE}/timesheet`,
-            create: `${ROOTS.MAIN_PAGE}/timesheet/create`,
+            daily: `${ROOTS.MAIN_PAGE}/timesheet/create-daily`,
+            weekly: `${ROOTS.MAIN_PAGE}/timesheet/create-weekly`,
         },
         user: {
             root: `${ROOTS.MAIN_PAGE}/user`,
