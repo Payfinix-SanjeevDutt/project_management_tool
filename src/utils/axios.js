@@ -107,6 +107,9 @@ export const endpoints = {
     },
     timesheet:{
         create :'/timesheet/create',
+        list : '/timesheet/list',
+        update: '/timesheet/update',
+        getsingleTimesheet : '/timesheet/get-single-timesheet',
     }
 
 };

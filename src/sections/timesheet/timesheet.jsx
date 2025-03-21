@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router';
 import isoWeek from 'dayjs/plugin/isoWeek';
 
 import TimerIcon from '@mui/icons-material/Timer';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { ArrowBack, ArrowForward, CalendarToday } from '@mui/icons-material';
 import {
     Box,
     Card,
     Menu,
+    Paper,
     Button,
     Select,
     Tooltip,
@@ -19,6 +20,7 @@ import {
     IconButton,
     FormControl,
     FormHelperText,
+    CircularProgress,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -41,6 +43,7 @@ export default function TimeLogs() {
     const [showArrows, setShowArrows] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [loading, setLoading] = useState(false); 
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -49,14 +52,17 @@ export default function TimeLogs() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
     const navigate = useNavigate();
 
     const handleDayCreate = () => navigate(paths.main.timesheet.daily);
     const handleWeekCreate = () => navigate(paths.main.timesheet.weekly);
 
-    const handleDateChange = (date) => setSelectedDate(date);
-
-    const changeWeek = (offset) => setSelectedDate((prevDate) => prevDate.add(offset, 'week'));
+    const changeWeek = (offset) => {
+        setLoading(true); 
+        setSelectedDate((prevDate) => prevDate.add(offset, 'week'));
+        setTimeout(() => setLoading(false), 1000); 
+    };
 
     const startOfWeek = selectedDate.startOf('isoWeek');
     const endOfWeek = selectedDate.endOf('isoWeek');
@@ -75,37 +81,50 @@ export default function TimeLogs() {
                     <Typography variant="h6" fontWeight={600}>
                         Time Logs
                     </Typography>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        position="relative"
-                        p={1}
-                        border={1}
-                        borderColor="#ccc"
-                        borderRadius={1}
-                        bgcolor="#fff"
-                        onMouseEnter={() => setShowArrows(true)}
-                    >
-                        {showArrows && (
-                            <Tooltip title="Previous">
-                                <Button onClick={() => changeWeek(-1)} size="small">
-                                    &#9665;
-                                </Button>
-                            </Tooltip>
-                        )}
-                        <CalendarTodayIcon />
-                        {showArrows && (
-                            <Tooltip title="Next">
-                                <Button onClick={() => changeWeek(1)} size="small">
-                                    &#9655;
-                                </Button>
-                            </Tooltip>
-                        )}
-                        <Typography>
-                            {startOfWeek.format('DD-MMM-YYYY')} to {endOfWeek.format('DD-MMM-YYYY')}
-                        </Typography>
-                    </Box>
+                    <Paper
+            elevation={2}
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                px: 2,
+                py: 1,
+                borderRadius: 2,
+                bgcolor: "background.paper",
+                transition: "all 0.3s",
+                "&:hover": { boxShadow: 4 },
+                position: "relative",
+                cursor: "pointer",
+                maxWidth: 450
+            }}
+            onMouseEnter={() => setShowArrows(true)}
+            onMouseLeave={() => setShowArrows(true)}
+        >
+            {showArrows && (
+                <Tooltip title="Previous Week">
+                    <IconButton onClick={() => changeWeek(-1)} size="small">
+                        <ArrowBack />
+                    </IconButton>
+                </Tooltip>
+            )}
+            <Typography variant="body1" fontWeight={500}>
+                {startOfWeek.format("DD-MMM-YYYY")}
+            </Typography>
+
+            <CalendarToday fontSize="small" color="primary" />
+
+            <Typography variant="body1" fontWeight={500}>
+                {endOfWeek.format("DD-MMM-YYYY")}
+            </Typography>
+
+            {showArrows && (
+                <Tooltip title="Next Week">
+                    <IconButton onClick={() => changeWeek(1)} size="small">
+                        <ArrowForward />
+                    </IconButton>
+                </Tooltip>
+            )}
+        </Paper>
                     <Button variant="contained" onClick={handleClick}>
                         Log Time
                     </Button>
@@ -197,9 +216,13 @@ export default function TimeLogs() {
                     </Box>
                 </Box>
 
-                <Card sx={{ mt: 2, textAlign: 'center', p: 25 }}>
-                    <TimesheetTable/>
-                </Card>
+                {loading ? (
+                    <Box display="flex" justifyContent="center" py={3}>
+                        <CircularProgress  value={2}/>
+                    </Box>
+                ) : (
+                    <TimesheetTable startOfWeek={startOfWeek} endOfWeek={endOfWeek} />
+                )}
             </Card>
         </Box>
     );

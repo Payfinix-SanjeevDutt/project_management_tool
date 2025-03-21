@@ -92,7 +92,8 @@ export const dashboardRoutes = [
                     { element: <Timesheet />,index : true },
                     { path: 'timesheet' ,element: <Timesheet/>},
                     { path : 'create-daily' ,element: <TimesheetCreateDaily/>},
-                    { path : 'create-weekly' , element : <TimesheetCreateWeekly/>}
+                    { path : 'create-weekly' , element : <TimesheetCreateWeekly/>},
+                    { path: 'edit/:timesheetId/:employeeId', element: <TimesheetCreateDaily /> }
                 ]        
             },
         ],

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import React, { useState, useEffect, useContext } from 'react';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -38,48 +38,106 @@ const INITIAL_STATE = {
     workItem: '',
     description: '',
     startDate: dayjs(),
-    billableStatus: 'Billable',
+    billableStatus: 'BILLABLE',
     totalHours: '',
     startTime: null,
     endTime: null,
-    selectedTimeMode: 'manual',
+    selectedTimeMode: 'startEnd',
     timer: 0,
     timerRunning: false,
 };
 
 export default function StageCreateForm() {
     const [formData, setFormData] = useState(INITIAL_STATE);
-    const [intervalId, setIntervalId] = useState(null);
-    const [values, setValue] = React.useState(dayjs('2022-04-17T15:30'));
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const handleClose = () => navigate(paths.main.timesheet.root);
     const [projects, setProjects] = useState([]);
-
+    const { timesheetId, employeeId } = useParams();
+    console.log(timesheetId,employeeId)
     const handleSubmit = async () => {
+        if (!formData.projectName.trim()) {
+            toast.error('Project Name is required.');
+            return;
+        }
+        if (!formData.jobName.trim()) {
+            toast.error('Job Name is required.');
+            return;
+        }
+        if (!formData.workItem.trim()) {
+            toast.error('Work Item is required.');
+            return;
+        }
+        if (!formData.startDate) {
+            toast.error('Start Date is required.');
+            return;
+        }
+        if (formData.selectedTimeMode === 'manual' && !formData.totalHours) {
+            toast.error('Total Hours is required.');
+            return;
+        }
+        if (formData.selectedTimeMode === 'startEnd' && (!formData.startTime || !formData.endTime)) {
+            toast.error('Start Time and End Time are required.');
+            return;
+        }
         const payload = {
+            timesheet_id:timesheetId,
             project_name: formData.projectName,
             employee_id: user.employee_id,
             job_name: formData.jobName,
             work_item: formData.workItem,
             description: formData.description,
             total_hours: formData.totalHours || calculateDuration(),
+            startDate : formData.startDate,
+            billable_status : formData.billableStatus
         };
 
         try {
-            const response = await axiosInstance.post(endpoints.timesheet.create, payload, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            let response;
+            if (timesheetId) {
+                response = await axiosInstance.post(`${endpoints.timesheet.update}`, payload);
+            } else {
+                response = await axiosInstance.post(endpoints.timesheet.create, payload);
+            }
+    
             if (response.status) {
-                toast.success('Timesheet submitted successfully!');
+                toast.success(`Timesheet ${timesheetId ? 'updated' : 'submitted'} successfully!`);
                 navigate(paths.main.timesheet.root);
             }
         } catch (error) {
-            toast.error('Failed to submit timesheet. Please try again.');
+            toast.error(`Failed to ${timesheetId ? 'update' : 'submit'} timesheet.`);
         }
     };
+
+    useEffect(() => {
+        if (timesheetId) {
+            axiosInstance
+                .post(endpoints.timesheet.getsingleTimesheet,{timesheet_id:timesheetId,employee_id:employeeId})
+                .then((response) => {
+                    if (response.data.status) {
+                        const {data} = response.data;
+                        setFormData({
+                            projectName: data.project_name,
+                            jobName: data.job_name,
+                            workItem: data.work_item,
+                            description: data.description,
+                            startDate: dayjs(data.startDate),
+                            billableStatus: data.billable_status,
+                            totalHours: data.total_hours,
+                            startTime: data.startTime ? dayjs(data.startTime) : null,
+                            endTime: data.endTime ? dayjs(data.endTime) : null,
+                            selectedTimeMode: data.startTime && data.endTime ? 'startEnd' : 'manual',
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching timesheet:', error);
+                    toast.error('Failed to load timesheet.');
+                });
+        }
+        // eslint-disable-next-line
+    }, []);
+    
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -145,7 +203,7 @@ export default function StageCreateForm() {
             <Divider />
             <CardContent>
                 <Stack gap={3} padding={3}>
-                    <FormControl fullWidth>
+                    <FormControl fullWidth >
                         <InputLabel>Project Name</InputLabel>
                         <Select
                             name="projectName"
@@ -325,8 +383,8 @@ export default function StageCreateForm() {
                                     value={formData.billableStatus}
                                     onChange={handleInputChange}
                                 >
-                                    <MenuItem value="Billable">Billable</MenuItem>
-                                    <MenuItem value="Non-Billable">Non-Billable</MenuItem>
+                                    <MenuItem value="BILLABLE">Billable</MenuItem>
+                                    <MenuItem value="NON-BILLABLE">Non-Billable</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>

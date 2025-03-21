@@ -31,6 +31,7 @@ export const paths = {
             root: `${ROOTS.MAIN_PAGE}/timesheet`,
             daily: `${ROOTS.MAIN_PAGE}/timesheet/create-daily`,
             weekly: `${ROOTS.MAIN_PAGE}/timesheet/create-weekly`,
+            edit: (timesheetId, employeeId) => `${ROOTS.MAIN_PAGE}/timesheet/edit/${timesheetId}/${employeeId}`,
         },
         user: {
             root: `${ROOTS.MAIN_PAGE}/user`,
