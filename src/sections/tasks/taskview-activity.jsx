@@ -223,7 +223,7 @@ const ActivitySection = ({ issueKey, refreshActivity }) => {
                             <EmptyContent filled title="No History available" />
                         ) : (
                             history.map((entry, index) => {
-                                const descriptionRegex = /(\w+) changed (\w+) from (.+) to (.+)/i;
+                                const descriptionRegex = /(.+?) changed (\w+) from (.+) to (.+)/i;
                                 const match = descriptionRegex.exec(entry.description);
 
                                 const commentRegex = /(\w+) added a comment : (.+)/i;

@@ -47,7 +47,7 @@ const TimesheetTable = ({ startOfWeek, endOfWeek }) => {
 
     const handleDelete = async () => {
         try {
-            const response = await axiosInstance.post('http://127.0.0.1:5000/timesheet/delete', {
+            const response = await axiosInstance.post(endpoints.timesheet.delete, {
                 employee_id: user.employee_id,
                 timesheet_id: selectedTimesheet,
             });

@@ -151,7 +151,7 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                     onChange={(date) => {
                         if (
                             isAdmin &&
-                            (!task.start_date || dayjs(date).isAfter(dayjs(task.start_date)))
+                            (task.start_date || dayjs(date).isAfter(dayjs(task.start_date)))
                         ) {
                             HandleTaskChanges({ name: 'end_date', value: fDate(date) });
                         }
