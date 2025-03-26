@@ -38,7 +38,7 @@ export const navData = [
                 icon: ICONS.dashboard,
                 children: [
                     { title: 'Employee', path: paths.main.dashboard.user },
-                    { title: 'Project', path: paths.main.dashboard.listProject}
+                    { title: 'Project', path: paths.main.dashboard.listProject },
                 ],
             },
             {
@@ -56,9 +56,11 @@ export const navData = [
                 icon: ICONS.library,
                 children: [
                     {
-                        title : 'Time sheet', path : paths.main.timesheet.root
-                    }
-                ]
+                        title: 'Time sheet',
+                        path: paths.main.timesheet.root,
+                    },
+                    { title: 'Dashboard', path: paths.main.timesheet.dashboard},
+                ],
             },
             {
                 title: 'User',
