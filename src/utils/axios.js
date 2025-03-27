@@ -104,5 +104,13 @@ export const endpoints = {
     },
     history:{
         list:'/task/history',
+    },
+    timesheet:{
+        create :'/timesheet/create',
+        list : '/timesheet/list',
+        update: '/timesheet/update',
+        getsingleTimesheet : '/timesheet/get-single-timesheet',
+        delete : '/timesheet/delete'
     }
+
 };

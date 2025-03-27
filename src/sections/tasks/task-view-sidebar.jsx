@@ -33,6 +33,7 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                     label="Status"
                     variant="outlined"
                     fullWidth
+                    disabled={!isAdmin}
                     value={task.status || ''}
                     onChange={(e) => {
                         const newStatus = e.target.value;
@@ -150,7 +151,7 @@ const Sidebar = ({ task, HandleTaskChanges }) => {
                     onChange={(date) => {
                         if (
                             isAdmin &&
-                            (!task.start_date || dayjs(date).isAfter(dayjs(task.start_date)))
+                            (task.start_date || dayjs(date).isAfter(dayjs(task.start_date)))
                         ) {
                             HandleTaskChanges({ name: 'end_date', value: fDate(date) });
                         }

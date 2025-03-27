@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import DashboardView from 'src/sections/dashboardCompo/DashboardView';
+import DashboardView from 'src/sections/dashboard Compo/DashboardView';
 
 // import {DummyTaskCreate} from 'src/sections/tasks/view';
 
