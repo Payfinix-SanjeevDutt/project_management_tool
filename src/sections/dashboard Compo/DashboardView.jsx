@@ -1,11 +1,12 @@
 import React from 'react';
-import TimeLogs from '../timesheet/timesheet';
+import DatePagination from './DatePagination';
+import TimeData from './TimeData';
 
 
 export default function DashboardView() {
     return (
         <>
-            <TimeLogs />
+            <TimeData/>
         </>
     );
 }
