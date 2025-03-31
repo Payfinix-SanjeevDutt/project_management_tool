@@ -23,7 +23,7 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { EmptyContent } from 'src/components/empty-content';
 
-const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
+const StageOverrunmodal = ({ open, handleClose, stageId, overrunType, projectId }) => {
     const [taskData, setTaskData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -48,23 +48,26 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
         return colors[charCode % colors.length];
     };
     useEffect(() => {
-        if (open && assigneeId && overrunType) {
+        if (open && stageId && overrunType) {
             setLoading(true);
             setError('');
             setTaskData([]);
 
             let fetchOverrun;
             if (overrunType === 'completed_overrun') {
-                fetchOverrun = axiosInstance.post(endpoints.project.project_completed_overrun, {
-                    project_id: assigneeId,
+                fetchOverrun = axiosInstance.post(endpoints.stages.stageOverdue, {
+                    project_id: projectId,
+                    stage_id: stageId,
                 });
             } else if (overrunType === 'inprogress_overrun') {
-                fetchOverrun = axiosInstance.post(endpoints.project.project_inprogress_overrun, {
-                    project_id: assigneeId,
+                fetchOverrun = axiosInstance.post(endpoints.stages.stageInprogress, {
+                    project_id: projectId,
+                    stage_id: stageId,
                 });
             } else {
-                fetchOverrun = axiosInstance.post(endpoints.project.project_todo_overrun, {
-                    project_id: assigneeId,
+                fetchOverrun = axiosInstance.post(endpoints.stages.stageTodo, {
+                    project_id: projectId,
+                    stage_id: stageId,
                 });
             }
             if (fetchOverrun) {
@@ -84,7 +87,8 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                     .finally(() => setLoading(false));
             }
         }
-    }, [open, assigneeId, overrunType]);
+    }, [open, stageId, overrunType, projectId]);
+    console.log(stageId);
 
     const handleSort = () => {
         const sortedData = [...taskData].sort((a, b) =>
@@ -176,13 +180,13 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                                         <TableCell align="center">
                                             <b>End Date</b>
                                         </TableCell>
-                                        {overrunType !== 'delayed_tasks' && (
+                                        {overrunType !== 'pending_tasks' && (
                                             <TableCell align="center">
                                                 <b>Actual start date</b>
                                             </TableCell>
                                         )}
                                         {overrunType !== 'inprogress_overrun' &&
-                                            overrunType !== 'delayed_tasks' && (
+                                            overrunType !== 'pending_tasks' && (
                                                 <TableCell align="center">
                                                     <b>Actual end date</b>
                                                 </TableCell>
@@ -271,6 +275,7 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                                                               )
                                                               .join('')}
                                                       </TableCell>
+
                                                       <TableCell align="center">
                                                           {task.status}
                                                       </TableCell>
@@ -280,13 +285,13 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                                                       <TableCell align="center">
                                                           {formatDate(task.end_date)}
                                                       </TableCell>
-                                                      {overrunType !== 'delayed_tasks' && (
+                                                      {overrunType !== 'pending_tasks' && (
                                                           <TableCell align="center">
                                                               {formatDate(task.actual_start_date)}
                                                           </TableCell>
                                                       )}
                                                       {overrunType !== 'inprogress_overrun' &&
-                                                          overrunType !== 'delayed_tasks' && (
+                                                          overrunType !== 'pending_tasks' && (
                                                               <TableCell
                                                                   align="center"
                                                                   sx={{
@@ -325,4 +330,4 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
     );
 };
 
-export default ProjectOverrunModal;
+export default StageOverrunmodal;

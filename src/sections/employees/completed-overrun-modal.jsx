@@ -190,7 +190,22 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                                       <TableCell align="center">
                                                           {task.stage_name}
                                                       </TableCell>
-                                                      <TableCell>{task.task_name}</TableCell>
+                                                      <TableCell
+                                                          sx={{
+                                                              whiteSpace: 'pre-wrap',
+                                                              wordBreak: 'break-word',
+                                                              maxWidth: '250px',
+                                                          }}
+                                                      >
+                                                          {task.task_name
+                                                              .split(' ')
+                                                              .map((word, index) =>
+                                                                  (index + 1) % 6 === 0
+                                                                      ? `${word}\n`
+                                                                      : `${word} `
+                                                              )
+                                                              .join('')}
+                                                      </TableCell>
                                                       <TableCell align="center">
                                                           {task.status}
                                                       </TableCell>

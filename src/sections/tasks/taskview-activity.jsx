@@ -243,7 +243,19 @@ const ActivitySection = ({ issueKey, refreshActivity }) => {
                                 };
 
                                 if (match) {
-                                    const [_, employeeName, field, oldValue, newValue] = match;
+                                    const [, employeeName, field, oldValueRaw, newValueRaw] = match;
+
+                                    const cleanDate = (value) => {
+                                        const dateMatch = value.match(/\d{2} \w{3} \d{4}/);
+                                        return dateMatch ? dateMatch[0] : value;
+                                    };
+
+                                    const stripHtml = (value) =>
+                                        value.replace(/<\/?[^>]+(>|$)/g, '');
+
+                                    // Clean values
+                                    const oldValue = stripHtml(cleanDate(oldValueRaw));
+                                    const newValue = stripHtml(cleanDate(newValueRaw));
                                     return (
                                         <ListItem
                                             key={index}
