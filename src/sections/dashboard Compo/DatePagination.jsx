@@ -3,30 +3,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import isoWeek from 'dayjs/plugin/isoWeek';
 
-import TimerIcon from '@mui/icons-material/Timer';
 import { ArrowBack, ArrowForward, CalendarToday } from '@mui/icons-material';
 import {
     Box,
     Card,
-    Menu,
     Paper,
-    Button,
-    Select,
     Tooltip,
-    MenuItem,
-    TextField,
     Typography,
-    InputLabel,
     IconButton,
-    FormControl,
-    FormHelperText,
-    CircularProgress,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { Iconify } from 'src/components/iconify';
-import TimesheetTable from '../timesheet/list-timesheet';
 
 dayjs.extend(isoWeek);
 
