@@ -1,6 +1,11 @@
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
+import { ArrowDropDown } from '@mui/icons-material';
+import { Menu, Avatar, MenuItem } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
 
 import { paths } from 'src/routes/paths';
@@ -16,7 +21,6 @@ import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
 import { LanguagePopover } from '../components/language-popover';
 import { ContactsPopover } from '../components/contacts-popover';
-import { WorkspacesPopover } from '../components/workspaces-popover';
 import { NotificationsDrawer } from '../components/notifications-drawer';
 
 // ----------------------------------------------------------------------
@@ -73,7 +77,20 @@ export function HeaderBase({
     ...other
 }) {
     const theme = useTheme();
+    const navigate = useNavigate();
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
 
+    const handleOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const { project_id } = useParams(); 
+    const currentProject =
+        data?.workspaces?.find((ws) => ws.id === project_id) || data?.workspaces?.[0];
     return (
         <HeaderSection
             sx={sx}
@@ -104,9 +121,66 @@ export function HeaderBase({
                         {/* -- Divider -- */}
                         <StyledDivider data-slot="divider" />
 
-                        {/* -- Workspace popover -- */}
-                        {workspaces && (
-                            <WorkspacesPopover data-slot="workspaces" data={data?.workspaces} />
+                        {workspaces && data?.workspaces && (
+                            <>
+                                {/* -- Workspace Dropdown Button -- */}
+                                <Button
+                                    onClick={handleOpen}
+                                    color="inherit"
+                                    aria-controls="workspace-menu"
+                                    aria-haspopup="true"
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontWeight: 'bold',
+                                        fontSize: '1.1rem', 
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1, 
+                                        padding: '8px 16px',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+                                        },
+                                    }}
+                                >
+                                    <Avatar
+                                        src={currentProject?.logo}
+                                        alt={currentProject?.name}
+                                        sx={{ width: 28, height: 28 }}
+                                    />
+
+                                    {currentProject?.name || 'Select Project'}
+
+                                    <ArrowDropDown fontSize="large" />
+                                </Button>
+
+                                {/* -- Dropdown Menu -- */}
+                                <Menu
+                                    id="workspace-menu"
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    sx={{ mt: 1 }}
+                                >
+                                    {data.workspaces.map((workspace) => (
+                                        <MenuItem
+                                            key={workspace.id}
+                                            onClick={() => {
+                                                navigate(workspace.path);
+                                                handleClose();
+                                            }}
+                                        >
+                                            <img
+                                                src={workspace.logo}
+                                                alt={workspace.name}
+                                                style={{ width: 24, height: 24, marginRight: 8 }}
+                                            />
+                                            {workspace.name}
+                                        </MenuItem>
+                                    ))}
+                                </Menu>
+                            </>
                         )}
 
                         {slots?.leftAreaEnd}
