@@ -90,37 +90,35 @@ const TimeLogTable = () => {
 
     const handleRowChange = (e, rowIndex, dayIndex = null) => {
         const { name, value } = e.target;
-    
+
         setFormData((prev) => {
             const updatedRow = {
                 ...prev[rowIndex],
-                [name.split('-')[0]]: value, 
+                [name.split('-')[0]]: value,
             };
-    
+
             if (dayIndex !== null && !Number.isNaN(dayIndex)) {
                 updatedRow.times = {
                     ...(prev[rowIndex]?.times || {}),
-                    [dayIndex]: value, 
+                    [dayIndex]: value,
                 };
             }
-    
+
             return {
                 ...prev,
                 [rowIndex]: updatedRow,
             };
         });
     };
-    
-    
 
     const handleSubmit = async () => {
-        console.log("Submitting formData:", JSON.stringify(formData, null, 2)); 
-    
-        const weekStartDate = selectedDate.startOf('week'); 
-    
+        console.log('Submitting formData:', JSON.stringify(formData, null, 2));
+
+        const weekStartDate = selectedDate.startOf('week');
+
         const payload = Object.entries(formData).flatMap(([rowIndex, rowData]) =>
             Object.entries(rowData?.times || {})
-                .filter(([dayIndex]) => !Number.isNaN(dayIndex)) 
+                .filter(([dayIndex]) => !Number.isNaN(dayIndex))
                 .map(([dayIndex, hours]) => ({
                     project_name: rowData?.projectName || '',
                     employee_id: user.employee_id,
@@ -132,13 +130,12 @@ const TimeLogTable = () => {
                     startDate: weekStartDate.add(Number(dayIndex), 'day').format('YYYY-MM-DD'),
                 }))
         );
-        
-    
-        console.log("Final Payload:", JSON.stringify(payload, null, 2)); 
-    
+
+        console.log('Final Payload:', JSON.stringify(payload, null, 2));
+
         try {
             const response = await axiosInstance.post(endpoints.timesheet.create, payload);
-    
+
             if (response.status) {
                 toast.success(`Timesheet ${timesheetId ? 'updated' : 'submitted'} successfully!`);
                 navigate(paths.main.timesheet.root);
@@ -147,8 +144,7 @@ const TimeLogTable = () => {
             toast.error(`Failed to ${timesheetId ? 'update' : 'submit'} timesheet.`);
         }
     };
-    
-    
+
     return (
         <Box p={3}>
             <Paper
@@ -264,40 +260,6 @@ const TimeLogTable = () => {
                                         </Select>
                                     </FormControl>
                                 </TableCell>
-{/* 
-                                <TableCell>
-                                    <FormControl fullWidth>
-                                        <Select
-                                            name={`jobName-${index}`}
-                                            value={formData[index]?.jobName || ''}
-                                            onChange={(e) => handleRowChange(e, index)}
-                                        >
-                                            <MenuItem value="">Select</MenuItem>
-                                            <MenuItem value="Frontend and Backend">
-                                                Frontend and Backend
-                                            </MenuItem>
-                                            <MenuItem value="AI and ML training and development">
-                                                AI and ML training and development
-                                            </MenuItem>
-                                            <MenuItem value="API Service Testing">
-                                                API Service Testing
-                                            </MenuItem>
-                                            <MenuItem value="Kiosk Integration">
-                                                Kiosk Integration
-                                            </MenuItem>
-                                            <MenuItem value="MDM Development">
-                                                MDM Development
-                                            </MenuItem>
-                                            <MenuItem value="Middle Layer and Backend Development">
-                                                Middle Layer and Backend Development
-                                            </MenuItem>
-                                            <MenuItem value="Payrastra">Payrastra</MenuItem>
-                                            <MenuItem value="Trueread Analysis">
-                                                Trueread Analysis
-                                            </MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </TableCell> */}
 
                                 <TableCell>
                                     <TextField
@@ -342,20 +304,52 @@ const TimeLogTable = () => {
                                             textAlign: 'center',
                                             minWidth: 120,
                                             backgroundColor:
-                                                i === 0 || i === 6 ? '#fdf2d1' : 'transparent',
+                                                i === 0 || i === 6
+                                                    ? '#fdf2d1' 
+                                                    : i === index + 1
+                                                      ? '#e3f2fd'
+                                                      : 'transparent',
+                                            fontWeight: i === 0 || i === 6 ? 'bold' : 'normal',
+                                            borderRadius: i === 0 || i === 6 ? '8px' : '0',
                                         }}
                                     >
                                         {i === 0 || i === 6 ? (
                                             <Typography sx={{ fontSize: '0.9rem', color: 'gray' }}>
                                                 --
                                             </Typography>
+                                        ) : i === index + 1 ? (
+                                            <TextField
+                                                variant="outlined"
+                                                size="small"
+                                                name={`time-${index}-${i}`}
+                                                value={formData[index]?.times?.[i] || '00:00'}
+                                                onChange={(e) => handleRowChange(e, index, i)}
+                                                sx={{
+                                                    '& .MuiOutlinedInput-root': {
+                                                        backgroundColor: '#fff',
+                                                        borderRadius: '8px',
+                                                        '&:hover fieldset': {
+                                                            borderColor: '#2196f3',
+                                                        },
+                                                        '&.Mui-focused fieldset': { 
+                                                            borderColor: '#1976d2',
+                                                        },
+                                                    },
+                                                }}
+                                            />
                                         ) : (
                                             <TextField
                                                 variant="outlined"
                                                 size="small"
-                                                name={`time-${index}-${i+1}`}
-                                                value={formData[index]?.times?.[i] || '00:00'}
-                                                onChange={(e) => handleRowChange(e, index, i)}
+                                                name={`time-${index}-${i}`}
+                                                value={formData[index]?.times?.[i] || '--:--'}
+                                                InputProps={{ readOnly: true }}
+                                                sx={{
+                                                    '& .MuiOutlinedInput-root': {
+                                                        backgroundColor: '#f5f5f5',
+                                                        borderRadius: '8px',
+                                                    },
+                                                }}
                                             />
                                         )}
                                     </TableCell>
@@ -410,6 +404,5 @@ const TimeLogTable = () => {
         </Box>
     );
 };
-
 
 export default TimeLogTable;
