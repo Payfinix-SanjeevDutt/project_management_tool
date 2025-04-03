@@ -62,7 +62,6 @@ const TimesheetTable = ({ startOfWeek, endOfWeek }) => {
         }
         closePopover();
     };
-
     useEffect(() => {
         axiosInstance
             .post(endpoints.timesheet.list, { employee_id: user.employee_id })
@@ -72,16 +71,28 @@ const TimesheetTable = ({ startOfWeek, endOfWeek }) => {
                         const itemDate = dayjs(item.startDate);
                         const start = dayjs(startOfWeek);
                         const end = dayjs(endOfWeek);
-
+    
                         return (
                             itemDate.isValid() &&
                             itemDate.isAfter(start.subtract(1, 'day')) &&
                             itemDate.isBefore(end.add(0, 'day'))
                         );
                     });
-
+    
+                    const sortedData = filteredData.sort((a, b) => 
+                        dayjs(b.startDate).valueOf() - dayjs(a.startDate).valueOf()
+                    );
+    
+                    const uniqueEntries = new Map();
+                    sortedData.forEach((item) => {
+                        const formattedDate = dayjs(item.startDate).format('DD-MMM-YYYY');
+                        if (!uniqueEntries.has(formattedDate)) {
+                            uniqueEntries.set(formattedDate, item);
+                        }
+                    });
+    
                     setRows(
-                        filteredData.map((item) => ({
+                        Array.from(uniqueEntries.values()).map((item) => ({
                             id: item.timesheet_id,
                             date: dayjs(item.startDate).format('DD-MMM-YYYY'),
                             project: item.project_name,

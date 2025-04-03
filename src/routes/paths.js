@@ -31,7 +31,9 @@ export const paths = {
             root: `${ROOTS.MAIN_PAGE}/timesheet`,
             create: `${ROOTS.MAIN_PAGE}/timesheet/create`,
             dashboard: `${ROOTS.MAIN_PAGE}/timesheet/DashboardView`,
-
+            daily: `${ROOTS.MAIN_PAGE}/timesheet/create-daily`,
+            weekly: `${ROOTS.MAIN_PAGE}/timesheet/create-weekly`,
+            edit: (timesheetId, employeeId) => `${ROOTS.MAIN_PAGE}/timesheet/edit/${timesheetId}/${employeeId}`,
         },
         // dashboardCompo: {
         //     root: `${ROOTS.MAIN_PAGE}/timesheet`,

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import isoWeek from 'dayjs/plugin/isoWeek';
 
@@ -43,7 +43,7 @@ export default function TimeLogs() {
     const [showArrows, setShowArrows] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [loading, setLoading] = useState(false); 
+    const [loading, setLoading] = useState(false);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -59,13 +59,14 @@ export default function TimeLogs() {
     const handleWeekCreate = () => navigate(paths.main.timesheet.weekly);
 
     const changeWeek = (offset) => {
-        setLoading(true); 
+        setLoading(true);
         setSelectedDate((prevDate) => prevDate.add(offset, 'week'));
-        setTimeout(() => setLoading(false), 1000); 
+        setTimeout(() => setLoading(false), 1000);
     };
 
-    const startOfWeek = selectedDate.startOf('isoWeek');
-    const endOfWeek = selectedDate.endOf('isoWeek');
+    const startOfWeek = useMemo(() => selectedDate.startOf('week').subtract(0, 'day'), [selectedDate]);
+    const endOfWeek = useMemo(() => startOfWeek.add(6, 'day'), [startOfWeek]);
+
 
     return (
         <Box p={3} bgcolor="#f3f4f6">
@@ -82,49 +83,49 @@ export default function TimeLogs() {
                         Time Logs
                     </Typography>
                     <Paper
-            elevation={2}
-            sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1,
-                borderRadius: 2,
-                bgcolor: "background.paper",
-                transition: "all 0.3s",
-                "&:hover": { boxShadow: 4 },
-                position: "relative",
-                cursor: "pointer",
-                maxWidth: 450
-            }}
-            onMouseEnter={() => setShowArrows(true)}
-            onMouseLeave={() => setShowArrows(true)}
-        >
-            {showArrows && (
-                <Tooltip title="Previous Week">
-                    <IconButton onClick={() => changeWeek(-1)} size="small">
-                        <ArrowBack />
-                    </IconButton>
-                </Tooltip>
-            )}
-            <Typography variant="body1" fontWeight={500}>
-                {startOfWeek.format("DD-MMM-YYYY")}
-            </Typography>
+                        elevation={2}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.5,
+                            px: 2,
+                            py: 1,
+                            borderRadius: 2,
+                            bgcolor: 'background.paper',
+                            transition: 'all 0.3s',
+                            '&:hover': { boxShadow: 4 },
+                            position: 'relative',
+                            cursor: 'pointer',
+                            maxWidth: 450,
+                        }}
+                        onMouseEnter={() => setShowArrows(true)}
+                        onMouseLeave={() => setShowArrows(true)}
+                    >
+                        {showArrows && (
+                            <Tooltip title="Previous Week">
+                                <IconButton onClick={() => changeWeek(-1)} size="small">
+                                    <ArrowBack />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                        <Typography variant="body1" fontWeight={500}>
+                            {startOfWeek.format('DD-MMM-YYYY')}
+                        </Typography>
 
-            <CalendarToday fontSize="small" color="primary" />
+                        <CalendarToday fontSize="small" color="primary" />
 
-            <Typography variant="body1" fontWeight={500}>
-                {endOfWeek.format("DD-MMM-YYYY")}
-            </Typography>
+                        <Typography variant="body1" fontWeight={500}>
+                            {endOfWeek.format('DD-MMM-YYYY')}
+                        </Typography>
 
-            {showArrows && (
-                <Tooltip title="Next Week">
-                    <IconButton onClick={() => changeWeek(1)} size="small">
-                        <ArrowForward />
-                    </IconButton>
-                </Tooltip>
-            )}
-        </Paper>
+                        {showArrows && (
+                            <Tooltip title="Next Week">
+                                <IconButton onClick={() => changeWeek(1)} size="small">
+                                    <ArrowForward />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </Paper>
                     <Button variant="contained" onClick={handleClick}>
                         Log Time
                     </Button>
@@ -135,7 +136,7 @@ export default function TimeLogs() {
                 </Box>
 
                 <Box display="flex" alignItems="center" gap={2} py={2}>
-                    <FormControl sx={{ width: 240 }} error={!!errors.project}>
+                    <FormControl sx={{ width: 300 }} error={!!errors.project}>
                         <InputLabel>Select Project</InputLabel>
                         <Select value={project} onChange={(e) => setProject(e.target.value)}>
                             <MenuItem value="">Select Project</MenuItem>
@@ -145,20 +146,10 @@ export default function TimeLogs() {
                         {errors.project && <FormHelperText>{errors.project}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl sx={{ width: 240 }} error={!!errors.job}>
-                        <InputLabel>Select Job</InputLabel>
-                        <Select value={job} onChange={(e) => setJob(e.target.value)}>
-                            <MenuItem value="">Select Job</MenuItem>
-                            <MenuItem value="Job A">Job A</MenuItem>
-                            <MenuItem value="Job B">Job B</MenuItem>
-                        </Select>
-                        {errors.job && <FormHelperText>{errors.job}</FormHelperText>}
-                    </FormControl>
-
-                    <Box display="flex" alignItems="center" gap={2} width="40%">
+                    <Box display="flex" alignItems="center" gap={2} width="50%">
                         <FormControl sx={{ flexGrow: 1 }} error={!!errors.workItem}>
                             <TextField
-                                label="What are you working on?"
+                                label="Task"
                                 variant="outlined"
                                 fullWidth
                                 value={workItem}
@@ -218,7 +209,7 @@ export default function TimeLogs() {
 
                 {loading ? (
                     <Box display="flex" justifyContent="center" py={3}>
-                        <CircularProgress  value={2}/>
+                        <CircularProgress value={2} />
                     </Box>
                 ) : (
                     <TimesheetTable startOfWeek={startOfWeek} endOfWeek={endOfWeek} />

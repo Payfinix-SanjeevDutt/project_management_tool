@@ -188,16 +188,21 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
     const HandleTaskChanges = ({ name, value }) => {
         setTempTask((prev) => {
             const previousValue = prev[name];
-            const newValue = value;
-
-            setPreviousValues((prevValues) => ({
-                ...prevValues,
-                [name]: { oldValue: previousValue, newValue },
-            }));
-
-            return { ...prev, [name]: newValue };
-        });
+    
+            setPreviousValues((prevValues) => (
+                 {
+                    ...prevValues,
+                    [name]: {
+                        oldValue: prevValues[name]?.oldValue ?? previousValue,
+                        newValue: value,
+                    },
+                }
+            ))
+    
+            return { ...prev, [name]: value };
+        })
     };
+    
 
     useEffect(() => {
         if (issueKey) {
@@ -278,7 +283,6 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                 const { database_attachments = [] } = data || {};
                 setShowAttachedFiles(database_attachments);
             } else {
-                // toast.error( 'Failed to fetch attached files');
                 console.error('Error Details');
             }
         } catch (err) {
@@ -327,7 +331,7 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                 toast.error('Failed to delete the file');
             }
         } catch (err) {
-            console.error('Error Details:', err); // Log full error for debugging
+            console.error('Error Details:', err); 
             toast.error('Unable to delete the file');
         } finally {
             setLoadDelete(false);

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 
 import {
     Box,
+    Stack,
     Modal,
     Table,
     Paper,
+    Avatar,
     Button,
     Backdrop,
     Skeleton,
@@ -14,42 +16,67 @@ import {
     TableHead,
     Typography,
     TableContainer,
+    TableSortLabel,
 } from '@mui/material';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { EmptyContent } from 'src/components/empty-content';
 
-const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
+const StageOverrunmodal = ({ open, handleClose, stageId, overrunType, projectId }) => {
     const [taskData, setTaskData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [employeeName, setEmployeeName] = useState('');
+    const [ProjectName, setProjectName] = useState('');
+    const [sortOrder, setSortOrder] = useState('asc');
+
+    const getAvatarColor = (name) => {
+        if (!name) return '#9E9E9E';
+        const charCode = name.charAt(0).toUpperCase().charCodeAt(0);
+        const colors = [
+            '#FF5733',
+            '#33FF57',
+            '#3357FF',
+            '#F39C12',
+            '#9B59B6',
+            '#E74C3C',
+            '#1ABC9C',
+            '#D35400',
+            '#27AE60',
+            '#8E44AD',
+        ];
+        return colors[charCode % colors.length];
+    };
     useEffect(() => {
-        if (open && assigneeId && overrunType) {
+        if (open && stageId && overrunType) {
             setLoading(true);
             setError('');
             setTaskData([]);
 
             let fetchOverrun;
             if (overrunType === 'completed_overrun') {
-                fetchOverrun = axiosInstance.post(endpoints.user.completed_overrun, {
-                    assignee_id: assigneeId,
+                fetchOverrun = axiosInstance.post(endpoints.stages.stageOverdue, {
+                    project_id: projectId,
+                    stage_id: stageId,
                 });
             } else if (overrunType === 'inprogress_overrun') {
-                fetchOverrun = axiosInstance.post(endpoints.user.inprogress_overrun, {
-                    assignee_id: assigneeId,
+                fetchOverrun = axiosInstance.post(endpoints.stages.stageInprogress, {
+                    project_id: projectId,
+                    stage_id: stageId,
                 });
             } else {
-                fetchOverrun = axiosInstance.post(endpoints.user.todo, { assignee_id: assigneeId });
+                fetchOverrun = axiosInstance.post(endpoints.stages.stageTodo, {
+                    project_id: projectId,
+                    stage_id: stageId,
+                });
             }
-
             if (fetchOverrun) {
                 fetchOverrun
                     .then((res) => {
+                        console.log(res.data.data);
                         if (res.data?.status) {
                             setTaskData(res.data.data);
-                            setEmployeeName(res.data.employee_name || 'Unknown Employee');
+                            setProjectName(res.data.project_name || 'Unknown Project');
                         } else {
                             setError('No tasks found.');
                         }
@@ -60,7 +87,18 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                     .finally(() => setLoading(false));
             }
         }
-    }, [open, assigneeId, overrunType]);
+    }, [open, stageId, overrunType, projectId]);
+    console.log(stageId);
+
+    const handleSort = () => {
+        const sortedData = [...taskData].sort((a, b) =>
+            sortOrder === 'asc'
+                ? a.employee_name.localeCompare(b.employee_name)
+                : b.employee_name.localeCompare(a.employee_name)
+        );
+        setTaskData(sortedData);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    };
 
     return (
         <Modal
@@ -76,7 +114,7 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: { xs: '100%', sm: '85%', md: '85%' },
+                    width: { xs: '100%', sm: '85%', md: '90%' },
                     maxHeight: '90vh',
                     overflowY: 'auto',
                     bgcolor: 'background.paper',
@@ -99,7 +137,7 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                 fontSize: { xs: '1rem', sm: '1.2rem' },
                             }}
                         >
-                            {loading ? <Skeleton width={200} /> : `${employeeName} :`}
+                            {loading ? <Skeleton width={200} /> : `${ProjectName} :`}
                         </Typography>
 
                         <TableContainer
@@ -119,7 +157,13 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="center">
-                                            <b>Project Name</b>
+                                            <TableSortLabel
+                                                active
+                                                direction={sortOrder}
+                                                onClick={handleSort}
+                                            >
+                                                <b>Employee Name</b>
+                                            </TableSortLabel>
                                         </TableCell>
                                         <TableCell align="center">
                                             <b>Stage Name</b>
@@ -138,13 +182,13 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                         </TableCell>
                                         {overrunType !== 'pending_tasks' && (
                                             <TableCell align="center">
-                                                <b>Actual Start Date</b>
+                                                <b>Actual start date</b>
                                             </TableCell>
                                         )}
                                         {overrunType !== 'inprogress_overrun' &&
                                             overrunType !== 'pending_tasks' && (
                                                 <TableCell align="center">
-                                                    <b>Actual End Date</b>
+                                                    <b>Actual end date</b>
                                                 </TableCell>
                                             )}
                                         <TableCell align="center">
@@ -184,9 +228,34 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
 
                                               return (
                                                   <TableRow key={task.task_id}>
-                                                      <TableCell align="center">
-                                                          {task.project_name}
+                                                      <TableCell>
+                                                          <Stack
+                                                              direction="row"
+                                                              spacing={2}
+                                                              alignItems="center"
+                                                          >
+                                                              <Avatar
+                                                                  sx={{
+                                                                      px: 2,
+                                                                      py: 0.5,
+                                                                      bgcolor: getAvatarColor(
+                                                                          task.employee_name
+                                                                      ),
+                                                                      width: 32,
+                                                                      height: 32,
+                                                                      fontSize: 16,
+                                                                  }}
+                                                              >
+                                                                  {task.employee_name
+                                                                      ? task.employee_name
+                                                                            .charAt(0)
+                                                                            .toUpperCase()
+                                                                      : '?'}
+                                                              </Avatar>
+                                                              {task.employee_name}
+                                                          </Stack>
                                                       </TableCell>
+
                                                       <TableCell align="center">
                                                           {task.stage_name}
                                                       </TableCell>
@@ -206,6 +275,7 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
                                                               )
                                                               .join('')}
                                                       </TableCell>
+
                                                       <TableCell align="center">
                                                           {task.status}
                                                       </TableCell>
@@ -260,4 +330,4 @@ const OverrunModal = ({ open, handleClose, assigneeId, overrunType }) => {
     );
 };
 
-export default OverrunModal;
+export default StageOverrunmodal;

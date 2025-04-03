@@ -1,5 +1,5 @@
 import { useParams } from 'react-router';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
     Box,
@@ -19,15 +19,12 @@ import {
     CircularProgress,
 } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
-import ProjectOverrunModal from 'src/sections/project/list-completed-overrun-modal';
+import StageOverrunmodal from './stage-overrun-modal';
 
 function DashboardStageView() {
     const [order, setOrder] = useState('asc');
@@ -38,9 +35,6 @@ function DashboardStageView() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { project_id } = useParams();
-    console.log('project_id>>', project_id);
-
-    const router = useRouter();
 
     const columns = [
         { key: 'stage_name', label: 'Stages', icon: 'solar:user-outline', sortable: true },
@@ -113,7 +107,7 @@ function DashboardStageView() {
     };
     const [openModal, setOpenModal] = useState(false);
     const [selectedOverrunType, setSelectedOverrunType] = useState('');
-    const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const [selectedStageId, setselectedStageId] = useState(null);
 
     const sortedReport = [...reportData].sort((a, b) => {
         const aValue = a[orderBy];
@@ -122,23 +116,11 @@ function DashboardStageView() {
             return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         return order === 'asc' ? aValue - bValue : bValue - aValue;
     });
-    const handleOpenModal = (ProjectId, overrunType) => {
-        setSelectedProjectId(ProjectId);
+    const handleOpenModal = (stageId, overrunType) => {
+        setselectedStageId(stageId);
         setSelectedOverrunType(overrunType);
         setOpenModal(true);
     };
-    const handleViewRow = useCallback(
-        (id) => {
-            router.push(paths.dashboard.projectdashboard.homestages(id));
-        },
-        [router]
-    );
-    const handleViewRow2 = useCallback(
-        (id) => {
-            router.push(paths.dashboard.projectdashboard.homeusers(id));
-        },
-        [router]
-    );
 
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
@@ -236,7 +218,7 @@ function DashboardStageView() {
                                                     sx={{
                                                         minWidth: 120,
                                                         textAlign:
-                                                            col.key === 'stages'
+                                                            col.key === 'stage_name'
                                                                 ? 'left'
                                                                 : 'center',
                                                         verticalAlign: 'middle',
@@ -263,7 +245,7 @@ function DashboardStageView() {
                                                                 }}
                                                                 onClick={() =>
                                                                     handleOpenModal(
-                                                                        row.project_id,
+                                                                        row.stage_id,
                                                                         col.key
                                                                     )
                                                                 }
@@ -285,42 +267,6 @@ function DashboardStageView() {
                                                                 {row[col.key]}
                                                             </Box>
                                                         )
-                                                    ) : col.key.includes('project_name') ? (
-                                                        <Box
-                                                            sx={{
-                                                                px: 2,
-                                                                py: 0.5,
-                                                                cursor: 'pointer',
-                                                                textDecoration: 'underline',
-                                                                color: 'black',
-                                                                '&:hover': {
-                                                                    color: 'green',
-                                                                },
-                                                            }}
-                                                            onClick={() =>
-                                                                handleViewRow(row.project_id)
-                                                            }
-                                                        >
-                                                            {row[col.key]}
-                                                        </Box>
-                                                    ) : col.key.includes('number_employees') ? (
-                                                        <Box
-                                                            sx={{
-                                                                px: 2,
-                                                                py: 0.5,
-                                                                cursor: 'pointer',
-                                                                textDecoration: 'underline',
-                                                                color: 'black',
-                                                                '&:hover': {
-                                                                    color: 'green',
-                                                                },
-                                                            }}
-                                                            onClick={() =>
-                                                                handleViewRow2(row.project_id)
-                                                            }
-                                                        >
-                                                            {row[col.key]}
-                                                        </Box>
                                                     ) : (
                                                         <Box
                                                             sx={{
@@ -348,10 +294,11 @@ function DashboardStageView() {
                     </Table>
                 )}
             </TableContainer>
-            <ProjectOverrunModal
+            <StageOverrunmodal
                 open={openModal}
                 handleClose={() => setOpenModal(false)}
-                assigneeId={selectedProjectId}
+                projectId={project_id}
+                stageId={selectedStageId}
                 overrunType={selectedOverrunType}
             />
 
