@@ -21,23 +21,20 @@ const dummyData = [
     {
         id: 1,
         employee: 'John Doe',
-        jobName: 'Frontend Developer',
+        workItem: 'Frontend Developer',
         projectName: 'Project X',
-        clientName: 'Client Y',
     },
     {
         id: 2,
         employee: 'Jane Smith',
-        jobName: 'Backend Developer',
+        workItem: 'Backend Developer',
         projectName: 'Project Y',
-        clientName: 'Client Z',
     },
     {
         id: 3,
         employee: 'John Doe',
-        jobName: 'Backend Developer',
+        workItem: 'Backend Developer',
         projectName: 'Project X',
-        clientName: 'Client Z',
     },
 ];
 
@@ -48,9 +45,8 @@ const TimeData = () => {
     const { user } = useContext(AuthContext);
     const [filters, setFilters] = useState({
         employee: '',
-        jobName: '',
+        workItem: '',
         projectName: '',
-        clientName: '',
         date: null,
     });
 
@@ -88,9 +84,8 @@ const TimeData = () => {
     const filteredRows = rows.filter(
         (row) =>
             (filters.employee === '' || row.employee === filters.employee) &&
-            (filters.jobName === '' || row.jobName === filters.jobName) &&
+            (filters.workItem === '' || row.workItem === filters.workItem) &&
             (filters.projectName === '' || row.projectName === filters.projectName) &&
-            (filters.clientName === '' || row.clientName === filters.clientName) &&
             (!filters.date ||
                 dayjs(filters.date).format('MMM DD, YYYY') ===
                     dayjs(selectedDate).format('MMM DD, YYYY'))
@@ -98,9 +93,8 @@ const TimeData = () => {
 
     const columns = [
         { field: 'employee', headerName: 'Employee', width: 200 },
-        { field: 'clientName', headerName: 'Client Name', width: 200 },
         { field: 'projectName', headerName: 'Project Name', width: 200 },
-        { field: 'jobName', headerName: 'Job Name', width: 200 },
+        { field: 'workItem', headerName: 'Job Name', width: 200 },
         {
             field: 'description',
             headerName: 'Description',
@@ -146,7 +140,7 @@ const TimeData = () => {
                         <MenuItem value="monthly">Monthly</MenuItem>
                     </Select>
                 </FormControl>
-                {['employee', 'jobName', 'projectName', 'clientName'].map((filterKey) => (
+                {['employee', 'workItem', 'projectName'].map((filterKey) => (
                     <FormControl key={filterKey} sx={{ minWidth: 150 }}>
                         <Select
                             name={filterKey}
