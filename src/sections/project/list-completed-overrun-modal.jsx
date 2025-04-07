@@ -85,7 +85,7 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
             }
         }
     }, [open, assigneeId, overrunType]);
-
+    console.log(assigneeId)
     const handleSort = () => {
         const sortedData = [...taskData].sort((a, b) =>
             sortOrder === 'asc'
@@ -255,7 +255,22 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
                                                       <TableCell align="center">
                                                           {task.stage_name}
                                                       </TableCell>
-                                                      <TableCell>{task.task_name}</TableCell>
+                                                      <TableCell
+                                                          sx={{
+                                                              whiteSpace: 'pre-wrap',
+                                                              wordBreak: 'break-word',
+                                                              maxWidth: '250px',
+                                                          }}
+                                                      >
+                                                          {task.task_name
+                                                              .split(' ')
+                                                              .map((word, index) =>
+                                                                  (index + 1) % 6 === 0
+                                                                      ? `${word}\n`
+                                                                      : `${word} `
+                                                              )
+                                                              .join('')}
+                                                      </TableCell>
                                                       <TableCell align="center">
                                                           {task.status}
                                                       </TableCell>

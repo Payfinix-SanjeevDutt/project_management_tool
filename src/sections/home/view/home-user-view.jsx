@@ -119,7 +119,6 @@ function HomeUserView() {
                 setReport(response.data);
                 setLoading(false);
             } catch (err) {
-                // setError('Failed to fetch data');
                 setLoading(true);
             }
         };

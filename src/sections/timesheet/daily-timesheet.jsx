@@ -43,8 +43,6 @@ const INITIAL_STATE = {
     startTime: null,
     endTime: null,
     selectedTimeMode: 'startEnd',
-    timer: 0,
-    timerRunning: false,
 };
 
 export default function StageCreateForm() {
@@ -54,18 +52,14 @@ export default function StageCreateForm() {
     const handleClose = () => navigate(paths.main.timesheet.root);
     const [projects, setProjects] = useState([]);
     const { timesheetId, employeeId } = useParams();
-    console.log(timesheetId,employeeId)
     const handleSubmit = async () => {
         if (!formData.projectName.trim()) {
             toast.error('Project Name is required.');
             return;
         }
-        if (!formData.jobName.trim()) {
-            toast.error('Job Name is required.');
-            return;
-        }
+       
         if (!formData.workItem.trim()) {
-            toast.error('Work Item is required.');
+            toast.error('Task is required.');
             return;
         }
         if (!formData.startDate) {
@@ -194,7 +188,7 @@ export default function StageCreateForm() {
     }, [formData.startTime, formData.endTime]);
 
     return (
-        <Card sx={{ mx: 'auto', width: '80%' }}>
+        <Card sx={{ mx: 'auto', my:'auto',width: '80%' }}>
             <CardHeader
                 title="Create Timesheet"
                 subheader="Fill in the details below"
@@ -204,7 +198,7 @@ export default function StageCreateForm() {
             <CardContent>
                 <Stack gap={3} padding={3}>
                     <FormControl fullWidth >
-                        <InputLabel>Project Name</InputLabel>
+                        <InputLabel>Project</InputLabel>
                         <Select
                             name="projectName"
                             value={formData.projectName}
@@ -222,7 +216,7 @@ export default function StageCreateForm() {
                         </Select>
                     </FormControl>
 
-                    <FormControl fullWidth>
+                    {/* <FormControl fullWidth>
                         <InputLabel>Job Name</InputLabel>
                         <Select
                             name="jobName"
@@ -243,12 +237,12 @@ export default function StageCreateForm() {
                             <MenuItem value="Payrastra">Payrastra</MenuItem>
                             <MenuItem value="Trueread Analysis">Trueread Analysis</MenuItem>
                         </Select>
-                    </FormControl>
+                    </FormControl> */}
 
                     <TextField
                         fullWidth
                         name="workItem"
-                        label="Work Item"
+                        label="Task"
                         variant="outlined"
                         value={formData.workItem}
                         onChange={handleInputChange}
