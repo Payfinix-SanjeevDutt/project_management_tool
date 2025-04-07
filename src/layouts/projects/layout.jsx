@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo} from 'react';
 
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
@@ -22,9 +22,11 @@ import { _workspaces } from '../config-nav-workspace';
 import { LayoutSection } from '../core/layout-section';
 import { accountData } from '../config-nav-account-data';
 import { navData as dashboardNavData } from '../config-nav-project';
+
 // ----------------------------------------------------------------------
 
 export function ProjectLayout({ sx, children, data }) {
+    
     const theme = useTheme();
 
     const mobileNavOpen = useBoolean();
@@ -41,6 +43,8 @@ export function ProjectLayout({ sx, children, data }) {
     const isNavHorizontal = settings.navLayout === 'horizontal';
 
     const isNavVertical = isNavMini || settings.navLayout === 'vertical';
+
+    
 
     return (
         <>
@@ -63,7 +67,7 @@ export function ProjectLayout({ sx, children, data }) {
                         data={{
                             nav: navData,
                             account: accountData,
-                            workspaces: _workspaces,
+                            workspaces:_workspaces,
                             notifications: _notifications,
                         }}
                         slotsDisplay={{

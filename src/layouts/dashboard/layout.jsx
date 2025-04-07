@@ -1,10 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { _notifications } from 'src/_mock';
 import { varAlpha, stylesMode } from 'src/theme/styles';
@@ -18,7 +20,7 @@ import { layoutClasses } from '../classes';
 import { NavVertical } from './nav-vertical';
 import { NavHorizontal } from './nav-horizontal';
 import { HeaderBase } from '../core/header-base';
-import { _workspaces } from '../config-nav-workspace';
+// import { _workspaces } from '../config-nav-workspace';
 import { LayoutSection } from '../core/layout-section';
 // import { navData as dashboardNavData } from '../config-nav-dashboard';
 import { useNavConfig } from '../config-nav-dashboard';
@@ -26,6 +28,9 @@ import { accountData } from '../config-nav-account-data';
 // ----------------------------------------------------------------------
 
 export function DashboardLayout({ sx, children, data }) {
+    const [reportData, setReportData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const theme = useTheme();
 
     const mobileNavOpen = useBoolean();
@@ -45,6 +50,20 @@ export function DashboardLayout({ sx, children, data }) {
     const isNavHorizontal = settings.navLayout === 'horizontal';
 
     const isNavVertical = isNavMini || settings.navLayout === 'vertical';
+
+    useEffect(() => {
+        axiosInstance
+            .get(endpoints.project.project_stage_report)
+            .then((response) => {
+                setReportData(response.data);
+                setLoading(false);
+                console.log('reported  data1---------', reportData?.projects);
+            })
+            .catch((err) => {
+                setError(err.message || 'Failed to fetch data');
+                setLoading(false);
+            });
+    });
 
     return (
         <>
@@ -67,7 +86,7 @@ export function DashboardLayout({ sx, children, data }) {
                         data={{
                             nav: navData,
                             account: accountData,
-                            workspaces: _workspaces,
+                            workspaces: reportData?.projects,
                             notifications: _notifications,
                         }}
                         slotsDisplay={{

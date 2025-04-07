@@ -26,6 +26,7 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
+import TimeOverrunModal from 'src/sections/employees/timeoverun-model';
 import OverrunModal from 'src/sections/employees/completed-overrun-modal';
 
 function HomeUserView() {
@@ -38,8 +39,10 @@ function HomeUserView() {
     const [rowsPerPage, setRowsPerPage] = useState(25);
     const [searchQuery, setSearchQuery] = useState('');
     const [openModal, setOpenModal] = useState(false);
+    const [openModal1, setOpenModal1] = useState(false);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
     const [selectedOverrunType, setSelectedOverrunType] = useState('');
+    const [selectedTimerunType, setSelectedTimeOver] = useState('');
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
@@ -108,6 +111,7 @@ function HomeUserView() {
             icon: 'carbon:task-asset-view',
             sortable: true,
         },
+        { key: 'time_overrun', label: 'Time Overrun', icon: 'gg:time', sortable: true },
     ];
 
     useEffect(() => {
@@ -115,7 +119,34 @@ function HomeUserView() {
             setLoading(true);
             try {
                 const response = await axiosInstance.get(endpoints.project.project_employee_report);
-                setReport(response.data);
+
+                // Add random logs and calculate time_overrun based on missed days
+                const updatedReport = response.data.map((emp) => {
+                    const logs = Array.from({ length: 3 }, (_, i) => {
+                        const hours = Math.floor(Math.random() * 4) + 6; // 6-9
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        return {
+                            date: date.toISOString().split('T')[0],
+                            hours,
+                        };
+                    });
+
+                    const missed = logs.filter((l) => l.hours < 8);
+
+                    return {
+                        ...emp,
+                        time_overrun: missed.length,
+                        missed_logs: missed.map((log) => ({
+                            ...log,
+                            employee_name: emp.name,
+                            project_name: emp.project_name || 'N/A',
+                            task_name: emp.task_name || 'N/A',
+                        })),
+                    };
+                });
+
+                setReport(updatedReport);
                 setLoading(false);
             } catch (err) {
                 setLoading(true);
@@ -131,26 +162,6 @@ function HomeUserView() {
         setOrderBy(property);
     };
 
-    const sortedReport = report.slice().sort((a, b) => {
-        if (orderBy) {
-            const aValue = a[orderBy];
-            const bValue = b[orderBy];
-
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-                return order === 'asc'
-                    ? aValue.localeCompare(bValue)
-                    : bValue.localeCompare(aValue);
-            }
-
-            if (typeof aValue === 'number' && typeof bValue === 'number') {
-                return order === 'asc' ? aValue - bValue : bValue - aValue;
-            }
-
-            return 0;
-        }
-        return 0;
-    });
-
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -159,14 +170,24 @@ function HomeUserView() {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
+
     const handleOpenModal = (employeeId, overrunType) => {
         setSelectedEmployeeId(employeeId);
         setSelectedOverrunType(overrunType);
         setOpenModal(true);
     };
+    const handleOpenModal1 = (employeeId, missedDays) => {
+        setSelectedEmployeeId(employeeId);
+        setSelectedTimeOver(missedDays);
+        setOpenModal1(true);
+    };
 
     const handleCloseModal = () => {
         setOpenModal(false);
+        setSelectedEmployeeId(null);
+    };
+    const handleCloseModal1 = () => {
+        setOpenModal1(false);
         setSelectedEmployeeId(null);
     };
 
@@ -193,7 +214,6 @@ function HomeUserView() {
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, maxWidth: 1000 }}>
-                        {' '}
                         <TextField
                             fullWidth
                             value={searchQuery}
@@ -226,10 +246,7 @@ function HomeUserView() {
                                 {columns.map((col) => (
                                     <TableCell
                                         key={col.key}
-                                        sx={{
-                                            minWidth: 120,
-                                            textAlign: 'center',
-                                        }}
+                                        sx={{ minWidth: 120, textAlign: 'center' }}
                                     >
                                         {col.sortable ? (
                                             <TableSortLabel
@@ -290,107 +307,84 @@ function HomeUserView() {
                                 sortedFilteredReport
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                     .map((row) => (
-                                            <TableRow key={row.employee_id}>
-                                                {columns.map((col) => (
-                                                    <TableCell
-                                                        key={col.key}
-                                                        align="center"
-                                                        size="small"
-                                                        sx={{
-                                                            borderRight:
-                                                                col.key !== 'pending_tasks'
-                                                                    ? '1px dashed rgba(0, 0, 0, 0.1)'
-                                                                    : '',
-                                                            minWidth: 120,
-                                                            verticalAlign: 'middle',
-                                                        }}
-                                                    >
-                                                        {col.key === 'name' ? (
-                                                            <Stack
-                                                                direction="row"
-                                                                spacing={2}
-                                                                alignItems="center"
+                                        <TableRow key={row.employee_id}>
+                                            {columns.map((col) => (
+                                                <TableCell
+                                                    key={col.key}
+                                                    align="center"
+                                                    size="small"
+                                                    sx={{
+                                                        borderRight:
+                                                            col.key !== 'pending_tasks'
+                                                                ? '1px dashed rgba(0, 0, 0, 0.1)'
+                                                                : '',
+                                                        minWidth: 120,
+                                                        verticalAlign: 'middle',
+                                                    }}
+                                                >
+                                                    {col.key === 'name' ? (
+                                                        <Stack
+                                                            direction="row"
+                                                            spacing={2}
+                                                            alignItems="center"
+                                                            sx={{ width: '100%' }}
+                                                        >
+                                                            <Avatar
+                                                                alt={row.name || 'User'}
+                                                                src={row.avatar}
                                                                 sx={{
-                                                                    width: '100%',
-                                                                    display: 'flex',
+                                                                    width: 32,
+                                                                    height: 32,
+                                                                    borderRadius: '50%',
+                                                                    bgcolor: row.avatar,
+                                                                    color: 'white',
+                                                                    fontSize: 20,
                                                                 }}
                                                             >
-                                                                <Avatar
-                                                                    alt={row.name || 'User'}
-                                                                    src={row.avatar}
-                                                                    sx={{
-                                                                        width: 32,
-                                                                        height: 32,
-                                                                        borderRadius: '50%',
-                                                                        bgcolor: row.avatar,
-                                                                        color: 'white',
-                                                                        fontSize: 20,
-                                                                    }}
+                                                                {!row.avatar && row.name
+                                                                    ? row.name
+                                                                          .charAt(0)
+                                                                          .toUpperCase()
+                                                                    : 'A'}
+                                                            </Avatar>
+                                                            <Stack spacing={0.5}>
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    fontWeight="bold"
+                                                                    color="text.primary"
+                                                                    align="left"
                                                                 >
-                                                                    {!row.avatar && row.name
-                                                                        ? row.name
-                                                                              .charAt(0)
-                                                                              .toUpperCase()
-                                                                        : 'A'}
-                                                                </Avatar>
-                                                                <Stack
-                                                                    direction="column"
-                                                                    spacing={0.5}
-                                                                    sx={{
-                                                                        justifyContent: 'center',
-                                                                    }}
-                                                                >
-                                                                    <Typography
-                                                                        variant="body2"
-                                                                        fontWeight="bold"
-                                                                        color="text.primary"
-                                                                        align="left"
-                                                                    >
-                                                                        {row.name}
-                                                                    </Typography>
-                                                                </Stack>
+                                                                    {row.name}
+                                                                </Typography>
                                                             </Stack>
-                                                        ) : col.key === 'completed_overrun' ||
-                                                          col.key === 'inprogress_overrun' || 
-                                                          col.key === 'pending_tasks' ? (
-                                                            row[col.key] !== 0 ? (
-                                                                <Box
-                                                                    sx={{
-                                                                        display: 'inline-block',
-                                                                        px: 1.5,
-                                                                        py: 0.5,
-                                                                        borderRadius: 1,
-                                                                        fontWeight: 'bold',
-                                                                        color: 'error.main',
-                                                                        cursor: 'pointer',
-                                                                        textDecoration: 'underline',
-                                                                        '&:hover': {
-                                                                            color: 'error.dark',
-                                                                        },
-                                                                    }}
-                                                                    onClick={() =>
-                                                                        handleOpenModal(
-                                                                            row.employee_id,
-                                                                            col.key
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {row[col.key]}
-                                                                </Box>
-                                                            ) : (
-                                                                <Box
-                                                                    sx={{
-                                                                        display: 'inline-block',
-                                                                        px: 1.5,
-                                                                        py: 0.5,
-                                                                        borderRadius: 1,
-                                                                        fontWeight: 'bold',
-                                                                        color: 'inherit',
-                                                                    }}
-                                                                >
-                                                                    {row[col.key]}
-                                                                </Box>
-                                                            )
+                                                        </Stack>
+                                                    ) : col.key === 'completed_overrun' ||
+                                                      col.key === 'inprogress_overrun' ||
+                                                      col.key === 'pending_tasks' ? (
+                                                        row[col.key] !== 0 ? (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'inline-block',
+                                                                    px: 1.5,
+                                                                    py: 0.5,
+                                                                    borderRadius: 1,
+                                                                    fontWeight: 'bold',
+                                                                    color: 'error.main',
+                                                                    cursor: 'pointer',
+                                                                    textDecoration: 'underline',
+                                                                    '&:hover': {
+                                                                        color: 'error.dark',
+                                                                    },
+                                                                }}
+                                                                onClick={() =>
+                                                                    handleOpenModal(
+                                                                        row.employee_id,
+                                                                        col.key
+                                                                    )
+                                                                }
+                                                            >
+                                                                {row[col.key]}
+                                                            </Box>
                                                         ) : (
                                                             <Box
                                                                 sx={{
@@ -399,19 +393,72 @@ function HomeUserView() {
                                                                     py: 0.5,
                                                                     borderRadius: 1,
                                                                     fontWeight: 'bold',
-                                                                    color: (theme) =>
-                                                                        row[col.key] === 0
-                                                                            ? 'inherit'
-                                                                            : theme.palette.text
-                                                                                  .primary,
+                                                                    color: 'inherit',
                                                                 }}
                                                             >
                                                                 {row[col.key]}
                                                             </Box>
-                                                        )}
-                                                    </TableCell>
-                                                ))}
-                                            </TableRow>
+                                                        )
+                                                    ) : col.key === 'time_overrun' ? (
+                                                        <Typography
+                                                            variant="body2"
+                                                            fontWeight="bold"
+                                                            sx={{
+                                                                display: 'inline-block',
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontWeight: 'bold',
+                                                                color:
+                                                                    row[col.key] > 0
+                                                                        ? 'error.main'
+                                                                        : 'text.primary',
+                                                                cursor:
+                                                                    row[col.key] > 0
+                                                                        ? 'pointer'
+                                                                        : 'default',
+                                                                textDecoration:
+                                                                    row[col.key] > 0
+                                                                        ? 'underline'
+                                                                        : 'none',
+                                                                '&:hover':
+                                                                    row[col.key] > 0
+                                                                        ? { color: 'error.dark' }
+                                                                        : {},
+                                                            }}
+                                                            onClick={
+                                                                row[col.key] > 0
+                                                                    ? () =>
+                                                                          handleOpenModal1(
+                                                                              row.employee_id,
+                                                                              row.missed_logs
+                                                                          )
+                                                                    : undefined
+                                                            }
+                                                        >
+                                                            {row[col.key]}
+                                                        </Typography>
+                                                    ) : (
+                                                        <Box
+                                                            sx={{
+                                                                display: 'inline-block',
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontWeight: 'bold',
+                                                                color: (theme) =>
+                                                                    row[col.key] === 0
+                                                                        ? 'inherit'
+                                                                        : theme.palette.text
+                                                                              .primary,
+                                                            }}
+                                                        >
+                                                            {row[col.key]}
+                                                        </Box>
+                                                    )}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
                                     ))
                             )}
                         </TableBody>
@@ -420,9 +467,15 @@ function HomeUserView() {
             </TableContainer>
             <OverrunModal
                 open={openModal}
-                handleClose={() => setOpenModal(false)}
+                handleClose={handleCloseModal}
                 assigneeId={selectedEmployeeId}
                 overrunType={selectedOverrunType}
+            />
+            <TimeOverrunModal
+                open={openModal1}
+                handleClose={handleCloseModal1}
+                assigneeId={selectedEmployeeId}
+                missedDays={selectedTimerunType}
             />
             {!loading && report.length > 0 && (
                 <TablePagination

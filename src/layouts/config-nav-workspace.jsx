@@ -2,7 +2,11 @@ import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
+
+
+
 export const _workspaces = [
+    
     {
         id: 'team-1',
         name: 'Crux Uem',

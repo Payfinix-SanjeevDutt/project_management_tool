@@ -42,7 +42,7 @@ function ProjectListDashboardView() {
     const router = useRouter();
 
     const columns = [
-        { key: 'project_name', label: 'Projects', icon: 'solar:user-outline', sortable: true },
+        { key: 'name', label: 'Projects', icon: 'solar:user-outline', sortable: true },
         { key: 'total_stages', label: 'Total Stages', icon: 'bi:list-task', sortable: true },
         { key: 'total_tasks', label: 'Total Tasks', icon: 'bi:list-task', sortable: true },
         {
@@ -228,9 +228,7 @@ function ProjectListDashboardView() {
                                                     sx={{
                                                         minWidth: 120,
                                                         textAlign:
-                                                            col.key === 'project_name'
-                                                                ? 'left'
-                                                                : 'center',
+                                                            col.key === 'name' ? 'left' : 'center',
                                                         verticalAlign: 'middle',
                                                         padding: '4px 8px',
                                                     }}
@@ -254,10 +252,7 @@ function ProjectListDashboardView() {
                                                                     },
                                                                 }}
                                                                 onClick={() =>
-                                                                    handleOpenModal(
-                                                                        row.project_id,
-                                                                        col.key
-                                                                    )
+                                                                    handleOpenModal(row.id, col.key)
                                                                 }
                                                             >
                                                                 {row[col.key]}
@@ -277,21 +272,19 @@ function ProjectListDashboardView() {
                                                                 {row[col.key]}
                                                             </Box>
                                                         )
-                                                    ) : col.key.includes('project_name') ? (
+                                                    ) : col.key.includes('name') ? (
                                                         <Box
                                                             sx={{
                                                                 px: 2,
                                                                 py: 0.5,
                                                                 cursor: 'pointer',
                                                                 textDecoration: 'underline',
-                                                                color: 'black', 
+                                                                color: 'black',
                                                                 '&:hover': {
                                                                     color: 'green',
                                                                 },
                                                             }}
-                                                            onClick={() =>
-                                                                handleViewRow(row.project_id)
-                                                            }
+                                                            onClick={() => handleViewRow(row.id)}
                                                         >
                                                             {row[col.key]}
                                                         </Box>
@@ -302,14 +295,12 @@ function ProjectListDashboardView() {
                                                                 py: 0.5,
                                                                 cursor: 'pointer',
                                                                 textDecoration: 'underline',
-                                                                color: 'black', 
+                                                                color: 'black',
                                                                 '&:hover': {
                                                                     color: 'green',
                                                                 },
                                                             }}
-                                                            onClick={() =>
-                                                                handleViewRow2(row.project_id)
-                                                            }
+                                                            onClick={() => handleViewRow2(row.id)}
                                                         >
                                                             {row[col.key]}
                                                         </Box>
