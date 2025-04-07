@@ -51,7 +51,7 @@ const TimeOverrunModal = ({ open, handleClose, assigneeId, missedDays = [] }) =>
                 <TableCell align="center"><b>Employee Name</b></TableCell>
                 <TableCell align="center"><b>Project Name</b></TableCell>
                 <TableCell align="center" sx={{ minWidth: 400 }}><b>Task Name</b></TableCell>
-                <TableCell align="center"><b>Date</b></TableCell>
+                <TableCell align="center"sx={{minWidth:150 }}><b>Date</b></TableCell>
                 <TableCell align="center"><b>Hours Spent</b></TableCell>
                 <TableCell align="center"><b>Missed Time (hrs)</b></TableCell>
               </TableRow>
