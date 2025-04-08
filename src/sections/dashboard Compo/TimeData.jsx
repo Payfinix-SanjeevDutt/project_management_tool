@@ -1,49 +1,119 @@
 import dayjs from 'dayjs';
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { DatePicker } from '@mui/lab';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridOverlay } from '@mui/x-data-grid';
 import { Search, ArrowBack, ArrowForward } from '@mui/icons-material';
 import {
     Box,
     Paper,
+    Stack,
     Select,
+    Avatar,
+    Tooltip,
     MenuItem,
     TextField,
     Typography,
     IconButton,
     FormControl,
     InputAdornment,
+    CircularProgress,
 } from '@mui/material';
 
-import { AuthContext } from 'src/auth/context/auth-context';
+import axiosInstance, { endpoints } from 'src/utils/axios';
 
-const dummyData = [
-    { id: 1, employee: 'John Doe', jobName: 'Frontend Developer', projectName: 'Project X', clientName: 'Client Y' },
-    { id: 2, employee: 'Jane Smith', jobName: 'Backend Developer', projectName: 'Project Y', clientName: 'Client Z' },
-    { id: 3, employee: 'John Doe', jobName: 'Backend Developer', projectName: 'Project X', clientName: 'Client Z' },
-];
+import { EmptyContent } from 'src/components/empty-content';
 
+
+    const CustomNoRowsOverlay = () => (
+        <GridOverlay>
+            <Box
+                height="100%"
+                width="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+                <EmptyContent
+                    title="No Timesheet Data"
+                    description="No records found for the selected period."
+                />
+            </Box>
+        </GridOverlay>
+    );
 const TimeData = () => {
-    const [rows] = useState(dummyData);
+    const [rows, setRows] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState(dayjs().startOf('week'));
-    const [viewMode, setViewMode] = useState('weekly');
-    const { user } = useContext(AuthContext);
     const [filters, setFilters] = useState({
         employee: '',
-        workItem: '',
+        jobName: '',
         projectName: '',
-        date: null,
+        clientName: '',
         period: 'weekly',
     });
     const [searchQuery, setSearchQuery] = useState('');
 
-    const getDates = () => {
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const startDate =
+                    filters.period === 'weekly'
+                        ? dayjs(selectedDate).startOf('week')
+                        : dayjs(selectedDate).startOf('month');
+                const endDate =
+                    filters.period === 'weekly'
+                        ? startDate.add(6, 'day')
+                        : startDate.endOf('month');
+
+                const response = await axiosInstance.post(endpoints.timesheet.getallList, {
+                    start_date: startDate.format('YYYY-MM-DD'),
+                    end_date: endDate.format('YYYY-MM-DD'),
+                });
+
+                const data = await response.data;
+
+                if (data.status) {
+                    const formattedData = data.data.map((item, index) => ({
+                        id: index + 1,
+                        employee: item.employee_name,
+                        jobName: item.job_name,
+                        projectName: item.project_name,
+                        description: item.description || 'N/A',
+                        days: item.days,
+                    }));
+                    setRows(formattedData);
+                } else {
+                    console.error('Failed to fetch timesheet data:', data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching timesheet data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [selectedDate, filters.period]);
+
+    const getDateObjects = () => {
         if (filters.period === 'weekly') {
-            return Array.from({ length: 7 }, (_, i) => dayjs(selectedDate).add(i, 'day').format('MMM DD ddd'));
+            return Array.from({ length: 7 }, (_, i) => {
+                const date = dayjs(selectedDate).add(i, 'day');
+                return {
+                    label: date.format('MMM DD ddd'),
+                    key: date.format('YYYY-MM-DD'),
+                };
+            });
         }
+
         const daysInMonth = dayjs(selectedDate).daysInMonth();
-        return Array.from({ length: daysInMonth }, (_, i) => dayjs(selectedDate).date(i + 1).format('MMM DD ddd'));
+        return Array.from({ length: daysInMonth }, (_, i) => {
+            const date = dayjs(selectedDate).date(i + 1);
+            return {
+                label: date.format('MMM DD ddd'),
+                key: date.format('YYYY-MM-DD'),
+            };
+        });
     };
 
     const changePeriod = (offset) => {
@@ -66,25 +136,114 @@ const TimeData = () => {
     const filteredRows = rows.filter(
         (row) =>
             (filters.employee === '' || row.employee === filters.employee) &&
-            (filters.workItem === '' || row.workItem === filters.workItem) &&
+            (filters.jobName === '' || row.jobName === filters.jobName) &&
             (filters.projectName === '' || row.projectName === filters.projectName) &&
-            (filters.clientName === '' || row.clientName === filters.clientName) &&
             (row.employee.toLowerCase().includes(searchQuery) ||
                 row.jobName.toLowerCase().includes(searchQuery))
     );
 
+    const calculateTotalHours = (days) => {
+        const validDateKeys = new Set(getDateObjects().map((d) => d.key));
+
+        return [...validDateKeys].reduce((total, dateKey) => {
+            const entries = days[dateKey] || [];
+
+            const dailyTotal = entries.reduce((sum, entry) => {
+                const hours = entry.total_hours ? parseInt(entry.total_hours.split(':')[0], 10) : 0;
+                return sum + hours;
+            }, 0);
+
+            return total + dailyTotal;
+        }, 0);
+    };
+
     const columns = [
-        { field: 'employee', headerName: 'Employee', width: 200 },
-        { field: 'projectName', headerName: 'Project Name', width: 200 },
-        { field: 'jobName', headerName: 'Task Name', width: 200 },
-        { field: 'description', headerName: 'Description', width: 250, renderCell: () => 'Worked on project tasks' },
-        ...getDates().map((day, index) => ({
+        {
+            field: 'employee',
+            headerName: 'Employee',
+            width: 240,
+            renderCell: (params) => {
+                const employeeName = params.value || 'Unknown';
+                const firstLetter = employeeName.charAt(0).toUpperCase();
+
+                return (
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.5 }}>
+                        <Avatar
+                            sx={{
+                                bgcolor: 'primary.main',
+                                color: 'white',
+                                fontSize: 14,
+                                width: 32,
+                                height: 32,
+                            }}
+                        >
+                            {firstLetter}
+                        </Avatar>
+                        <Typography variant="body2">{employeeName}</Typography>
+                    </Stack>
+                );
+            },
+        },
+        { field: 'projectName', headerName: 'Project Name', width: 280},
+        // { field: 'description', headerName: 'Description', width: 250 }, 
+        ...getDateObjects().map(({ label, key }, index) => ({
             field: `day${index}`,
-            headerName: day,
-            width: 100,
-            renderCell: () => <TextField variant="outlined" size="small" defaultValue="08:00" sx={{ width: 80, mt: 0.7 }} />,
+            headerName: label,
+            width: 120,
+            renderCell: (params) => {
+                const isWeekend = [0, 6].includes(dayjs(key).day());
+                const dayData = params.row.days[key]?.[0];
+                const hours = isWeekend ? '--:--' : (dayData?.total_hours || '00:00');
+                const workItem = dayData?.work_item || 'No Task';
+            
+                const hourValue = parseInt(hours.split(':')[0], 10);
+                const isLessThan8 = !isWeekend && hourValue < 8 && hourValue > 0;
+            
+                const today = dayjs().startOf('day');
+                const cellDate = dayjs(key).startOf('day');
+                const isPastDate = cellDate.isBefore(today);
+            
+                const otherWorked = rows.some(
+                    (row) => row.employee !== params.row.employee && row.days?.[key]?.[0]?.total_hours !== '00:00'
+                );
+            
+                const showLeave = !isWeekend && hourValue === 0 && otherWorked && isPastDate;
+            
+                const cellStyle = {
+                    width: 80,
+                    height: 35,
+                    mt: 0.5,
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                    bgcolor: '#f5f5f5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 14,
+                    color: isLessThan8 || showLeave ? 'red' : 'black',
+                    fontWeight: isLessThan8 || showLeave ? 600 : 400,
+                };
+            
+                const displayText = showLeave ? 'Leave' : hours;
+            
+                return workItem !== 'No Task' && !isWeekend && !showLeave ? (
+                    <Tooltip title={workItem} arrow>
+                        <Box sx={cellStyle}>{displayText}</Box>
+                    </Tooltip>
+                ) : (
+                    <Box sx={cellStyle}>{displayText}</Box>
+                );
+            }
+                        
         })),
-        { field: 'total', headerName: 'Total', width: 100, renderCell: () => '40:00' },
+
+        {
+            field: 'total',
+            headerName: 'Total',
+            width: 100,
+            renderCell: (params) => `${calculateTotalHours(params.row.days)}:00`,
+        },
     ];
 
     return (
@@ -104,7 +263,7 @@ const TimeData = () => {
             </Box>
 
             <Box display="flex" justifyContent="center" gap={2} mb={2}>
-            <TextField
+                <TextField
                     placeholder="Search Employee or Task"
                     variant="outlined"
                     size="large"
@@ -124,22 +283,34 @@ const TimeData = () => {
                         <MenuItem value="monthly">Monthly</MenuItem>
                     </Select>
                 </FormControl>
-          
-                {['employee', 'jobName', 'projectName', 'clientName'].map((filterKey) => (
-                    <FormControl key={filterKey} sx={{ minWidth: 150 }}>
-                        <Select name={filterKey} value={filters[filterKey]} onChange={handleFilterChange} displayEmpty>
-                            <MenuItem value="">All {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</MenuItem>
-                            {[...new Set(dummyData.map((item) => item[filterKey]))].map((option) => (
-                                <MenuItem key={option} value={option}>{option}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                ))}
             </Box>
 
-            <Paper sx={{ mt: 3, borderRadius: 2, width: '100%', height: Math.min(350 + filteredRows.length * 40, 600) }}>
-                <DataGrid rows={filteredRows} columns={columns} pageSize={filteredRows.length > 0 ? filteredRows.length : 4} autoHeight disableSelectionOnClick />
-            </Paper>
+            {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height={300}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <Paper
+                    sx={{
+                        mt: 3,
+                        borderRadius: 2,
+                        width: '100%',
+                        height: Math.min(350 + filteredRows.length * 40, 600),
+                    }}
+                >
+                    <DataGrid
+                        rows={filteredRows}
+                        columns={columns}
+                        pageSize={filteredRows.length > 0 ? filteredRows.length : 4}
+                        autoHeight
+                        disableSelectionOnClick
+                        components={{
+                            NoRowsOverlay: CustomNoRowsOverlay,
+                        }}
+                        loading={loading} 
+                    />
+                </Paper>
+            )}
         </Box>
     );
 };

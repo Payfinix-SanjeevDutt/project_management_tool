@@ -113,7 +113,8 @@ export const endpoints = {
         list : '/timesheet/list',
         update: '/timesheet/update',
         getsingleTimesheet : '/timesheet/get-single-timesheet',
-        delete : '/timesheet/delete'
+        delete : '/timesheet/delete',
+        getallList : '/timesheet/get-all-list'
     }
 
 };
