@@ -30,6 +30,9 @@ import { accountData } from '../config-nav-account-data';
 // ----------------------------------------------------------------------
 
 export function DashboardLayout({ sx, children, data }) {
+    const [reportData, setReportData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const theme = useTheme();
 
     const mobileNavOpen = useBoolean();
@@ -69,8 +72,8 @@ export function DashboardLayout({ sx, children, data }) {
                 } else {
                     console.error('Invalid data format:', response.data);
                 }
-            } catch (error) {
-                console.error('Error fetching projects:', error);
+            } catch (err) {
+                console.error('Error fetching projects:', err);
             }
         };
     

@@ -46,7 +46,6 @@ export const paths = {
     },
     dashboard: {
         root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}`,
-
         projectdashboard: {
             root: (projectId) => `${ROOTS.DASHBOARD}/projectdashboard/${projectId}`,
             homesprints: (projectId) =>
