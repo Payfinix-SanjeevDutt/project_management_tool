@@ -111,7 +111,7 @@ function HomeUserView() {
             icon: 'carbon:task-asset-view',
             sortable: true,
         },
-        { key: 'time_overrun', label: 'Time Overrun', icon: 'gg:time', sortable: true },
+        { key: 'time_overrun', label: 'CLock-in \n Clock-out \n Delay', icon: 'gg:time', sortable: true },
     ];
 
     useEffect(() => {

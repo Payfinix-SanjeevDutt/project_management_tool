@@ -42,7 +42,7 @@ function ProjectListDashboardView() {
     const router = useRouter();
 
     const columns = [
-        { key: 'name', label: 'Projects', icon: 'solar:user-outline', sortable: true },
+        { key: 'project_name', label: 'Projects', icon: 'solar:user-outline', sortable: true },
         { key: 'total_stages', label: 'Total Stages', icon: 'bi:list-task', sortable: true },
         { key: 'total_tasks', label: 'Total Tasks', icon: 'bi:list-task', sortable: true },
         {
@@ -104,7 +104,7 @@ function ProjectListDashboardView() {
         setOrder(isAscending ? 'desc' : 'asc');
         setOrderBy(property);
     };
-
+    console.log(reportData)
     const sortedReport =
         Array.isArray(reportData.projects) && reportData.projects.length > 0
             ? [...reportData.projects].sort((a, b) => {
@@ -135,14 +135,14 @@ function ProjectListDashboardView() {
     };
 
     const handleViewRow = useCallback(
-        (id) => {
-            router.push(paths.dashboard.projectdashboard.homestages(id));
+        (project_id) => {
+            router.push(paths.dashboard.projectdashboard.homestages(project_id));
         },
         [router]
     );
     const handleViewRow2 = useCallback(
-        (id) => {
-            router.push(paths.dashboard.projectdashboard.homeusers(id));
+        (project_id) => {
+            router.push(paths.dashboard.projectdashboard.homeusers(project_id));
         },
         [router]
     );
@@ -228,7 +228,7 @@ function ProjectListDashboardView() {
                                                     sx={{
                                                         minWidth: 120,
                                                         textAlign:
-                                                            col.key === 'name' ? 'left' : 'center',
+                                                            col.key === 'project_name' ? 'left' : 'center',
                                                         verticalAlign: 'middle',
                                                         padding: '4px 8px',
                                                     }}
@@ -252,7 +252,7 @@ function ProjectListDashboardView() {
                                                                     },
                                                                 }}
                                                                 onClick={() =>
-                                                                    handleOpenModal(row.id, col.key)
+                                                                    handleOpenModal(row.project_id, col.key)
                                                                 }
                                                             >
                                                                 {row[col.key]}
@@ -284,7 +284,7 @@ function ProjectListDashboardView() {
                                                                     color: 'green',
                                                                 },
                                                             }}
-                                                            onClick={() => handleViewRow(row.id)}
+                                                            onClick={() => handleViewRow(row.project_id)}
                                                         >
                                                             {row[col.key]}
                                                         </Box>
@@ -300,7 +300,7 @@ function ProjectListDashboardView() {
                                                                     color: 'green',
                                                                 },
                                                             }}
-                                                            onClick={() => handleViewRow2(row.id)}
+                                                            onClick={() => handleViewRow2(row.project_id)}
                                                         >
                                                             {row[col.key]}
                                                         </Box>

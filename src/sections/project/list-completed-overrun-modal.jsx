@@ -85,7 +85,6 @@ const ProjectOverrunModal = ({ open, handleClose, assigneeId, overrunType }) => 
             }
         }
     }, [open, assigneeId, overrunType]);
-    console.log(assigneeId)
     const handleSort = () => {
         const sortedData = [...taskData].sort((a, b) =>
             sortOrder === 'asc'

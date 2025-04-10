@@ -88,7 +88,6 @@ const StageOverrunmodal = ({ open, handleClose, stageId, overrunType, projectId 
             }
         }
     }, [open, stageId, overrunType, projectId]);
-    console.log(stageId);
 
     const handleSort = () => {
         const sortedData = [...taskData].sort((a, b) =>
