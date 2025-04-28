@@ -115,6 +115,11 @@ export const endpoints = {
         getsingleTimesheet : '/timesheet/get-single-timesheet',
         delete : '/timesheet/delete',
         getallList : '/timesheet/get-all-list'
+    },
+    timelog:{
+        create : '/timelog/create',
+        list : '/timelog/list',
+        update : '/timelog/update'
     }
 
 };

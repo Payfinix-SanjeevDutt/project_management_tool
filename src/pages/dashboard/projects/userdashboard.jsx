@@ -29,6 +29,8 @@ import { EmptyContent } from 'src/components/empty-content';
 import TimeOverrunModal from 'src/sections/employees/timeoverun-model';
 import OverrunModal from 'src/sections/employees/completed-overrun-modal';
 
+import AttendanceCalendarModal from './calenderviewEmplyee';
+
 function HomeUserView() {
     const [report, setReport] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -40,13 +42,20 @@ function HomeUserView() {
     const [searchQuery, setSearchQuery] = useState('');
     const [openModal, setOpenModal] = useState(false);
     const [openModal1, setOpenModal1] = useState(false);
+    const [openModal3, setOpenModal3] = useState(false);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
     const [selectedOverrunType, setSelectedOverrunType] = useState('');
     const [selectedTimerunType, setSelectedTimeOver] = useState('');
+    const [logData, setLogData] = useState([]);
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
+
+    const handleOpenModal3 = (employeeId, logs) => {
+        setLogData(logs); 
+        setOpenModal3(true);
+      };
 
     const filteredReport = report.filter((row) =>
         row.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -111,7 +120,17 @@ function HomeUserView() {
             icon: 'carbon:task-asset-view',
             sortable: true,
         },
-        { key: 'time_overrun', label: 'CLock-in \n Clock-out \n Delay', icon: 'gg:time', sortable: true },
+        {
+            key: 'timelog',
+            label: 'Timelogs',
+            icon: '',
+        },
+        {
+            key: 'time_overrun',
+            label: 'CLock-in \n Clock-out \n Delay',
+            icon: 'gg:time',
+            sortable: true,
+        },
     ];
 
     useEffect(() => {
@@ -438,7 +457,17 @@ function HomeUserView() {
                                                         >
                                                             {row[col.key]}
                                                         </Typography>
-                                                    ) : (
+                                                    ) : col.key === 'timelog' ? (
+                                                     (
+                                                            <Box
+                                                                sx={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
+                                                                onClick={() => handleOpenModal3(row.employee_id)}
+                                                            >
+                                                                <Iconify icon="uil:calender" style={{ color: 'black' }} />
+                                                            </Box>
+                                                        ) 
+                                                    ) :
+                                                    (
                                                         <Box
                                                             sx={{
                                                                 display: 'inline-block',
@@ -476,6 +505,11 @@ function HomeUserView() {
                 handleClose={handleCloseModal1}
                 assigneeId={selectedEmployeeId}
                 missedDays={selectedTimerunType}
+            />
+            <AttendanceCalendarModal
+                open = {openModal3}
+                onClose={() => setOpenModal3(false)}
+                logs={logData}
             />
             {!loading && report.length > 0 && (
                 <TablePagination

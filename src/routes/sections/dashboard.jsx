@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { CONFIG } from 'src/config-global';
 import { DashboardLayout } from 'src/layouts/dashboard';
 import { ProjectLayout } from 'src/layouts/projects/layout';
+import TimelogView from 'src/pages/dashboard/Timelog Dashboard/view';
 import Userdashboard from 'src/pages/dashboard/projects/userdashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -87,6 +88,7 @@ export const dashboardRoutes = [
                     { path: 'user-dashboard', element: <Userdashboard /> },
                     { path: 'project-dashboard', element: <MainProjectDashboard /> },
                     { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
+                    { path: 'time-log-dashboard', element: <TimelogView/>}
                 ],
             },
             {

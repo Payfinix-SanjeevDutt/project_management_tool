@@ -20,6 +20,7 @@ export const paths = {
             user: `${ROOTS.MAIN_PAGE}/dashboard/user-dashboard`,
             project: `${ROOTS.MAIN_PAGE}/dashboard/project-dashboard`,
             listProject: `${ROOTS.MAIN_PAGE}/dashboard/list-project-dashboard`,
+            TimeLog : `${ROOTS.MAIN_PAGE}/dashboard/time-log-dashboard`,
             root: `${ROOTS.MAIN_PAGE}/dashboard`,
         },
         project: {
@@ -35,10 +36,6 @@ export const paths = {
             weekly: `${ROOTS.MAIN_PAGE}/timesheet/create-weekly`,
             edit: (timesheetId, employeeId) => `${ROOTS.MAIN_PAGE}/timesheet/edit/${timesheetId}/${employeeId}`,
         },
-        // dashboardCompo: {
-        //     root: `${ROOTS.MAIN_PAGE}/timesheet`,
-        //     dashboard: `${ROOTS.MAIN_PAGE}/dashboardCompo/DashboardView`,
-        // },
         user: {
             root: `${ROOTS.MAIN_PAGE}/user`,
             account: `${ROOTS.MAIN_PAGE}/user/account`,
