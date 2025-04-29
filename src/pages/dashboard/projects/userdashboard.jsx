@@ -53,9 +53,9 @@ function HomeUserView() {
     };
 
     const handleOpenModal3 = (employeeId, logs) => {
-        setLogData(logs); 
+        setLogData(logs);
         setOpenModal3(true);
-      };
+    };
 
     const filteredReport = report.filter((row) =>
         row.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -83,6 +83,7 @@ function HomeUserView() {
 
     const columns = [
         { key: 'name', label: 'Employee name', icon: 'solar:user-outline', sortable: true },
+        { key: 'available_in', label: 'Available in', sortable: true },
         {
             key: 'total_projects',
             label: 'Total Projects',
@@ -139,10 +140,14 @@ function HomeUserView() {
             try {
                 const response = await axiosInstance.get(endpoints.project.project_employee_report);
 
-                // Add random logs and calculate time_overrun based on missed days
-                const updatedReport = response.data.map((emp) => {
+                const filteredData = response.data.filter(
+                    (emp) => emp.employee_id !== 'ELKHGFJJKEHLKJG4102836'
+                );
+
+                // ✅ Then continue as usual
+                const updatedReport = filteredData.map((emp) => {
                     const logs = Array.from({ length: 3 }, (_, i) => {
-                        const hours = Math.floor(Math.random() * 4) + 6; // 6-9
+                        const hours = Math.floor(Math.random() * 4) + 6;
                         const date = new Date();
                         date.setDate(date.getDate() - i);
                         return {
@@ -458,16 +463,22 @@ function HomeUserView() {
                                                             {row[col.key]}
                                                         </Typography>
                                                     ) : col.key === 'timelog' ? (
-                                                     (
-                                                            <Box
-                                                                sx={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
-                                                                onClick={() => handleOpenModal3(row.employee_id)}
-                                                            >
-                                                                <Iconify icon="uil:calender" style={{ color: 'black' }} />
-                                                            </Box>
-                                                        ) 
-                                                    ) :
-                                                    (
+                                                        <Box
+                                                            sx={{
+                                                                cursor: 'pointer',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                            }}
+                                                            onClick={() =>
+                                                                handleOpenModal3(row.employee_id)
+                                                            }
+                                                        >
+                                                            <Iconify
+                                                                icon="uil:calender"
+                                                                style={{ color: 'black' }}
+                                                            />
+                                                        </Box>
+                                                    ) : (
                                                         <Box
                                                             sx={{
                                                                 display: 'inline-block',
@@ -507,7 +518,7 @@ function HomeUserView() {
                 missedDays={selectedTimerunType}
             />
             <AttendanceCalendarModal
-                open = {openModal3}
+                open={openModal3}
                 onClose={() => setOpenModal3(false)}
                 logs={logData}
             />
