@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { useState, useEffect, useContext } from 'react';
 
 import MenuItem from '@mui/material/MenuItem';
@@ -63,7 +62,7 @@ const PROJECT_STATUS = [
 export default function CreateProject() {
     const { user } = useContext(AuthContext);
     const pathName = usePathname();
-    const { currentProjectId: project_id } = useSelector((state) => state.projects);
+    // const { currentProjectId: project_id } = useSelector((state) => state.projects);
     const [formData, setFormData] = useState(STATE);
     const navigate = useNavigate();
     const isUpdate = pathName !== '/main/projects/create';
@@ -71,7 +70,8 @@ export default function CreateProject() {
         const { name, value } = event.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
-
+    const { project_id } = useParams();
+    
     const createProject = async () => {
         try {
             if (!user?.employee_id) {
