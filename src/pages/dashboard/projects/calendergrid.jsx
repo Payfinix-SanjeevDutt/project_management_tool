@@ -7,7 +7,7 @@ import { Box, Grid, Card, useTheme, Typography, IconButton } from '@mui/material
 
 dayjs.extend(duration);
 
-const CalendarGrid = ({ logs = [] }) => {
+const CalendarGrid = ({ logs = [] ,employeeId}) => {
   const theme = useTheme();
   const [currentMonth, setCurrentMonth] = useState(dayjs());
 
@@ -51,13 +51,13 @@ const CalendarGrid = ({ logs = [] }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Present':
-        return theme.palette.success.lighter;
+        return theme.palette.success.light;
       case 'Absent':
         return theme.palette.error.lighter;
       case 'Weekend':
         return theme.palette.info.lighter;
       case 'Holiday':
-        return theme.palette.warning.lighter;
+        return theme.palette.warning.light;
       default:
         return theme.palette.grey[100];
     }

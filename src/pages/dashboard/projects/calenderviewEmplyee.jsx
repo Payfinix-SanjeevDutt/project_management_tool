@@ -4,7 +4,7 @@ import { Box, Modal, Typography } from '@mui/material';
 
 import CalendarGrid from './calendergrid';
 
-const AttendanceCalendarModal = ({ open, onClose, logs }) => (
+const AttendanceCalendarModal = ({ open, onClose, logs ,employeeId}) => (
  
     <Modal open={open} onClose={onClose}>
       <Box
@@ -23,7 +23,7 @@ const AttendanceCalendarModal = ({ open, onClose, logs }) => (
         <Typography variant="h4" mb={3}>
           Attendance Calendar
         </Typography>
-        <CalendarGrid logs={logs} />
+        <CalendarGrid logs={logs} employeeId = {employeeId}/>
       </Box>
     </Modal>
 )

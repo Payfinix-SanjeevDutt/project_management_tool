@@ -47,15 +47,45 @@ function HomeUserView() {
     const [selectedOverrunType, setSelectedOverrunType] = useState('');
     const [selectedTimerunType, setSelectedTimeOver] = useState('');
     const [logData, setLogData] = useState([]);
+    const [eid ,setEid] = useState(null)
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
-    const handleOpenModal3 = (employeeId, logs) => {
-        setLogData(logs);
+    // const handleOpenModal3 = (employeeId, logs) => {
+    //     setLogData(logs);
+    //     setEid(employeeId)
+    //     setOpenModal3(true);
+    // };
+    const handleOpenModal3 = async (employeeId) => {
+        try {
+          const response = await axiosInstance.post(endpoints.timelog.list, {
+            employee_id: employeeId,
+          });
+      
+          if (response.data?.status) {
+            const logs = response.data.data.map((log) => ({
+              date: log.date,
+              checkin: log.clock_in,
+              checkout: log.clock_out,
+              status: log.clock_in && log.clock_out ? 'Present' : 'Absent',
+            }));
+            setLogData(logs);
+          } else {
+            setLogData([]);
+            console.error('API error:', response.data.message);
+          }
+        } catch (err) {
+          setLogData([]);
+          console.error('API call failed:', err);
+        }
+      
+        setEid(employeeId);
         setOpenModal3(true);
-    };
+      };
+      
+      
 
     const filteredReport = report.filter((row) =>
         row.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -144,7 +174,6 @@ function HomeUserView() {
                     (emp) => emp.employee_id !== 'ELKHGFJJKEHLKJG4102836'
                 );
 
-                // ✅ Then continue as usual
                 const updatedReport = filteredData.map((emp) => {
                     const logs = Array.from({ length: 3 }, (_, i) => {
                         const hours = Math.floor(Math.random() * 4) + 6;
@@ -521,6 +550,7 @@ function HomeUserView() {
                 open={openModal3}
                 onClose={() => setOpenModal3(false)}
                 logs={logData}
+                employeeId = {eid}
             />
             {!loading && report.length > 0 && (
                 <TablePagination
