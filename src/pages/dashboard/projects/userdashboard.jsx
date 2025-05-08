@@ -53,11 +53,6 @@ function HomeUserView() {
         setSearchQuery(event.target.value);
     };
 
-    // const handleOpenModal3 = (employeeId, logs) => {
-    //     setLogData(logs);
-    //     setEid(employeeId)
-    //     setOpenModal3(true);
-    // };
     const handleOpenModal3 = async (employeeId) => {
         try {
           const response = await axiosInstance.post(endpoints.timelog.list, {
@@ -113,6 +108,7 @@ function HomeUserView() {
 
     const columns = [
         { key: 'name', label: 'Employee name', icon: 'solar:user-outline', sortable: true },
+        { key: 'attendance', label: 'Attendance', sortable: true },
         { key: 'available_in', label: 'Available in', sortable: true },
         {
             key: 'total_projects',
@@ -171,7 +167,7 @@ function HomeUserView() {
                 const response = await axiosInstance.get(endpoints.project.project_employee_report);
 
                 const filteredData = response.data.filter(
-                    (emp) => emp.employee_id !== 'ELKHGFJJKEHLKJG4102836'
+                    (emp) => (emp.employee_id !== 'ELKHGFJJKEHLKJG4102836' && emp.employee_id !== 'Nischal0001')
                 );
 
                 const updatedReport = filteredData.map((emp) => {

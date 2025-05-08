@@ -65,7 +65,7 @@ export default function CreateProject() {
     // const { currentProjectId: project_id } = useSelector((state) => state.projects);
     const [formData, setFormData] = useState(STATE);
     const navigate = useNavigate();
-    const isUpdate = pathName !== '/main/projects/create';
+    const isUpdate = pathName !== '/main/projects/create' ;
     const handleFormData = (event) => {
         const { name, value } = event.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
