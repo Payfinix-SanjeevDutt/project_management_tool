@@ -1,10 +1,11 @@
-import axios from 'axios';
 import dayjs from 'dayjs';
 import React, { useState, useEffect } from 'react';
 
 import { DataGrid } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Box, Grid, Avatar, MenuItem, Skeleton, TextField, Typography } from '@mui/material';
+
+import axiosInstance, { endpoints } from 'src/utils/axios';
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -104,7 +105,7 @@ const DailyTimeLogView = () => {
         const fetchLogs = async () => {
             setLoading(true);
             try {
-                const response = await axios.post('http://127.0.0.1:5000/timelog/getdaily', {
+                const response = await axiosInstance.post(endpoints.timelog.daily, {
                     date: currentDate.format('YYYY-MM-DD'),
                 });
 

@@ -119,7 +119,8 @@ export const endpoints = {
     timelog:{
         create : '/timelog/create',
         list : '/timelog/list',
-        update : '/timelog/update'
+        update : '/timelog/update',
+        daily: '/timelog/getdaily'
     }
 
 };

@@ -108,7 +108,7 @@ function HomeUserView() {
 
     const columns = [
         { key: 'name', label: 'Employee name', icon: 'solar:user-outline', sortable: true },
-        { key: 'attendance', label: 'Attendance', sortable: true },
+        { key: 'attendance', label: 'Idle Time', sortable: true },
         { key: 'available_in', label: 'Available in', sortable: true },
         {
             key: 'total_projects',
