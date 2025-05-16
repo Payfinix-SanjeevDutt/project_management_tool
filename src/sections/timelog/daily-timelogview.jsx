@@ -44,50 +44,50 @@ const columns = [
         ),
     },
     {
-      field: 'clock_in',
-      headerName: 'Check-In',
-      flex: 1,
-      renderCell: (params) => {
-        const clockIn = params.value;
-        const isLate = clockIn && clockIn > '10:00'; 
-    
-        return (
-          <span style={{ color: isLate ? '#dc2626' : 'green', fontWeight: isLate ? 600 : 400 }}>
-            {clockIn || '--'}
-          </span>
-        );
-      }
+        field: 'clock_in',
+        headerName: 'Check-In',
+        flex: 1,
+        renderCell: (params) => {
+            const clockIn = params.value;
+            const isLate = clockIn && clockIn > '10:00';
+
+            return (
+                <span
+                    style={{ color: isLate ? '#dc2626' : 'green', fontWeight: isLate ? 600 : 400 }}
+                >
+                    {clockIn || '--'}
+                </span>
+            );
+        },
     },
     {
-      field: 'clock_out',
-      headerName: 'Check-Out',
-      flex: 1,
-      renderCell: (params) => (
-        <span style={{ fontWeight: 500 }}>
-          {params.value ? params.value : '--:--'}
-        </span>
-      )
+        field: 'clock_out',
+        headerName: 'Check-Out',
+        flex: 1,
+        renderCell: (params) => (
+            <span style={{ fontWeight: 500 }}>{params.value ? params.value : '--:--'}</span>
+        ),
     },
-    
+
     {
-      field: 'total_hours',
-      headerName: 'Total Hours',
-      flex: 1,
-      renderCell: (params) => {
-        const total = params.value; // Format assumed to be 'HH:mm:ss' or 'HH:mm'
-        if (!total) return '--:--';
-    
-        const totalDuration = dayjs.duration(total);
-        const minDuration = dayjs.duration({ hours: 8, minutes: 30 });
-    
-        const isLow = totalDuration.asMinutes() < minDuration.asMinutes();
-    
-        return (
-          <span style={{ color: isLow ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
-            {total}
-          </span>
-        );
-      }
+        field: 'total_hours',
+        headerName: 'Total Hours',
+        flex: 1,
+        renderCell: (params) => {
+            const total = params.value; // Format assumed to be 'HH:mm:ss' or 'HH:mm'
+            if (!total) return '--:--';
+
+            const totalDuration = dayjs.duration(total);
+            const minDuration = dayjs.duration({ hours: 8, minutes: 30 });
+
+            const isLow = totalDuration.asMinutes() < minDuration.asMinutes();
+
+            return (
+                <span style={{ color: isLow ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
+                    {total}
+                </span>
+            );
+        },
     },
     { field: 'shift', headerName: 'Shift', flex: 1, valueGetter: () => '10:00 AM - 6:30 PM' },
     { field: 'teams', headerName: 'Teams', flex: 1, valueGetter: () => '—' },
@@ -110,11 +110,16 @@ const DailyTimeLogView = () => {
                 });
 
                 if (response.data?.status && response.data?.data?.logs) {
-                    const enriched = response.data.data.logs.map((log, index) => ({
+                    const logsWithoutHR12345 = response.data.data.logs.filter(
+                        (log) => log.employee_id !== 'HR12345'
+                    );
+
+                    const enriched = logsWithoutHR12345.map((log, index) => ({
                         id: index,
                         ...log,
                         status: log.clock_in ? 'Present' : 'Absent',
                     }));
+
                     setLogs(enriched);
                     setFilteredLogs(enriched);
                 } else {
