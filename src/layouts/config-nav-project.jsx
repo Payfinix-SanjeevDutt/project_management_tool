@@ -39,7 +39,7 @@ export const navData = [
                 children: [
                     { title: 'Employee', path: paths.main.dashboard.user },
                     { title: 'Project', path: paths.main.dashboard.listProject },
-                    { title: 'TimeLog' , path: paths.main.dashboard.TimeLog},
+                    { title: 'Attendance' , path: paths.main.dashboard.TimeLog},
                 ],
             },
             {

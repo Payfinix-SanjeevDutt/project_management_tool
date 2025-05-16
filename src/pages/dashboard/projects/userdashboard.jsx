@@ -47,7 +47,7 @@ function HomeUserView() {
     const [selectedOverrunType, setSelectedOverrunType] = useState('');
     const [selectedTimerunType, setSelectedTimeOver] = useState('');
     const [logData, setLogData] = useState([]);
-    const [eid ,setEid] = useState(null)
+    const [eid, setEid] = useState(null);
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
@@ -55,32 +55,30 @@ function HomeUserView() {
 
     const handleOpenModal3 = async (employeeId) => {
         try {
-          const response = await axiosInstance.post(endpoints.timelog.list, {
-            employee_id: employeeId,
-          });
-      
-          if (response.data?.status) {
-            const logs = response.data.data.map((log) => ({
-              date: log.date,
-              checkin: log.clock_in,
-              checkout: log.clock_out,
-              status: log.clock_in && log.clock_out ? 'Present' : 'Absent',
-            }));
-            setLogData(logs);
-          } else {
-            setLogData([]);
-            console.error('API error:', response.data.message);
-          }
+            const response = await axiosInstance.post(endpoints.timelog.list, {
+                employee_id: employeeId,
+            });
+
+            if (response.data?.status) {
+                const logs = response.data.data.map((log) => ({
+                    date: log.date,
+                    checkin: log.clock_in,
+                    checkout: log.clock_out,
+                    status: log.clock_in && log.clock_out ? 'Present' : 'Absent',
+                }));
+                setLogData(logs);
+            } else {
+                setLogData([]);
+                console.error('API error:', response.data.message);
+            }
         } catch (err) {
-          setLogData([]);
-          console.error('API call failed:', err);
+            setLogData([]);
+            console.error('API call failed:', err);
         }
-      
+
         setEid(employeeId);
         setOpenModal3(true);
-      };
-      
-      
+    };
 
     const filteredReport = report.filter((row) =>
         row.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -113,49 +111,50 @@ function HomeUserView() {
         {
             key: 'total_projects',
             label: 'Total Projects',
-            icon: 'hugeicons:task-done-02',
+            // icon: 'hugeicons:task-done-02',
             sortable: true,
         },
-        { key: 'total_tasks', label: 'Total Tasks', icon: 'bi:list-task', sortable: true },
+        { key: 'total_tasks', label: 'Total Tasks', sortable: true },
+        // #icon: 'bi:list-task',
         {
             key: 'completed_tasks',
             label: 'Completed Tasks',
-            icon: 'hugeicons:task-done-02',
+            // icon: 'hugeicons:task-done-02',
             sortable: true,
         },
         {
             key: 'inprogress_tasks',
             label: 'In-Progress Tasks',
-            icon: 'qlementine-icons:task-soon-16',
+            // icon: 'qlementine-icons:task-soon-16',
             sortable: true,
         },
         {
             key: 'pending_tasks',
             label: 'Pending Tasks\n(To-Do tasks)',
-            icon: 'qlementine-icons:task-past-16',
+            // icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
         {
             key: 'completed_overrun',
             label: 'Completed Overrun',
-            icon: 'fluent-mdl2:recurring-task',
+            // icon: 'fluent-mdl2:recurring-task',
             sortable: true,
         },
         {
             key: 'inprogress_overrun',
             label: 'In-Progress Overrun',
-            icon: 'carbon:task-asset-view',
+            // icon: 'carbon:task-asset-view',
             sortable: true,
         },
         {
             key: 'timelog',
             label: 'Timelogs',
-            icon: '',
+            // icon: '',
         },
         {
             key: 'time_overrun',
             label: 'CLock-in \n Clock-out \n Delay',
-            icon: 'gg:time',
+            // icon: 'gg:time',
             sortable: true,
         },
     ];
@@ -167,7 +166,9 @@ function HomeUserView() {
                 const response = await axiosInstance.get(endpoints.project.project_employee_report);
 
                 const filteredData = response.data.filter(
-                    (emp) => (emp.employee_id !== 'ELKHGFJJKEHLKJG4102836' && emp.employee_id !== 'Nischal0001')
+                    (emp) =>
+                        emp.employee_id !== 'ELKHGFJJKEHLKJG4102836' &&
+                        emp.employee_id !== 'Nischal0001'
                 );
 
                 const updatedReport = filteredData.map((emp) => {
@@ -249,7 +250,18 @@ function HomeUserView() {
             component={Paper}
             sx={{ borderRadius: 2, overflowX: 'auto', margin: { xs: 1, sm: 2, md: 4 } }}
         >
-            <TableContainer>
+            <TableContainer
+                sx={{
+                    maxHeight: '80vh',
+                    overflowX: 'auto',
+                    '& thead th': {
+                        position: 'sticky',
+                        top: 0,
+                        backgroundColor: 'background.paper',
+                        zIndex: 1,
+                    },
+                }}
+            >
                 <Toolbar
                     sx={{
                         display: 'flex',
@@ -295,7 +307,17 @@ function HomeUserView() {
                                 {columns.map((col) => (
                                     <TableCell
                                         key={col.key}
-                                        sx={{ minWidth: 120, textAlign: 'center' }}
+                                        sx={{
+                                            minWidth: col.key === 'name' ? 180 : 80,
+                                            maxWidth: col.key === 'name' ? 220 : 100,
+                                            textAlign: 'center',
+                                            whiteSpace: 'normal', // allows wrapping
+                                            wordWrap: 'break-word',
+                                            lineHeight: 1.4,
+                                            padding: '12px 8px',
+                                            fontWeight: 'bold',
+                                            backgroundColor: 'background.paper',
+                                        }}
                                     >
                                         {col.sortable ? (
                                             <TableSortLabel
@@ -367,8 +389,13 @@ function HomeUserView() {
                                                             col.key !== 'pending_tasks'
                                                                 ? '1px dashed rgba(0, 0, 0, 0.1)'
                                                                 : '',
-                                                        minWidth: 120,
-                                                        verticalAlign: 'middle',
+                                                        minWidth: col.key === 'name' ? 180 : 80,
+                                                        maxWidth: col.key === 'name' ? 220 : 100,
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        padding: '12px 8px', // increased row height
+                                                        height: 56, // default MUI row height
                                                     }}
                                                 >
                                                     {col.key === 'name' ? (
@@ -546,7 +573,7 @@ function HomeUserView() {
                 open={openModal3}
                 onClose={() => setOpenModal3(false)}
                 logs={logData}
-                employeeId = {eid}
+                employeeId={eid}
             />
             {!loading && report.length > 0 && (
                 <TablePagination
