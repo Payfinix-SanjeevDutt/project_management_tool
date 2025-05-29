@@ -10,7 +10,8 @@ import Userdashboard from 'src/pages/dashboard/projects/userdashboard';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import { AuthGuard } from 'src/auth/guard';
-// ----------------------------------------------------------------------
+
+const MicrosoftAuthCallback = lazy(() => import('src/pages/auth/success'));
 
 // Overview
 const IndexPage = lazy(() => import('src/pages/dashboard/analytics/home'));
@@ -33,140 +34,139 @@ const ProjectCreate = lazy(() => import('src/pages/dashboard/projects/create'));
 const ProjectList = lazy(() => import('src/pages/dashboard/projects/lists'));
 const ProjectDashboard = lazy(() => import('src/pages/dashboard/projects/userdashboard'));
 const MainProjectDashboard = lazy(() => import('src/pages/dashboard/projects/projectdashboard'));
-const ListProjectDashboard = lazy(
-    () => import('src/pages/dashboard/projects/projestlistdashboard')
-);
+const ListProjectDashboard = lazy(() => import('src/pages/dashboard/projects/projestlistdashboard'));
 const SettingsDetailsPage = lazy(() => import('src/pages/dashboard/settings/details'));
 const Dashboard = lazy(() => import('src/pages/dashboard/Timesheet Dashboard/Dashboard'));
 
-// ----------------------------------------------------------------------
-
 const projectLayoutContent = (
-    <ProjectLayout>
-        <Suspense fallback={<LoadingScreen />}>
-            <Outlet />
-        </Suspense>
-    </ProjectLayout>
+  <ProjectLayout>
+    <Suspense fallback={<LoadingScreen />}>
+      <Outlet />
+    </Suspense>
+  </ProjectLayout>
 );
 
 const dashboardLayoutContent = (
-    <DashboardLayout>
-        <Suspense fallback={<LoadingScreen />}>
-            <Outlet />
-        </Suspense>
-    </DashboardLayout>
+  <DashboardLayout>
+    <Suspense fallback={<LoadingScreen />}>
+      <Outlet />
+    </Suspense>
+  </DashboardLayout>
 );
 
 export const dashboardRoutes = [
-    {
-        path: '/main',
-        element: CONFIG.auth.skip ? (
-            <>{projectLayoutContent}</>
-        ) : (
-            <AuthGuard>{projectLayoutContent}</AuthGuard>
-        ),
+  {
+    path: '/main',
+    element: CONFIG.auth.skip ? (
+      <>{projectLayoutContent}</>
+    ) : (
+      <AuthGuard>{projectLayoutContent}</AuthGuard>
+    ),
+    children: [
+      {
+        path: 'projects',
         children: [
-            {
-                path: 'projects',
-                children: [
-                    { element: <ProjectList />, index: true },
-                    { path: 'create', element: <ProjectCreate /> },
-                ],
-            },
-            {
-                path: 'user',
-                children: [
-                    { element: <EmployeeAccount />, index: true },
-                    { path: 'new', element: <EmployeeCreate /> },
-                    { path: 'account', element: <EmployeeAccount /> },
-                ],
-            },
-            {
-                path: 'dashboard',
-                children: [
-                    { element: <ProjectDashboard />, index: true },
-                    { path: 'user-dashboard', element: <Userdashboard /> },
-                    { path: 'project-dashboard', element: <MainProjectDashboard /> },
-                    { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
-                    { path: 'time-log-dashboard', element: <TimelogView/>}
-                ],
-            },
-            {
-                path: 'timesheet',
-                children: [
-                    { element: <Timesheet />, index: true },
-                    { path: 'timesheet', element: <Timesheet /> },
-                    { path: 'DashboardView', element: <Dashboard/> },
-                    { path: 'create-daily', element: <TimesheetCreateDaily /> },
-                    { path: 'create-weekly', element: <TimesheetCreateWeekly /> },
-                    { path: 'edit/:timesheetId/:employeeId', element: <TimesheetCreateDaily /> },
-                ],
-            },
+          { element: <ProjectList />, index: true },
+          { path: 'create', element: <ProjectCreate /> },
         ],
-    },
-    {
+      },
+      {
+        path: 'user',
+        children: [
+          { element: <EmployeeAccount />, index: true },
+          { path: 'new', element: <EmployeeCreate /> },
+          { path: 'account', element: <EmployeeAccount /> },
+        ],
+      },
+      {
         path: 'dashboard',
-        element: CONFIG.auth.skip ? (
-            <>{dashboardLayoutContent}</>
-        ) : (
-            <AuthGuard>{dashboardLayoutContent}</AuthGuard>
-        ),
         children: [
-            { element: <IndexPage />, index: true },
-            {
-                path: 'projectdashboard/:project_id',
-                children: [
-                    { element: <IndexPage />, index: true },
-                    { path: 'homesprints', element: <HomeSprints /> },
-                    { path: 'homestages', element: <HomeStages /> },
-                    { path: 'homeusers', element: <HomeUsers /> },
-                ],
-            },
-            {
-                path: 'sprints/:project_id',
-                children: [
-                    { element: <SprintTimeline />, index: true },
-                    { path: 'timeline', element: <SprintTimeline /> },
-                    { path: 'backlog', element: <SprintBacklog /> },
-                ],
-            },
-            {
-                path: 'employee/:project_id',
-                children: [{ path: 'list', element: <EmployeeList /> }],
-            },
-            {
-                path: 'stages/:project_id',
-                children: [
-                    { element: <StageCreate />, index: true },
-                    { path: 'new', element: <StageCreate /> },
-                    { path: ':id/edit', element: <StageCreate /> },
-                    { path: ':id/view', element: <TaskView /> },
-                ],
-            },
-
-            {
-                path: 'filemanager/:project_id',
-                children: [{ element: <FileManager />, index: true }],
-            },
-            {
-                path: 'settings/:project_id',
-                children: [
-                    { element: <SettingsDetailsPage />, index: true },
-                    { path: 'details', element: <SettingsDetailsPage /> },
-                ],
-            },
-            {
-                path: 'reports',
-                children: [
-                    { element: <ReportsSample />, index: true },
-                    { path: 'employeeReports', element: <ReportsSample /> },
-                    { path: 'taskProgress', element: <ReportsSample /> },
-                    { path: 'sprintProgress', element: <ReportsSample /> },
-                ],
-            },
-            {
-                path: 'project-access/:token',
-            },
+          { element: <ProjectDashboard />, index: true },
+          { path: 'user-dashboard', element: <Userdashboard /> },
+          { path: 'project-dashboard', element: <MainProjectDashboard /> },
+          { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
+          { path: 'time-log-dashboard', element: <TimelogView /> },
         ],
-    },
+      },
+      {
+        path: 'timesheet',
+        children: [
+          { element: <Timesheet />, index: true },
+          { path: 'timesheet', element: <Timesheet /> },
+          { path: 'DashboardView', element: <Dashboard /> },
+          { path: 'create-daily', element: <TimesheetCreateDaily /> },
+          { path: 'create-weekly', element: <TimesheetCreateWeekly /> },
+          { path: 'edit/:timesheetId/:employeeId', element: <TimesheetCreateDaily /> },
+        ],
+      },
+    ],
+  },
+  {
+    path: 'dashboard',
+    element: CONFIG.auth.skip ? (
+      <>{dashboardLayoutContent}</>
+    ) : (
+      <AuthGuard>{dashboardLayoutContent}</AuthGuard>
+    ),
+    children: [
+      { element: <IndexPage />, index: true },
+      {
+        path: 'projectdashboard/:project_id',
+        children: [
+          { element: <IndexPage />, index: true },
+          { path: 'homesprints', element: <HomeSprints /> },
+          { path: 'homestages', element: <HomeStages /> },
+          { path: 'homeusers', element: <HomeUsers /> },
+        ],
+      },
+      {
+        path: 'sprints/:project_id',
+        children: [
+          { element: <SprintTimeline />, index: true },
+          { path: 'timeline', element: <SprintTimeline /> },
+          { path: 'backlog', element: <SprintBacklog /> },
+        ],
+      },
+      {
+        path: 'employee/:project_id',
+        children: [{ path: 'list', element: <EmployeeList /> }],
+      },
+      {
+        path: 'stages/:project_id',
+        children: [
+          { element: <StageCreate />, index: true },
+          { path: 'new', element: <StageCreate /> },
+          { path: ':id/edit', element: <StageCreate /> },
+          { path: ':id/view', element: <TaskView /> },
+        ],
+      },
+      {
+        path: 'filemanager/:project_id',
+        children: [{ element: <FileManager />, index: true }],
+      },
+      {
+        path: 'settings/:project_id',
+        children: [
+          { element: <SettingsDetailsPage />, index: true },
+          { path: 'details', element: <SettingsDetailsPage /> },
+        ],
+      },
+      {
+        path: 'reports',
+        children: [
+          { element: <ReportsSample />, index: true },
+          { path: 'employeeReports', element: <ReportsSample /> },
+          { path: 'taskProgress', element: <ReportsSample /> },
+          { path: 'sprintProgress', element: <ReportsSample /> },
+        ],
+      },
+      {
+        path: 'project-access/:token',
+      },
+    ],
+  },
+  {
+    path: 'auth/success',
+    element: <MicrosoftAuthCallback />, // Route for Microsoft login redirect
+  },
 ];
