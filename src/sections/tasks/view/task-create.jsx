@@ -66,11 +66,17 @@ export default function TaskCreate() {
     };
 
     const handleRequestSort = (event, property) => {
-        if (property === 'start_date' || property === 'end_date' || property === 'actual_end_date' || property === 'actual_start_date') return; 
+        if (
+            property === 'start_date' ||
+            property === 'end_date' ||
+            property === 'actual_end_date' ||
+            property === 'actual_start_date'
+        )
+            return;
 
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property); 
+        setOrderBy(property);
     };
 
     const table = useTable({ defaultOrderBy: 'key' });
@@ -91,7 +97,7 @@ export default function TaskCreate() {
     );
 
     const dateError = useMemo(
-        () => 
+        () =>
             filters.state.startDate && filters.state.endDate
                 ? new Date(filters.state.startDate).getTime() >
                   new Date(filters.state.endDate).getTime()
@@ -123,7 +129,7 @@ export default function TaskCreate() {
                 task.status?.toLowerCase().includes(name.toLowerCase()) ||
                 task.priority?.toLowerCase().includes(name.toLowerCase()) ||
                 task.reporter_name?.toLowerCase().includes(name.toLowerCase()) ||
-                task.assignee_name?.toLowerCase().includes(name.toLowerCase()) 
+                task.assignee_name?.toLowerCase().includes(name.toLowerCase());
 
             const statusMatch = status === 'all' || status === task.status;
 
@@ -135,7 +141,7 @@ export default function TaskCreate() {
         });
 
         return filteredData.sort(getComparator(order, orderBy));
-    }, [tasks, filters,subTasks, order, orderBy]); 
+    }, [tasks, filters, subTasks, order, orderBy]);
 
     useEffect(() => {
         setLoading(true);
@@ -158,22 +164,30 @@ export default function TaskCreate() {
     // const taskArray = Array.isArray(tasks) ? tasks : Object.values(tasks || {});
     const getAllTasks = (taskList) => {
         const taskArray = Array.isArray(taskList) ? taskList : Object.values(taskList || {});
-    
-        return taskArray.flatMap(task => 
+
+        return taskArray.flatMap((task) =>
             task.subTasks ? [task, ...getAllTasks(task.subTasks)] : [task]
         );
     };
-    
+
     const allTasks = getAllTasks([...Object.values(tasks || {}), ...Object.values(subTasks || {})]);
     
+    const cmmiTask = allTasks.find((task) => task.task_name === 'CMMI');
+    const cmmiTaskId = cmmiTask?.task_id;
+
+    const cmmiSubTasks = allTasks.filter((task) => task.parent_id === cmmiTaskId);
+
+    const excludeTaskIds = new Set([cmmiTaskId, ...cmmiSubTasks.map((task) => task.task_id)]);
+
+    const filteredTasks = allTasks.filter((task) => !excludeTaskIds.has(task.task_id));
+
     const taskCounts = {
-        all: allTasks.length,
-        TODO: allTasks.filter((task) => task?.status === 'TODO').length,
-        IN_PROGRESS: allTasks.filter((task) => task?.status === 'IN_PROGRESS').length,
-        DONE: allTasks.filter((task) => task?.status === 'DONE').length,
+        all: filteredTasks.length,
+        TODO: filteredTasks.filter((task) => task?.status === 'TODO').length,
+        IN_PROGRESS: filteredTasks.filter((task) => task?.status === 'IN_PROGRESS').length,
+        DONE: filteredTasks.filter((task) => task?.status === 'DONE').length,
     };
-    
-      
+
     return (
         <DashboardContent>
             <Stack gap={3}>
@@ -366,19 +380,17 @@ export default function TaskCreate() {
 }
 
 function descendingComparator(a, b, orderBy) {
-    const aValue = a[1]?.task_name?.toLowerCase() ?? ''; 
-    const bValue = b[1]?.task_name?.toLowerCase() ?? ''; 
+    const aValue = a[1]?.task_name?.toLowerCase() ?? '';
+    const bValue = b[1]?.task_name?.toLowerCase() ?? '';
 
     if (orderBy === 'task_name') {
-        return aValue.localeCompare(bValue); 
+        return aValue.localeCompare(bValue);
     }
 
     if (bValue < aValue) return -1;
     if (bValue > aValue) return 1;
     return 0;
 }
-
-
 
 function getComparator(order, orderBy) {
     return order === 'desc'
