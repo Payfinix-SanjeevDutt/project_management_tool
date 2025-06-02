@@ -142,7 +142,24 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                                 'Content-Type': 'application/json',
                             },
                         });
-                    }
+
+                        const emailNotificationPayload = {
+                            employee_id: tempTask.assignee_id,
+                            task_name: assigneePayload.task_name,
+                            stage_name: assigneePayload.stage,
+                            email: assigneePayload.email,
+                            project_id: assigneePayload.project_id,
+                            // link: `https://www.teamxel.com${assigneePayload.link}`,
+                            link: assigneePayload.link,
+                          };
+
+                          // await axiosInstance.post(endpoints.email_notification.create, emailNotificationPayload, {
+                          await axiosInstance.post(endpoints.email_notification.create, emailNotificationPayload, {
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                        }
                 } catch (notifyErr) {
                     console.error('Failed to send notifications:', notifyErr);
                     toast.error('Failed to send notifications');
@@ -188,7 +205,7 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
     const HandleTaskChanges = ({ name, value }) => {
         setTempTask((prev) => {
             const previousValue = prev[name];
-    
+
             setPreviousValues((prevValues) => (
                  {
                     ...prevValues,
@@ -198,11 +215,11 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                     },
                 }
             ))
-    
+
             return { ...prev, [name]: value };
         })
     };
-    
+
 
     useEffect(() => {
         if (issueKey) {
@@ -331,7 +348,7 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                 toast.error('Failed to delete the file');
             }
         } catch (err) {
-            console.error('Error Details:', err); 
+            console.error('Error Details:', err);
             toast.error('Unable to delete the file');
         } finally {
             setLoadDelete(false);
