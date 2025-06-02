@@ -138,6 +138,7 @@ export const dashboardRoutes = [
           { path: 'new', element: <StageCreate /> },
           { path: ':id/edit', element: <StageCreate /> },
           { path: ':id/view', element: <TaskView /> },
+          { path: ':id/:taskid/view', element: <TaskView /> },
         ],
       },
       {

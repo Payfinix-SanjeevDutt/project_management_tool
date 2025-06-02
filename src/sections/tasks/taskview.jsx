@@ -42,7 +42,6 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
     const handleAttachFile = () => {
         fileInputRef.current.click();
     };
-
     const handleFileChange = (event) => {
         const { files } = event.target;
         if (files.length > 0) {
@@ -50,7 +49,6 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
             setAttachedFiles((prevFiles) => [...prevFiles, file]);
         }
     };
-
     const trimFileName = (fileName, fileType) => {
         const maxLength = 15;
         const trimmedName =
@@ -110,12 +108,12 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                         previousValues.reporter_id.oldValue !== previousValues.reporter_id.newValue
                     ) {
                         const reporterPayload = {
-                            username: user.name,
+                            username: employees[tempTask.reporter_id]?.name || '',
                             task_name: tempTask.task_name,
                             project_id: Stage.project_id || 'No Project Name',
                             email: employees[tempTask.reporter_id]?.email || '',
                             stage: Stage.stage_name,
-                            link: `/dashboard/stages/${Stage.project_id}/${Stage.id}/view`
+                            link: `/dashboard/stages/${Stage.project_id}/${Stage.id}/${tempTask.task_id}/view`,
                         };
 
                         await axiosInstance.post(endpoints.tasks.reporter, reporterPayload, {
@@ -129,13 +127,17 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                         previousValues.assignee_id &&
                         previousValues.assignee_id.oldValue !== previousValues.assignee_id.newValue
                     ) {
+                        const allEmployeeEmails = Object.values(employees)
+                            .map((emp) => emp.email)
+                            .filter((email) => !!email);
                         const assigneePayload = {
-                            username: user.name,
+                            username: employees[tempTask.assignee_id]?.name || '',
                             task_name: tempTask.task_name,
                             project_id: Stage.project_id,
                             email: employees[tempTask.assignee_id]?.email || '',
                             stage: Stage.stage_name,
-                            link: `/dashboard/stages/${Stage.project_id}/${Stage.id}/view`
+                            link: `/dashboard/stages/${Stage.project_id}/${Stage.id}/${tempTask.task_id}/view`,
+                            all_emails: allEmployeeEmails
                         };
                         await axiosInstance.post(endpoints.tasks.assignee, assigneePayload, {
                             headers: {
@@ -206,20 +208,17 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
         setTempTask((prev) => {
             const previousValue = prev[name];
 
-            setPreviousValues((prevValues) => (
-                 {
-                    ...prevValues,
-                    [name]: {
-                        oldValue: prevValues[name]?.oldValue ?? previousValue,
-                        newValue: value,
-                    },
-                }
-            ))
+            setPreviousValues((prevValues) => ({
+                ...prevValues,
+                [name]: {
+                    oldValue: prevValues[name]?.oldValue ?? previousValue,
+                    newValue: value,
+                },
+            }));
 
             return { ...prev, [name]: value };
-        })
+        });
     };
-
 
     useEffect(() => {
         if (issueKey) {
@@ -254,7 +253,6 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
 
             const { message, status } = response?.data || {};
             if (status) {
@@ -293,7 +291,6 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
                     },
                 }
             );
-
 
             const { data, message, status } = response?.data || {};
             if (status) {
