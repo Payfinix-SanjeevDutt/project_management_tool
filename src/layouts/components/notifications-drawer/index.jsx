@@ -1,11 +1,11 @@
 import { m } from 'framer-motion';
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
+import Avatar from '@mui/material/Avatar';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -14,12 +14,13 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import axiosInstance, { endpoints } from 'src/utils/axios';
+
 import { Iconify } from 'src/components/iconify';
 import { varHover } from 'src/components/animate';
 import { Scrollbar } from 'src/components/scrollbar';
-import Avatar from '@mui/material/Avatar';
-import axiosInstance, { endpoints } from 'src/utils/axios';
-import { Link } from 'react-router-dom';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 
@@ -152,26 +153,6 @@ export function NotificationsDrawer({ sx, ...other }) {
                           >
                             View Task
                           </Button>
-
-                         {/* <Button
-                          variant="outlined"
-                          size="small"
-                          href={notification.link}
-                          target="_blank"
-                          sx={{
-                            mt: 1,
-                            color: 'white',
-                            backgroundColor: '#006400',
-                            borderColor: '#006400',
-                            '&:hover': {
-                              backgroundColor: 'darkgreen',
-                              borderColor: 'darkgreen',
-                            },
-                          }}
-                        >
-                          View Task
-                        </Button> */}
-
                         </Box>
                       </Stack>
                     </Box>
