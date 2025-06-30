@@ -1,23 +1,55 @@
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
 import duration from 'dayjs/plugin/duration';
+import React, { useState, useEffect } from 'react';
 
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import { Box, Grid, Card, useTheme, Typography, IconButton } from '@mui/material';
+import { Box, Grid, Card, Typography, IconButton } from '@mui/material';
+
+import axiosInstance, { endpoints } from 'src/utils/axios';
 
 dayjs.extend(duration);
 
-const CalendarGrid = ({ logs = [], employeeId }) => {
-    const theme = useTheme();
+const CalendarGrid = ({ logs = [] }) => {
     const [currentMonth, setCurrentMonth] = useState(dayjs());
     const today = dayjs();
-
-    const nationalHolidays = ['2025-01-26', '2025-04-14', '2025-08-15', '2025-10-02'];
-
+    const [nationalHolidays, setNationalHolidays] = useState([]);
     const startOfMonth = currentMonth.startOf('month');
     const daysInMonth = currentMonth.daysInMonth();
     const startDay = startOfMonth.day();
 
+    useEffect(() => {
+        const fetchHolidays = async () => {
+            try {
+                const response = await axiosInstance.get(endpoints.holiday.list);
+                console.log(response.data);
+
+                if (response.data.status) {
+                    const holidays = [];
+
+                    response.data.data.forEach((h) => {
+                        const start = dayjs(h.start_date);
+                        const end = dayjs(h.end_date || h.start_date); 
+                        const diff = end.diff(start, 'day');
+
+                        for (let i = 0; i <= diff; i += 1) {
+                            holidays.push({
+                                date: start.add(i, 'day').format('YYYY-MM-DD'),
+                                name: h.holiday_name,
+                            });
+                        }
+                    });
+
+                    setNationalHolidays(holidays);
+                }
+            } catch (error) {
+                console.error('Failed to fetch holidays:', error);
+            }
+        };
+
+        fetchHolidays();
+    }, []);
+
+    console.log(nationalHolidays);
     const handleMonthChange = (direction) => {
         setCurrentMonth((prev) => prev.add(direction, 'month'));
     };
@@ -28,23 +60,22 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
         const log = logs.find((entry) => entry.date === dateStr);
         const isFuture = dateObj.isAfter(today, 'day');
 
-        if (isFuture) {
-            return {
-                status: '',
-                checkin: '',
-                checkout: '',
-                total: '',
-            };
-        }
-
         const isWeekend = [0, 6].includes(dateObj.day());
-        const isHoliday = nationalHolidays.includes(dateStr);
+        const holiday = nationalHolidays.find((h) => h.date === dateStr);
+        const isHoliday = Boolean(holiday);
         let status = 'Absent';
 
-        if (isHoliday) status = 'Holiday';
-        else if (isWeekend) status = 'Weekend';
-        else if (log?.checkin && dateObj.isSame(today, 'day')) status = 'Present';
-        else if (log?.status === 'Present') status = 'Present';
+        if (isWeekend) {
+            status = 'Weekend'; 
+        } else if (isHoliday) {
+            status = 'Holiday';
+        } else if (log?.checkin && dateObj.isSame(today, 'day')) {
+            status = 'Present';
+        } else if (log?.status === 'Present') {
+            status = 'Present';
+        } else if (isFuture) {
+            status = '';
+        }
 
         const totalTime =
             log?.checkin && log?.checkout
@@ -58,29 +89,27 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
             checkin: log?.checkin || '--',
             checkout: log?.checkout || '--',
             total: totalTime,
+            holidayName: status === 'Holiday' ? holiday?.name : '', 
         };
     };
 
-  const getStatusColor = (status) => {
-  switch (status) {
-    case 'Present':
-      return '#77ED8B'; // Success Light
-    case 'Absent':
-      return '#FFA48D'; // Error Light
-    case 'Weekend':
-      return '#61F3F3'; // Info Light
-    case 'Holiday':
-      return '#FFD666'; // Warning Light
-    default:
-      return '#F4F6F8'; // Neutral Light
-  }
-};
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Present':
+                return '#F1FFF0';
+            case 'Absent':
+                return '#FFEEEE';
+            case 'Weekend':
+                return '#B3F6F6'; 
+            case 'Holiday':
+                return '#FFEB99';
+            default:
+                return '#white'; 
+        }
+    };
 
-
-
-    const getBorderColor = () => '#E5E8EB'; // Light gray (matches Minimals borders)
-
-    const getTextColor = () => '#212B36'; // Primary text gray
+    const getBorderColor = () => '#E5E8EB'; 
+    const getTextColor = () => '#212B36';
 
     const generateCalendarDays = () => {
         const days = [];
@@ -92,6 +121,13 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
         for (let i = 0; i < nextFill; i += 1) days.push(null);
 
         return days;
+    };
+    const isLessThan8Hours = (totalStr) => {
+        if (!totalStr || totalStr === '--') return false;
+        const [hStr, mStr] = totalStr.split(' ');
+        const hours = parseInt(hStr?.replace('h', ''), 10) || 0;
+        const minutes = parseInt(mStr?.replace('m', ''), 10) || 0;
+        return hours < 8;
     };
 
     return (
@@ -124,7 +160,7 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
                         );
                     }
 
-                    const { status, checkin, checkout, total } = getDayData(day);
+                    const { status, checkin, checkout, total, holidayName } = getDayData(day);
                     const showDetails = status && status !== '';
 
                     return (
@@ -132,17 +168,21 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
                             <Card
                                 sx={{
                                     bgcolor: getStatusColor(status),
-                                    height: 110,
+                                    height: 120,
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
+                                    justifyContent: 'flex-start',
                                     borderRadius: 2,
-                                    p: 1.5,
+                                    p: 1,
                                     color: getTextColor(),
                                     border: `1px solid ${getBorderColor()}`,
                                     boxShadow: '0 4px 10px rgba(0,0,0,0.03)',
                                     transition: 'all 0.3s ease-in-out',
+                                    textAlign: 'center',
+                                    '@keyframes blinker': {
+                                        '50%': { opacity: 0 },
+                                    },
                                     '&:hover': {
                                         transform: 'translateY(-2px)',
                                         boxShadow: '0 8px 20px rgba(0,0,0,0.05)',
@@ -152,20 +192,60 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
                                 <Typography variant="subtitle1" fontWeight={700} mb={0.5}>
                                     {day}
                                 </Typography>
+
                                 {showDetails && (
                                     <>
-                                        <Typography variant="body2" fontWeight="600">
+                                        <Typography
+                                            variant="body2"
+                                            fontWeight={500}
+                                            sx={{
+                                                color:
+                                                    status === 'Present'
+                                                        ? 'green'
+                                                        : status === 'Absent'
+                                                          ? 'red'
+                                                          : 'inherit',
+                                            }}
+                                        >
                                             {status}
                                         </Typography>
-                                        <Typography variant="caption" fontSize={12}>
-                                            In: {checkin}
-                                        </Typography>
-                                        <Typography variant="caption" fontSize={12}>
-                                            Out: {checkout}
-                                        </Typography>
-                                        <Typography variant="caption" fontSize={12}>
-                                            Total: {total}
-                                        </Typography>
+
+                                        {status === 'Holiday' && holidayName && (
+                                            <Typography variant="caption" fontSize={12}>
+                                                {holidayName}
+                                            </Typography>
+                                        )}
+
+                                        {status === 'Present' && (
+                                            <Box
+                                                display="flex"
+                                                flexDirection="column"
+                                                alignItems="center"
+                                            >
+                                                <Typography variant="caption" fontSize={12}>
+                                                    In: {checkin}
+                                                </Typography>
+                                                <Typography variant="caption" fontSize={12}>
+                                                    Out: {checkout}
+                                                </Typography>
+                                                <Typography
+                                                    variant="caption"
+                                                    fontSize={12}
+                                                    sx={{
+                                                        color:
+                                                            total && isLessThan8Hours(total)
+                                                                ? 'red'
+                                                                : 'green',
+                                                        animation:
+                                                            total && isLessThan8Hours(total)
+                                                                ? 'blinker 1s linear infinite'
+                                                                : 'none',
+                                                    }}
+                                                >
+                                                    Total: {total}
+                                                </Typography>
+                                            </Box>
+                                        )}
                                     </>
                                 )}
                             </Card>

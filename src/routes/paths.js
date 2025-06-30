@@ -21,6 +21,7 @@ export const paths = {
             project: `${ROOTS.MAIN_PAGE}/dashboard/project-dashboard`,
             listProject: `${ROOTS.MAIN_PAGE}/dashboard/list-project-dashboard`,
             TimeLog: `${ROOTS.MAIN_PAGE}/dashboard/time-log-dashboard`,
+            Leave: `${ROOTS.MAIN_PAGE}/dashboard/leave-dashboard`,
             root: `${ROOTS.MAIN_PAGE}/dashboard`,
         },
         project: {
@@ -41,6 +42,14 @@ export const paths = {
             root: `${ROOTS.MAIN_PAGE}/user`,
             account: `${ROOTS.MAIN_PAGE}/user/account`,
         },
+        holiday: {
+            root: `${ROOTS.MAIN_PAGE}/holiday`,
+            create: `${ROOTS.MAIN_PAGE}/holiday/holiday-create`,
+            list: `${ROOTS.MAIN_PAGE}/holiday/holiday-list`,
+            leaveCreate : `${ROOTS.MAIN_PAGE}/holiday/leave/apply-leave`,
+            assignLeave : `${ROOTS.MAIN_PAGE}/holiday/leave/assign-leave`
+        }
+
     },
     dashboard: {
         root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}`,

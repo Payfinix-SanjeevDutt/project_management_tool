@@ -40,7 +40,7 @@ const ICONS = {
 export function useNavConfig() {
     const { stages } = useSelector((state) => state.stages);
     const dispatch = useDispatch();
-    const { project_id } = useParams()
+    const { project_id } = useParams();
 
     useEffect(() => {
         if (project_id) {
@@ -73,22 +73,72 @@ export function useNavConfig() {
                     ],
                 },
 
+                // {
+                //     title: 'Stages',
+                //     path: paths.dashboard.stages.root(project_id),
+                //     icon: ICONS.flow,
+                //     children: [
+                //         ...stages.map((stage) => ({
+                //             title: stage.stage_name,
+                //             path: paths.dashboard.stages.task(project_id,stage.id),
+                //         })),
+                //         {
+                //             title: 'Create Stage',
+                //             path: paths.dashboard.stages.create(project_id),
+                //             info: <Label color="info">NEW</Label>,
+                //         },
+                //     ],
+                // },
                 {
                     title: 'Stages',
+
                     path: paths.dashboard.stages.root(project_id),
+
                     icon: ICONS.flow,
+
                     children: [
-                        ...stages.map((stage) => ({
-                            title: stage.stage_name,
-                            path: paths.dashboard.stages.task(project_id,stage.id),
-                        })),
+                        // Ensure fixed stage submenu order using regex match
+
+                        ...[
+                            'estimation',
+
+                            'requirements',
+
+                            'project management',
+
+                            'coding',
+
+                            'testing',
+
+                            'deployment',
+
+                            'uat',
+                        ]
+                            .map((key) => {
+                                const stage = stages.find((s) =>
+                                    new RegExp(key, 'i').test(s.stage_name)
+                                );
+
+                                return stage
+                                    ? {
+                                          title: stage.stage_name,
+
+                                          path: paths.dashboard.stages.task(project_id, stage.id),
+                                      }
+                                    : null;
+                            })
+                            .filter(Boolean), // remove nulls for missing stages
+
                         {
                             title: 'Create Stage',
+
                             path: paths.dashboard.stages.create(project_id),
+
                             info: <Label color="info">NEW</Label>,
                         },
                     ],
                 },
+
                 {
                     title: 'Sprints',
                     path: paths.dashboard.sprints.root(project_id),
@@ -99,7 +149,11 @@ export function useNavConfig() {
                     ],
                 },
 
-                { title: 'File Manager', path: paths.dashboard.fileManager(project_id), icon: ICONS.library },
+                {
+                    title: 'File Manager',
+                    path: paths.dashboard.fileManager(project_id),
+                    icon: ICONS.library,
+                },
                 // {
                 //     title: 'Reports',
                 //     path: paths.dashboard.reports.root,
