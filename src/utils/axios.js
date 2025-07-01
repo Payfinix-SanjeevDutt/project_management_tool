@@ -124,7 +124,8 @@ export const endpoints = {
     },
     email_notification:{
       create : 'email_notification/create',
-      get : 'email_notification/'
+      get : 'email_notification/',
+      delete : 'email_notification/delete'
     }
 
 };

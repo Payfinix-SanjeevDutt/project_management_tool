@@ -147,6 +147,7 @@ const Taskview = ({ handleClose, issueKey, isChild, taskname }) => {
 
                         const emailNotificationPayload = {
                             employee_id: tempTask.assignee_id,
+                            task_id: tempTask.task_id,
                             task_name: assigneePayload.task_name,
                             stage_name: assigneePayload.stage,
                             email: assigneePayload.email,
