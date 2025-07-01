@@ -1,5 +1,7 @@
+import dayjs from 'dayjs';
 import React, { useState, useEffect } from 'react';
 
+import { ArrowLeft, ArrowRight } from '@mui/icons-material';
 import {
     Box,
     Card,
@@ -7,17 +9,20 @@ import {
     Paper,
     Stack,
     Avatar,
-    Toolbar,
+    Button,
+    Dialog,
     Skeleton,
     TableRow,
     TableBody,
     TableCell,
     TableHead,
-    TextField,
+    IconButton,
     Typography,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
     TableContainer,
     TableSortLabel,
-    InputAdornment,
     TablePagination,
 } from '@mui/material';
 
@@ -30,6 +35,83 @@ import TimeOverrunModal from 'src/sections/employees/timeoverun-model';
 import OverrunModal from 'src/sections/employees/completed-overrun-modal';
 
 import AttendanceCalendarModal from './calenderviewEmplyee';
+
+// Date formatting utility functions
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+
+    try {
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return 'Invalid Date';
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'N/A';
+    }
+}
+
+function formatDisplayDate(dateString) {
+    if (!dateString) return 'N/A';
+    
+    try {
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return 'Invalid Date';
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"];
+        
+        const year = date.getFullYear();
+        const month = monthNames[date.getMonth()];
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        return `${day} ${month} ${year}`;
+    } catch (error) {
+        console.error('Error formatting display date:', error);
+        return 'N/A';
+    }
+}
+
+function formatTimeDuration(minutes) {
+    if (minutes === null || minutes === undefined) return 'N/A';
+    
+    const hours = Math.floor(minutes / 60);
+    const mins = Math.round(minutes % 60);
+    
+    if (hours > 0 && mins > 0) {
+        return `${hours}hrs ${mins}mins`;
+    }
+    if (hours > 0) {
+        return `${hours}hrs`;
+    }
+    if (mins > 0) {
+        return `${mins}mins`;
+    }
+    return '0mins';
+}
+
+// Function to calculate missed time in minutes
+function calculateMissedTime(clockIn, clockOut, expectedHours = 8) {
+    if (!clockIn || !clockOut) return 0;
+    
+    try {
+        const [inHours, inMinutes] = clockIn.split(':').map(Number);
+        const [outHours, outMinutes] = clockOut.split(':').map(Number);
+        
+        const totalMinutesWorked = (outHours * 60 + outMinutes) - (inHours * 60 + inMinutes);
+        const expectedMinutes = expectedHours * 60;
+        
+        const missedTime = Math.max(0, expectedMinutes - totalMinutesWorked);
+        return missedTime;
+    } catch (error) {
+        console.error('Error calculating missed time:', error);
+        return 0;
+    }
+}
 
 function HomeUserView() {
     const [report, setReport] = useState([]);
@@ -48,6 +130,13 @@ function HomeUserView() {
     const [selectedTimerunType, setSelectedTimeOver] = useState('');
     const [logData, setLogData] = useState([]);
     const [eid, setEid] = useState(null);
+    const [delayDetails, setDelayDetails] = useState([]);
+    const [openDelayDetails, setOpenDelayDetails] = useState(false);
+    const [currentEmployee, setCurrentEmployee] = useState(null);
+    const [currentMonth, setCurrentMonth] = useState(dayjs().month());
+    const [currentYear, setCurrentYear] = useState(dayjs().year());
+    const [filteredDelayDetails, setFilteredDelayDetails] = useState([]);
+    const [filterByMonth, setFilterByMonth] = useState(false);
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
@@ -60,13 +149,31 @@ function HomeUserView() {
             });
 
             if (response.data?.status) {
-                const logs = response.data.data.map((log) => ({
-                    date: log.date,
-                    checkin: log.clock_in,
-                    checkout: log.clock_out,
-                    status: log.clock_in && log.clock_out ? 'Present' : 'Absent',
-                }));
+                const logs = response.data.data.map((log) => {
+                    const missedTime = calculateMissedTime(log.clock_in, log.clock_out);
+                    return {
+                        date: formatDate(log.date),
+                        checkin: log.clock_in,
+                        checkout: log.clock_out,
+                        status: log.clock_in && log.clock_out ? 'Present' : 'Absent',
+                        isDelay: log.is_delay,
+                        totalHours: log.total_hours,
+                        missedTime: log.missedTime,
+                    };
+                });
                 setLogData(logs);
+
+                setReport((prevReport) =>
+                    prevReport.map((emp) =>
+                        emp.employee_id === employeeId
+                            ? { 
+                                ...emp, 
+                                time_overrun: response.data.delay_count || 0,
+                                total_missed_time: logs.reduce((sum, log) => sum + log.missedTime, 0)
+                            }
+                            : emp
+                    )
+                );
             } else {
                 setLogData([]);
                 console.error('API error:', response.data.message);
@@ -78,6 +185,84 @@ function HomeUserView() {
 
         setEid(employeeId);
         setOpenModal3(true);
+    };
+
+    const handleOpenDelayDetails = (employee) => {
+        setCurrentEmployee(employee);
+        
+        // Format the delay details before setting them
+        const formattedDetails = (employee.missed_logs || []).map(log => {
+            const missedTime = calculateMissedTime(log.clock_in, log.clock_out);
+            return {
+                ...log,
+                date: formatDate(log.date),
+                displayDate: formatDisplayDate(log.date),
+                totalHoursInMinutes: log.total_hours?.split(':').length >= 2 
+                    ? parseInt(log.total_hours.split(':')[0], 10) * 60 + parseInt(log.total_hours.split(':')[1], 10)
+                    : 0,
+                missedTimeInMinutes: missedTime,
+                clock_in: log.clock_in || 'N/A',
+                clock_out: log.clock_out || 'N/A'
+            };
+        });
+        
+        setDelayDetails(formattedDetails);
+        setFilteredDelayDetails(formattedDetails); // Show all records by default
+        setFilterByMonth(false); // Start with all records visible
+        setCurrentMonth(dayjs().month());
+        setCurrentYear(dayjs().year());
+        setOpenDelayDetails(true);
+    };
+
+    const toggleMonthFilter = () => {
+        if (filterByMonth) {
+            // Show all records
+            setFilteredDelayDetails(delayDetails);
+        } else {
+            // Filter for current month
+            filterDataByMonth(currentMonth, currentYear);
+        }
+        setFilterByMonth(!filterByMonth);
+    };
+
+    const filterDataByMonth = (month, year) => {
+        const filtered = delayDetails.filter(detail => {
+            const detailDate = dayjs(detail.date);
+            return detailDate.month() === month && detailDate.year() === year;
+        });
+        setFilteredDelayDetails(filtered);
+    };
+
+    const handlePrevMonth = () => {
+        const newMonth = currentMonth - 1;
+        if (newMonth < 0) {
+            setCurrentMonth(11);
+            setCurrentYear(currentYear - 1);
+            filterDataByMonth(11, currentYear - 1);
+        } else {
+            setCurrentMonth(newMonth);
+            filterDataByMonth(newMonth, currentYear);
+        }
+    };
+
+    const handleNextMonth = () => {
+        const newMonth = currentMonth + 1;
+        if (newMonth > 11) {
+            setCurrentMonth(0);
+            setCurrentYear(currentYear + 1);
+            filterDataByMonth(0, currentYear + 1);
+        } else {
+            setCurrentMonth(newMonth);
+            filterDataByMonth(newMonth, currentYear);
+        }
+    };
+
+    const getMonthName = (monthIndex) => {
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        return months[monthIndex];
     };
 
     const filteredReport = report.filter((row) =>
@@ -111,50 +296,41 @@ function HomeUserView() {
         {
             key: 'total_projects',
             label: 'Total Projects',
-            // icon: 'hugeicons:task-done-02',
             sortable: true,
         },
         { key: 'total_tasks', label: 'Total Tasks', sortable: true },
-        // #icon: 'bi:list-task',
         {
             key: 'completed_tasks',
             label: 'Completed Tasks',
-            // icon: 'hugeicons:task-done-02',
             sortable: true,
         },
         {
             key: 'inprogress_tasks',
             label: 'In-Progress Tasks',
-            // icon: 'qlementine-icons:task-soon-16',
             sortable: true,
         },
         {
             key: 'pending_tasks',
             label: 'Pending Tasks\n(To-Do tasks)',
-            // icon: 'qlementine-icons:task-past-16',
             sortable: true,
         },
         {
             key: 'completed_overrun',
             label: 'Completed Overrun',
-            // icon: 'fluent-mdl2:recurring-task',
             sortable: true,
         },
         {
             key: 'inprogress_overrun',
             label: 'In-Progress Overrun',
-            // icon: 'carbon:task-asset-view',
             sortable: true,
         },
         {
             key: 'timelog',
             label: 'Timelogs',
-            // icon: '',
         },
         {
             key: 'time_overrun',
-            label: 'CLock-in \n Clock-out \n Delay',
-            // icon: 'gg:time',
+            label: 'Clock-in/Clock-out Delay',
             sortable: true,
         },
     ];
@@ -171,35 +347,61 @@ function HomeUserView() {
                         emp.employee_id !== 'Nischal0001'
                 );
 
-                const updatedReport = filteredData.map((emp) => {
-                    const logs = Array.from({ length: 3 }, (_, i) => {
-                        const hours = Math.floor(Math.random() * 4) + 6;
-                        const date = new Date();
-                        date.setDate(date.getDate() - i);
-                        return {
-                            date: date.toISOString().split('T')[0],
-                            hours,
-                        };
-                    });
+                const reportWithDelays = await Promise.all(
+                    filteredData.map(async (emp) => {
+                        try {
+                            const timeLogResponse = await axiosInstance.post(
+                                endpoints.timelog.list,
+                                {
+                                    employee_id: emp.employee_id,
+                                }
+                            );
 
-                    const missed = logs.filter((l) => l.hours < 8);
+                            let delayCount = 0;
+                            let totalMissedTime = 0;
+                            let missedLogs = [];
 
-                    return {
-                        ...emp,
-                        time_overrun: missed.length,
-                        missed_logs: missed.map((log) => ({
-                            ...log,
-                            employee_name: emp.name,
-                            project_name: emp.project_name || 'N/A',
-                            task_name: emp.task_name || 'N/A',
-                        })),
-                    };
-                });
+                            if (timeLogResponse.data?.status) {
+                                delayCount = timeLogResponse.data.delay_count || 0;
+                                missedLogs = timeLogResponse.data.data
+                                    .filter((log) => log.is_delay)
+                                    .map((log) => ({
+                                        ...log,
+                                        date: log.date,
+                                        employee_name: emp.name,
+                                        clock_in: log.clock_in,
+                                        clock_out: log.clock_out,
+                                        total_hours: log.total_hours,
+                                        missed_time: calculateMissedTime(log.clock_in, log.clock_out)
+                                    }));
 
-                setReport(updatedReport);
+                                totalMissedTime = missedLogs.reduce((sum, log) => sum + (log.missed_time || 0), 0);
+                            }
+
+                            return {
+                                ...emp,
+                                time_overrun: delayCount,
+                                total_missed_time: totalMissedTime,
+                                missed_logs: missedLogs
+                            };
+                        } catch (err) {
+                            console.error(`Failed to fetch logs for ${emp.employee_id}:`, err);
+                            return {
+                                ...emp,
+                                time_overrun: 0,
+                                total_missed_time: 0,
+                                missed_logs: [],
+                            };
+                        }
+                    })
+                );
+
+                setReport(reportWithDelays);
                 setLoading(false);
             } catch (err) {
-                setLoading(true);
+                console.error('Failed to fetch report:', err);
+                setError('Failed to load data');
+                setLoading(false);
             }
         };
 
@@ -262,38 +464,6 @@ function HomeUserView() {
                     },
                 }}
             >
-                <Toolbar
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: { xs: 1, sm: 2 },
-                    }}
-                >
-                    <Typography variant="h6" sx={{ whiteSpace: 'nowrap', mr: 2 }}>
-                        Project Employee Summary
-                    </Typography>
-
-                    <Box sx={{ flexGrow: 1, maxWidth: 1000 }}>
-                        <TextField
-                            fullWidth
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            placeholder="Search Employee..."
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Iconify
-                                            icon="eva:search-fill"
-                                            sx={{ color: 'text.disabled' }}
-                                        />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </Box>
-                </Toolbar>
-
                 {loading ? (
                     <Stack spacing={2} sx={{ padding: 2 }}>
                         <Skeleton variant="rectangular" height={40} />
@@ -311,7 +481,7 @@ function HomeUserView() {
                                             minWidth: col.key === 'name' ? 180 : 80,
                                             maxWidth: col.key === 'name' ? 220 : 100,
                                             textAlign: 'center',
-                                            whiteSpace: 'normal', // allows wrapping
+                                            whiteSpace: 'normal',
                                             wordWrap: 'break-word',
                                             lineHeight: 1.4,
                                             padding: '12px 8px',
@@ -394,8 +564,8 @@ function HomeUserView() {
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap',
-                                                        padding: '12px 8px', // increased row height
-                                                        height: 56, // default MUI row height
+                                                        padding: '12px 8px',
+                                                        height: 56,
                                                     }}
                                                 >
                                                     {col.key === 'name' ? (
@@ -419,8 +589,8 @@ function HomeUserView() {
                                                             >
                                                                 {!row.avatar && row.name
                                                                     ? row.name
-                                                                          .charAt(0)
-                                                                          .toUpperCase()
+                                                                        .charAt(0)
+                                                                        .toUpperCase()
                                                                     : 'A'}
                                                             </Avatar>
                                                             <Stack spacing={0.5}>
@@ -435,8 +605,8 @@ function HomeUserView() {
                                                             </Stack>
                                                         </Stack>
                                                     ) : col.key === 'completed_overrun' ||
-                                                      col.key === 'inprogress_overrun' ||
-                                                      col.key === 'pending_tasks' ? (
+                                                    col.key === 'inprogress_overrun' ||
+                                                    col.key === 'pending_tasks' ? (
                                                         row[col.key] !== 0 ? (
                                                             <Box
                                                                 sx={{
@@ -476,44 +646,39 @@ function HomeUserView() {
                                                             </Box>
                                                         )
                                                     ) : col.key === 'time_overrun' ? (
-                                                        <Typography
-                                                            variant="body2"
-                                                            fontWeight="bold"
+                                                        <Box
                                                             sx={{
-                                                                display: 'inline-block',
-                                                                px: 1.5,
-                                                                py: 0.5,
-                                                                borderRadius: 1,
-                                                                fontWeight: 'bold',
-                                                                color:
-                                                                    row[col.key] > 0
-                                                                        ? 'error.main'
-                                                                        : 'text.primary',
-                                                                cursor:
-                                                                    row[col.key] > 0
-                                                                        ? 'pointer'
-                                                                        : 'default',
-                                                                textDecoration:
-                                                                    row[col.key] > 0
-                                                                        ? 'underline'
-                                                                        : 'none',
-                                                                '&:hover':
-                                                                    row[col.key] > 0
-                                                                        ? { color: 'error.dark' }
-                                                                        : {},
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                alignItems: 'center',
+                                                                cursor: row.total_missed_time > 0 ? 'pointer' : 'default',
                                                             }}
                                                             onClick={
-                                                                row[col.key] > 0
-                                                                    ? () =>
-                                                                          handleOpenModal1(
-                                                                              row.employee_id,
-                                                                              row.missed_logs
-                                                                          )
+                                                                row.total_missed_time > 0
+                                                                    ? () => handleOpenDelayDetails(row)
                                                                     : undefined
                                                             }
                                                         >
-                                                            {row[col.key]}
-                                                        </Typography>
+                                                            <Typography
+                                                                variant="body2"
+                                                                fontWeight="bold"
+                                                                sx={{
+                                                                    color: row.time_overrun > 0 ? 'error.main' : 'text.primary',
+                                                                    textDecoration: row.time_overrun > 0 ? 'underline' : 'none',
+                                                                    '&:hover': row.time_overrun > 0 ? { color: 'error.dark' } : {},
+                                                                }}
+                                                            >
+                                                                {row.time_overrun} day(s)
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="caption"
+                                                                sx={{
+                                                                    color: row.total_missed_time > 0 ? 'error.main' : 'text.secondary',
+                                                                }}
+                                                            >
+                                                                {/* {formatTimeDuration(row.total_missed_time)} */}
+                                                            </Typography>
+                                                        </Box>
                                                     ) : col.key === 'timelog' ? (
                                                         <Box
                                                             sx={{
@@ -542,7 +707,7 @@ function HomeUserView() {
                                                                     row[col.key] === 0
                                                                         ? 'inherit'
                                                                         : theme.palette.text
-                                                                              .primary,
+                                                                            .primary,
                                                             }}
                                                         >
                                                             {row[col.key]}
@@ -557,6 +722,215 @@ function HomeUserView() {
                     </Table>
                 )}
             </TableContainer>
+
+            {/* Delay Details Dialog */}
+            <Dialog
+                open={openDelayDetails}
+                onClose={() => setOpenDelayDetails(false)}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        height: '70vh',
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        fontWeight: 600,
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                        py: 2.5,
+                        px: 2,
+                        backgroundColor: 'background.paper',
+                        textAlign: 'center',
+                        borderBottom: '1px solid',
+                        borderColor: 'divider'
+                    }}
+                >
+                    Employee : {currentEmployee?.name || 'N/A'}
+                </DialogTitle>
+
+                <DialogContent dividers sx={{ 
+                    px: { xs: 1, sm: 2 }, 
+                    py: 1.5,
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    gap: 1.5
+                }}>
+                    {/* Month Navigation - Centered */}
+                    <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                        mb: 1.5,
+                        flexShrink: 0
+                    }}>
+                        <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: 1.5
+                        }}>
+                            <IconButton 
+                                onClick={handlePrevMonth} 
+                                size="small"
+                                disabled={!filterByMonth}
+                            >
+                                <ArrowLeft />
+                            </IconButton>
+                            <Typography variant="subtitle1" sx={{ minWidth: 120, textAlign: 'center' }}>
+                                {filterByMonth ? `${getMonthName(currentMonth)} ${currentYear}` : 'All Records'}
+                            </Typography>
+                            <IconButton 
+                                onClick={handleNextMonth} 
+                                size="small"
+                                disabled={!filterByMonth}
+                            >
+                                <ArrowRight />
+                            </IconButton>
+                        </Box>
+                    </Box>
+                    
+                    {/* Toggle Filter Button - Centered below month navigation */}
+                    <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        mb: 2,
+                        flexShrink: 0
+                    }}>
+                        <Button
+                            variant={filterByMonth ? "contained" : "outlined"}
+                            onClick={toggleMonthFilter}
+                            size="small"
+                        >
+                            {filterByMonth ? 'Show All Records' : 'Filter by Month'}
+                        </Button>
+                    </Box>
+                    
+                    {/* Table Container */}
+                    <Box sx={{ 
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 1
+                    }}>
+                        <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
+                            <Table size="small" stickyHeader>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell
+                                            align="center"
+                                            sx={{ 
+                                                fontWeight: 600, 
+                                                backgroundColor: 'background.paper',
+                                                width: '33%',
+                                                position: 'sticky',
+                                                top: 0,
+                                                zIndex: 2
+                                            }}
+                                        >
+                                            Date
+                                        </TableCell>
+                                        <TableCell
+                                            align="center"
+                                            sx={{ 
+                                                fontWeight: 600, 
+                                                backgroundColor: 'background.paper',
+                                                width: '33%',
+                                                position: 'sticky',
+                                                top: 0,
+                                                zIndex: 2
+                                            }}
+                                        >
+                                            Hours Worked
+                                        </TableCell>
+                                        <TableCell
+                                            align="center"
+                                            sx={{ 
+                                                fontWeight: 600, 
+                                                backgroundColor: 'background.paper',
+                                                width: '33%',
+                                                position: 'sticky',
+                                                top: 0,
+                                                zIndex: 2
+                                            }}
+                                        >
+                                            Missed Time
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {filteredDelayDetails.length > 0 ? (
+                                        filteredDelayDetails.map((detail, index) => (
+                                            <TableRow key={index} hover>
+                                                <TableCell 
+                                                    align="center" 
+                                                    sx={{ width: '33%', py: 1.25 }}
+                                                >
+                                                    {detail.displayDate}
+                                                </TableCell>
+                                                <TableCell 
+                                                    align="center" 
+                                                    sx={{ width: '33%', py: 1.25 }}
+                                                >
+                                                    {formatTimeDuration(detail.totalHoursInMinutes)}
+                                                </TableCell>
+                                                <TableCell 
+                                                    align="center" 
+                                                    sx={{ 
+                                                        width: '33%',
+                                                        py: 1.25,
+                                                        color: detail.missedTimeInMinutes > 0 ? 'error.main' : 'inherit'
+                                                    }}
+                                                >
+                                                    {formatTimeDuration(detail.missedTimeInMinutes)}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell 
+                                                colSpan={3} 
+                                                align="center" 
+                                                sx={{ 
+                                                    py: 4,
+                                                    color: 'text.secondary'
+                                                }}
+                                            >
+                                                No delay records found {filterByMonth ? 'for selected month' : ''}
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
+                </DialogContent>
+
+                <DialogActions sx={{ 
+                    px: 2, 
+                    py: 1.75,
+                    borderTop: '1px solid',
+                    borderColor: 'divider',
+                    justifyContent: 'center'
+                }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => setOpenDelayDetails(false)}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Other modals */}
             <OverrunModal
                 open={openModal}
                 handleClose={handleCloseModal}
@@ -575,6 +949,7 @@ function HomeUserView() {
                 logs={logData}
                 employeeId={eid}
             />
+
             {!loading && report.length > 0 && (
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}

@@ -13,7 +13,7 @@ const AttendanceCalendarModal = ({ open, onClose, logs ,employeeId}) => (
           maxWidth: 1200,
           height: '90%',
           mx: 'auto',
-          my: 4,
+          my: 4,  
           bgcolor: 'background.paper',
           p: 4,
           overflowY: 'auto',

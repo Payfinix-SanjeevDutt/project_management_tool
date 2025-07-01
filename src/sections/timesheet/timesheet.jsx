@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import isoWeek from 'dayjs/plugin/isoWeek';
 
-import TimerIcon from '@mui/icons-material/Timer';
+// import TimerIcon from '@mui/icons-material/Timer';
 import { ArrowBack, ArrowForward, CalendarToday } from '@mui/icons-material';
 import {
     Box,
@@ -11,21 +11,16 @@ import {
     Menu,
     Paper,
     Button,
-    Select,
     Tooltip,
     MenuItem,
-    TextField,
     Typography,
-    InputLabel,
     IconButton,
-    FormControl,
-    FormHelperText,
     CircularProgress,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { Iconify } from 'src/components/iconify';
+// import { Iconify } from 'src/components/iconify';
 
 import TimesheetTable from './list-timesheet';
 
@@ -136,29 +131,12 @@ export default function TimeLogs() {
                 </Box>
 
                 <Box display="flex" alignItems="center" gap={2} py={2}>
-                    <FormControl sx={{ width: 300 }} error={!!errors.project}>
-                        <InputLabel>Select Project</InputLabel>
-                        <Select value={project} onChange={(e) => setProject(e.target.value)}>
-                            <MenuItem value="">Select Project</MenuItem>
-                            <MenuItem value="Project A">Project A</MenuItem>
-                            <MenuItem value="Project B">Project B</MenuItem>
-                        </Select>
-                        {errors.project && <FormHelperText>{errors.project}</FormHelperText>}
-                    </FormControl>
+                   
 
                     <Box display="flex" alignItems="center" gap={2} width="50%">
-                        <FormControl sx={{ flexGrow: 1 }} error={!!errors.workItem}>
-                            <TextField
-                                label="Task"
-                                variant="outlined"
-                                fullWidth
-                                value={workItem}
-                                onChange={(e) => setworkItem(e.target.value)}
-                            />
-                            {errors.workItem && <FormHelperText>{errors.workItem}</FormHelperText>}
-                        </FormControl>
+                        
 
-                        <FormControl sx={{ width: 'auto' }} error={!!errors.description}>
+                        {/* <FormControl sx={{ width: 'auto' }} error={!!errors.description}>
                             {isEditing ? (
                                 <TextField
                                     label="Enter description"
@@ -183,28 +161,10 @@ export default function TimeLogs() {
                             {errors.description && (
                                 <FormHelperText>{errors.description}</FormHelperText>
                             )}
-                        </FormControl>
+                        </FormControl> */}
                     </Box>
 
-                    <FormControl sx={{ width: 240 }} error={!!errors.billable}>
-                        <InputLabel>Billable</InputLabel>
-                        <Select value={billable} onChange={(e) => setBillable(e.target.value)}>
-                            <MenuItem value="billable">Billable</MenuItem>
-                            <MenuItem value="non-billable">Non-Billable</MenuItem>
-                        </Select>
-                        {errors.billable && <FormHelperText>{errors.billable}</FormHelperText>}
-                    </FormControl>
-
-                    <Box
-                        bgcolor="black"
-                        color="white"
-                        p={1}
-                        borderRadius={1}
-                        display="flex"
-                        alignItems="center"
-                    >
-                        <TimerIcon sx={{ mr: 1 }} /> {time}
-                    </Box>
+                    
                 </Box>
 
                 {loading ? (
