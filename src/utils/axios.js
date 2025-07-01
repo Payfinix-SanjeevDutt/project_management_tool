@@ -122,10 +122,20 @@ export const endpoints = {
         update : '/timelog/update',
         daily: '/timelog/getdaily'
     },
+    holiday:{
+        create : '/holiday/create-holiday',
+        list: '/holiday/list-holidays',
+        delete: '/holiday/delete-holiday',
+        deleteall : '/holiday/delete-holidays',
+        applyleave : '/leave/apply-leave',
+        createpolicy : '/leave/create-policy',
+        assignleave : '/leave/leave-assign',
+        listLeave : '/leave/list-leave'
+
+    },    
     email_notification:{
       create : 'email_notification/create',
       get : 'email_notification/',
       delete : 'email_notification/delete'
     }
-
 };
