@@ -80,8 +80,8 @@ export const navData = [
                 children: [
                     { title: 'Create', path: paths.main.holiday.create },
                     { title: 'List', path: paths.main.holiday.list },
-                    { title: 'Apply Leave', path: paths.main.holiday.leaveCreate },
-                    { title: 'Assign Leave', path: paths.main.holiday.assignLeave}
+                    // { title: 'Apply Leave', path: paths.main.holiday.leaveCreate },
+                    // { title: 'Assign Leave', path: paths.main.holiday.assignLeave}
                 ],
             },
         ],
