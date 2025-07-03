@@ -84,7 +84,8 @@ export function AmplifySignInView() {
 
     const handleMicrosoftLogin = () => {
         try {
-            window.location.href = `${import.meta.env.VITE_PROJECT_APP_API}/auth/microsoft-sign-in`;
+            const platform="web";
+            window.location.href = `${import.meta.env.VITE_PROJECT_APP_API}/auth/microsoft-sign-in?platform=${platform}`;
         } catch (error) {
             setErrorMsg(error instanceof Error ? error.message : error);
         }
