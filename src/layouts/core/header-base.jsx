@@ -88,7 +88,7 @@ export function HeaderBase({
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const { project_id } = useParams(); 
+    const { project_id } = useParams();
     const currentProject =
         data?.workspaces?.find((ws) => ws.id === project_id) || data?.workspaces?.[0];
     return (
@@ -132,15 +132,15 @@ export function HeaderBase({
                                     sx={{
                                         textTransform: 'none',
                                         fontWeight: 'bold',
-                                        fontSize: '1.1rem', 
+                                        fontSize: '1.1rem',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 1, 
+                                        gap: 1,
                                         padding: '8px 16px',
                                         borderRadius: '8px',
-                                        backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                         '&:hover': {
-                                            backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+                                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
                                         },
                                     }}
                                 >
@@ -223,7 +223,7 @@ export function HeaderBase({
                             {notifications && (
                                 <NotificationsDrawer
                                     data-slot="notifications"
-                                    data={data?.notifications}
+                                    // data={data?.notifications}
                                 />
                             )}
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -18,6 +19,8 @@ import {
     DialogActions,
     DialogContent,
 } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -56,6 +59,10 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
 
     const reporter_info = employees[task.reporter_id];
     const assignee_info = employees[task.assignee_id];
+    const { project_id, id, taskid } = useParams();
+    const navigate = useNavigate();
+ 
+    const isCurrentTaskModalOpen = modalOpen.value || task.task_id === taskid;
 
     if (loading) {
         return (
@@ -154,7 +161,10 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                             bgcolor: 'rgba(0, 0, 0, 0.05)', 
                         },
                     }}
-                    onClick={modalOpen.onTrue}
+                    // onClick={modalOpen.onTrue}
+                    onClick={() =>
+                        navigate(paths.dashboard.stages.taskview(project_id, id, task.task_id))
+                    }
                 >
                     <Typography variant="body2">{task.task_name}</Typography>
                 </TableCell>
@@ -366,9 +376,19 @@ export default function CustomTableRow({ task, isChild = false, selected, onSele
                     <CustomTableRow task={subTasks[child]} isChild />
                 ))}
 
-            <TaskModelView
+            {/* <TaskModelView
                 open={modalOpen.value}
                 onClose={modalOpen.onFalse}
+                issueKey={task.task_id}
+                isChild={!!task.parent_id}
+                taskname={task.task_name}
+            /> */}
+             <TaskModelView
+                open={isCurrentTaskModalOpen}
+                onClose={() => {
+                    modalOpen.onFalse();
+                    navigate(paths.dashboard.stages.task(project_id,id)); // or your base URL
+                }}
                 issueKey={task.task_id}
                 isChild={!!task.parent_id}
                 taskname={task.task_name}

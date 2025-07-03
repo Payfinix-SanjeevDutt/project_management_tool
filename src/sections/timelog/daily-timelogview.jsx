@@ -174,13 +174,18 @@ const DailyTimeLogView = () => {
                     date: currentDate.format('YYYY-MM-DD'),
                 });
                 if (response.data?.status && response.data?.data?.logs) {
-                    const logs = response.data.data.logs.map((log, i) => ({
-                        id: i,
+                    const logsWithoutHR12345 = response.data.data.logs.filter(
+                        (log) => log.employee_id !== 'HR12345'
+                    );
+
+                    const enriched = logsWithoutHR12345.map((log, index) => ({
+                        id: index,
                         ...log,
                         status: log.clock_in ? 'Present' : 'Absent',
                     }));
-                    setDailyLogs(logs);
-                    setFilteredLogs(logs);
+
+                    // setLogs(enriched);
+                    setFilteredLogs(enriched);
                 } else {
                     setDailyLogs([]);
                     setFilteredLogs([]);

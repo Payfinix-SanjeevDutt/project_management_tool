@@ -57,18 +57,30 @@ function formatDate(dateString) {
 
 function formatDisplayDate(dateString) {
     if (!dateString) return 'N/A';
-    
+
     try {
         const date = new Date(dateString);
         if (Number.isNaN(date.getTime())) return 'Invalid Date';
-        
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December"];
-        
+
+        const monthNames = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+        ];
+
         const year = date.getFullYear();
         const month = monthNames[date.getMonth()];
         const day = String(date.getDate()).padStart(2, '0');
-        
+
         return `${day} ${month} ${year}`;
     } catch (error) {
         console.error('Error formatting display date:', error);
@@ -78,10 +90,10 @@ function formatDisplayDate(dateString) {
 
 function formatTimeDuration(minutes) {
     if (minutes === null || minutes === undefined) return 'N/A';
-    
+
     const hours = Math.floor(minutes / 60);
     const mins = Math.round(minutes % 60);
-    
+
     if (hours > 0 && mins > 0) {
         return `${hours}hrs ${mins}mins`;
     }
@@ -97,14 +109,14 @@ function formatTimeDuration(minutes) {
 // Function to calculate missed time in minutes
 function calculateMissedTime(clockIn, clockOut, expectedHours = 8) {
     if (!clockIn || !clockOut) return 0;
-    
+
     try {
         const [inHours, inMinutes] = clockIn.split(':').map(Number);
         const [outHours, outMinutes] = clockOut.split(':').map(Number);
-        
-        const totalMinutesWorked = (outHours * 60 + outMinutes) - (inHours * 60 + inMinutes);
+
+        const totalMinutesWorked = outHours * 60 + outMinutes - (inHours * 60 + inMinutes);
         const expectedMinutes = expectedHours * 60;
-        
+
         const missedTime = Math.max(0, expectedMinutes - totalMinutesWorked);
         return missedTime;
     } catch (error) {
@@ -166,11 +178,14 @@ function HomeUserView() {
                 setReport((prevReport) =>
                     prevReport.map((emp) =>
                         emp.employee_id === employeeId
-                            ? { 
-                                ...emp, 
-                                time_overrun: response.data.delay_count || 0,
-                                total_missed_time: logs.reduce((sum, log) => sum + log.missedTime, 0)
-                            }
+                            ? {
+                                  ...emp,
+                                  time_overrun: response.data.delay_count || 0,
+                                  total_missed_time: logs.reduce(
+                                      (sum, log) => sum + log.missedTime,
+                                      0
+                                  ),
+                              }
                             : emp
                     )
                 );
@@ -189,23 +204,25 @@ function HomeUserView() {
 
     const handleOpenDelayDetails = (employee) => {
         setCurrentEmployee(employee);
-        
+
         // Format the delay details before setting them
-        const formattedDetails = (employee.missed_logs || []).map(log => {
+        const formattedDetails = (employee.missed_logs || []).map((log) => {
             const missedTime = calculateMissedTime(log.clock_in, log.clock_out);
             return {
                 ...log,
                 date: formatDate(log.date),
                 displayDate: formatDisplayDate(log.date),
-                totalHoursInMinutes: log.total_hours?.split(':').length >= 2 
-                    ? parseInt(log.total_hours.split(':')[0], 10) * 60 + parseInt(log.total_hours.split(':')[1], 10)
-                    : 0,
+                totalHoursInMinutes:
+                    log.total_hours?.split(':').length >= 2
+                        ? parseInt(log.total_hours.split(':')[0], 10) * 60 +
+                          parseInt(log.total_hours.split(':')[1], 10)
+                        : 0,
                 missedTimeInMinutes: missedTime,
                 clock_in: log.clock_in || 'N/A',
-                clock_out: log.clock_out || 'N/A'
+                clock_out: log.clock_out || 'N/A',
             };
         });
-        
+
         setDelayDetails(formattedDetails);
         setFilteredDelayDetails(formattedDetails); // Show all records by default
         setFilterByMonth(false); // Start with all records visible
@@ -226,7 +243,7 @@ function HomeUserView() {
     };
 
     const filterDataByMonth = (month, year) => {
-        const filtered = delayDetails.filter(detail => {
+        const filtered = delayDetails.filter((detail) => {
             const detailDate = dayjs(detail.date);
             return detailDate.month() === month && detailDate.year() === year;
         });
@@ -259,8 +276,18 @@ function HomeUserView() {
 
     const getMonthName = (monthIndex) => {
         const months = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
         ];
         return months[monthIndex];
     };
@@ -291,7 +318,7 @@ function HomeUserView() {
 
     const columns = [
         { key: 'name', label: 'Employee name', icon: 'solar:user-outline', sortable: true },
-        { key: 'attendance', label: 'Idle Time', sortable: true },
+        { key: 'idle_time', label: 'Idle Time', sortable: true },
         { key: 'available_in', label: 'Available in', sortable: true },
         {
             key: 'total_projects',
@@ -344,7 +371,8 @@ function HomeUserView() {
                 const filteredData = response.data.filter(
                     (emp) =>
                         emp.employee_id !== 'ELKHGFJJKEHLKJG4102836' &&
-                        emp.employee_id !== 'Nischal0001'
+                        emp.employee_id !== 'Nischal0001' &&
+                        emp.employee_id !== 'HR12345'
                 );
 
                 const reportWithDelays = await Promise.all(
@@ -372,17 +400,23 @@ function HomeUserView() {
                                         clock_in: log.clock_in,
                                         clock_out: log.clock_out,
                                         total_hours: log.total_hours,
-                                        missed_time: calculateMissedTime(log.clock_in, log.clock_out)
+                                        missed_time: calculateMissedTime(
+                                            log.clock_in,
+                                            log.clock_out
+                                        ),
                                     }));
 
-                                totalMissedTime = missedLogs.reduce((sum, log) => sum + (log.missed_time || 0), 0);
+                                totalMissedTime = missedLogs.reduce(
+                                    (sum, log) => sum + (log.missed_time || 0),
+                                    0
+                                );
                             }
 
                             return {
                                 ...emp,
                                 time_overrun: delayCount,
                                 total_missed_time: totalMissedTime,
-                                missed_logs: missedLogs
+                                missed_logs: missedLogs,
                             };
                         } catch (err) {
                             console.error(`Failed to fetch logs for ${emp.employee_id}:`, err);
@@ -589,8 +623,8 @@ function HomeUserView() {
                                                             >
                                                                 {!row.avatar && row.name
                                                                     ? row.name
-                                                                        .charAt(0)
-                                                                        .toUpperCase()
+                                                                          .charAt(0)
+                                                                          .toUpperCase()
                                                                     : 'A'}
                                                             </Avatar>
                                                             <Stack spacing={0.5}>
@@ -605,8 +639,8 @@ function HomeUserView() {
                                                             </Stack>
                                                         </Stack>
                                                     ) : col.key === 'completed_overrun' ||
-                                                    col.key === 'inprogress_overrun' ||
-                                                    col.key === 'pending_tasks' ? (
+                                                      col.key === 'inprogress_overrun' ||
+                                                      col.key === 'pending_tasks' ? (
                                                         row[col.key] !== 0 ? (
                                                             <Box
                                                                 sx={{
@@ -651,11 +685,17 @@ function HomeUserView() {
                                                                 display: 'flex',
                                                                 flexDirection: 'column',
                                                                 alignItems: 'center',
-                                                                cursor: row.total_missed_time > 0 ? 'pointer' : 'default',
+                                                                cursor:
+                                                                    row.total_missed_time > 0
+                                                                        ? 'pointer'
+                                                                        : 'default',
                                                             }}
                                                             onClick={
                                                                 row.total_missed_time > 0
-                                                                    ? () => handleOpenDelayDetails(row)
+                                                                    ? () =>
+                                                                          handleOpenDelayDetails(
+                                                                              row
+                                                                          )
                                                                     : undefined
                                                             }
                                                         >
@@ -663,9 +703,20 @@ function HomeUserView() {
                                                                 variant="body2"
                                                                 fontWeight="bold"
                                                                 sx={{
-                                                                    color: row.time_overrun > 0 ? 'error.main' : 'text.primary',
-                                                                    textDecoration: row.time_overrun > 0 ? 'underline' : 'none',
-                                                                    '&:hover': row.time_overrun > 0 ? { color: 'error.dark' } : {},
+                                                                    color:
+                                                                        row.time_overrun > 0
+                                                                            ? 'error.main'
+                                                                            : 'text.primary',
+                                                                    textDecoration:
+                                                                        row.time_overrun > 0
+                                                                            ? 'underline'
+                                                                            : 'none',
+                                                                    '&:hover':
+                                                                        row.time_overrun > 0
+                                                                            ? {
+                                                                                  color: 'error.dark',
+                                                                              }
+                                                                            : {},
                                                                 }}
                                                             >
                                                                 {row.time_overrun} day(s)
@@ -673,7 +724,10 @@ function HomeUserView() {
                                                             <Typography
                                                                 variant="caption"
                                                                 sx={{
-                                                                    color: row.total_missed_time > 0 ? 'error.main' : 'text.secondary',
+                                                                    color:
+                                                                        row.total_missed_time > 0
+                                                                            ? 'error.main'
+                                                                            : 'text.secondary',
                                                                 }}
                                                             >
                                                                 {/* {formatTimeDuration(row.total_missed_time)} */}
@@ -707,7 +761,7 @@ function HomeUserView() {
                                                                     row[col.key] === 0
                                                                         ? 'inherit'
                                                                         : theme.palette.text
-                                                                            .primary,
+                                                                              .primary,
                                                             }}
                                                         >
                                                             {row[col.key]}
@@ -733,132 +787,132 @@ function HomeUserView() {
                     sx: {
                         height: '70vh',
                         display: 'flex',
-                        flexDirection: 'column'
-                    }
+                        flexDirection: 'column',
+                    },
                 }}
             >
                 <DialogTitle
                     sx={{
                         fontWeight: 600,
                         fontSize: { xs: '1rem', sm: '1.25rem' },
-                        py: 2.5,
+                        py: 2,
                         px: 2,
                         backgroundColor: 'background.paper',
-                        textAlign: 'center',
                         borderBottom: '1px solid',
-                        borderColor: 'divider'
+                        borderColor: 'divider',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 2,
                     }}
                 >
-                    Employee : {currentEmployee?.name || 'N/A'}
-                </DialogTitle>
-
-                <DialogContent dividers sx={{ 
-                    px: { xs: 1, sm: 2 }, 
-                    py: 1.5,
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'hidden',
-                    gap: 1.5
-                }}>
-                    {/* Month Navigation - Centered */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        alignItems: 'center',
-                        mb: 1.5,
-                        flexShrink: 0
-                    }}>
-                        <Box sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center',
-                            gap: 1.5
-                        }}>
-                            <IconButton 
-                                onClick={handlePrevMonth} 
-                                size="small"
-                                disabled={!filterByMonth}
-                            >
-                                <ArrowLeft />
-                            </IconButton>
-                            <Typography variant="subtitle1" sx={{ minWidth: 120, textAlign: 'center' }}>
-                                {filterByMonth ? `${getMonthName(currentMonth)} ${currentYear}` : 'All Records'}
-                            </Typography>
-                            <IconButton 
-                                onClick={handleNextMonth} 
-                                size="small"
-                                disabled={!filterByMonth}
-                            >
-                                <ArrowRight />
-                            </IconButton>
-                        </Box>
+                    <Box sx={{ flex: 1, textAlign: 'left' }}>
+                        Employee: {currentEmployee?.name || 'N/A'}
                     </Box>
-                    
-                    {/* Toggle Filter Button - Centered below month navigation */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        mb: 2,
-                        flexShrink: 0
-                    }}>
+
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.5,
+                        }}
+                    >
+                        <IconButton
+                            onClick={handlePrevMonth}
+                            size="small"
+                            disabled={!filterByMonth}
+                        >
+                            <ArrowLeft />
+                        </IconButton>
+                        <Typography variant="subtitle1" sx={{ minWidth: 120, textAlign: 'center' }}>
+                            {filterByMonth
+                                ? `${getMonthName(currentMonth)} ${currentYear}`
+                                : 'All Records'}
+                        </Typography>
+                        <IconButton
+                            onClick={handleNextMonth}
+                            size="small"
+                            disabled={!filterByMonth}
+                        >
+                            <ArrowRight />
+                        </IconButton>
+                    </Box>
+
+                    <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
                         <Button
-                            variant={filterByMonth ? "contained" : "outlined"}
+                            variant={filterByMonth ? 'contained' : 'outlined'}
                             onClick={toggleMonthFilter}
                             size="small"
+                            sx={{ ml: 1 }}
                         >
-                            {filterByMonth ? 'Show All Records' : 'Filter by Month'}
+                            {filterByMonth ? 'Show All' : 'Filter by Month'}
                         </Button>
                     </Box>
-                    
-                    {/* Table Container */}
-                    <Box sx={{ 
+                </DialogTitle>
+
+                <DialogContent
+                    dividers
+                    sx={{
+                        px: { xs: 1, sm: 2 },
+                        py: 1.5,
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
                         overflow: 'hidden',
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        borderRadius: 1
-                    }}>
+                        gap: 1.5,
+                    }}
+                >
+                    {/* Table Container */}
+                    <Box
+                        sx={{
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                        }}
+                    >
                         <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
                             <Table size="small" stickyHeader>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell
                                             align="center"
-                                            sx={{ 
-                                                fontWeight: 600, 
+                                            sx={{
+                                                fontWeight: 600,
                                                 backgroundColor: 'background.paper',
                                                 width: '33%',
                                                 position: 'sticky',
                                                 top: 0,
-                                                zIndex: 2
+                                                zIndex: 2,
                                             }}
                                         >
                                             Date
                                         </TableCell>
                                         <TableCell
                                             align="center"
-                                            sx={{ 
-                                                fontWeight: 600, 
+                                            sx={{
+                                                fontWeight: 600,
                                                 backgroundColor: 'background.paper',
                                                 width: '33%',
                                                 position: 'sticky',
                                                 top: 0,
-                                                zIndex: 2
+                                                zIndex: 2,
                                             }}
                                         >
                                             Hours Worked
                                         </TableCell>
                                         <TableCell
                                             align="center"
-                                            sx={{ 
-                                                fontWeight: 600, 
+                                            sx={{
+                                                fontWeight: 600,
                                                 backgroundColor: 'background.paper',
                                                 width: '33%',
                                                 position: 'sticky',
                                                 top: 0,
-                                                zIndex: 2
+                                                zIndex: 2,
                                             }}
                                         >
                                             Missed Time
@@ -869,24 +923,27 @@ function HomeUserView() {
                                     {filteredDelayDetails.length > 0 ? (
                                         filteredDelayDetails.map((detail, index) => (
                                             <TableRow key={index} hover>
-                                                <TableCell 
-                                                    align="center" 
+                                                <TableCell
+                                                    align="center"
                                                     sx={{ width: '33%', py: 1.25 }}
                                                 >
                                                     {detail.displayDate}
                                                 </TableCell>
-                                                <TableCell 
-                                                    align="center" 
+                                                <TableCell
+                                                    align="center"
                                                     sx={{ width: '33%', py: 1.25 }}
                                                 >
                                                     {formatTimeDuration(detail.totalHoursInMinutes)}
                                                 </TableCell>
-                                                <TableCell 
-                                                    align="center" 
-                                                    sx={{ 
+                                                <TableCell
+                                                    align="center"
+                                                    sx={{
                                                         width: '33%',
                                                         py: 1.25,
-                                                        color: detail.missedTimeInMinutes > 0 ? 'error.main' : 'inherit'
+                                                        color:
+                                                            detail.missedTimeInMinutes > 0
+                                                                ? 'error.main'
+                                                                : 'inherit',
                                                     }}
                                                 >
                                                     {formatTimeDuration(detail.missedTimeInMinutes)}
@@ -895,15 +952,16 @@ function HomeUserView() {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell 
-                                                colSpan={3} 
-                                                align="center" 
-                                                sx={{ 
+                                            <TableCell
+                                                colSpan={3}
+                                                align="center"
+                                                sx={{
                                                     py: 4,
-                                                    color: 'text.secondary'
+                                                    color: 'text.secondary',
                                                 }}
                                             >
-                                                No delay records found {filterByMonth ? 'for selected month' : ''}
+                                                No delay records found{' '}
+                                                {filterByMonth ? 'for selected month' : ''}
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -913,13 +971,15 @@ function HomeUserView() {
                     </Box>
                 </DialogContent>
 
-                <DialogActions sx={{ 
-                    px: 2, 
-                    py: 1.75,
-                    borderTop: '1px solid',
-                    borderColor: 'divider',
-                    justifyContent: 'center'
-                }}>
+                <DialogActions
+                    sx={{
+                        px: 2,
+                        py: 1.75,
+                        borderTop: '1px solid',
+                        borderColor: 'divider',
+                        justifyContent: 'center',
+                    }}
+                >
                     <Button
                         variant="contained"
                         onClick={() => setOpenDelayDetails(false)}
