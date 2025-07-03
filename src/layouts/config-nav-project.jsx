@@ -40,6 +40,7 @@ export const navData = [
                     { title: 'Employee', path: paths.main.dashboard.user },
                     { title: 'Project', path: paths.main.dashboard.listProject },
                     { title: 'Attendance' , path: paths.main.dashboard.TimeLog},
+                    { title: 'Leave' , path: paths.main.dashboard.Leave}
                 ],
             },
             {
@@ -70,6 +71,17 @@ export const navData = [
                 children: [
                     { title: 'Account', path: paths.main.user.account },
                     { title: 'Profile', path: '/' },
+                ],
+            },
+            {
+                title: 'Holiday',
+                path: paths.main.holiday.root,
+                icon: ICONS.blank,
+                children: [
+                    { title: 'Create', path: paths.main.holiday.create },
+                    { title: 'List', path: paths.main.holiday.list },
+                    // { title: 'Apply Leave', path: paths.main.holiday.leaveCreate },
+                    // { title: 'Assign Leave', path: paths.main.holiday.assignLeave}
                 ],
             },
         ],

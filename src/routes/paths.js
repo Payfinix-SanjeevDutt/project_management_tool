@@ -20,7 +20,8 @@ export const paths = {
             user: `${ROOTS.MAIN_PAGE}/dashboard/user-dashboard`,
             project: `${ROOTS.MAIN_PAGE}/dashboard/project-dashboard`,
             listProject: `${ROOTS.MAIN_PAGE}/dashboard/list-project-dashboard`,
-            TimeLog : `${ROOTS.MAIN_PAGE}/dashboard/time-log-dashboard`,
+            TimeLog: `${ROOTS.MAIN_PAGE}/dashboard/time-log-dashboard`,
+            Leave: `${ROOTS.MAIN_PAGE}/dashboard/leave-dashboard`,
             root: `${ROOTS.MAIN_PAGE}/dashboard`,
         },
         project: {
@@ -34,12 +35,21 @@ export const paths = {
             dashboard: `${ROOTS.MAIN_PAGE}/timesheet/DashboardView`,
             daily: `${ROOTS.MAIN_PAGE}/timesheet/create-daily`,
             weekly: `${ROOTS.MAIN_PAGE}/timesheet/create-weekly`,
-            edit: (timesheetId, employeeId) => `${ROOTS.MAIN_PAGE}/timesheet/edit/${timesheetId}/${employeeId}`,
+            edit: (timesheetId, employeeId) =>
+                `${ROOTS.MAIN_PAGE}/timesheet/edit/${timesheetId}/${employeeId}`,
         },
         user: {
             root: `${ROOTS.MAIN_PAGE}/user`,
             account: `${ROOTS.MAIN_PAGE}/user/account`,
         },
+        holiday: {
+            root: `${ROOTS.MAIN_PAGE}/holiday`,
+            create: `${ROOTS.MAIN_PAGE}/holiday/holiday-create`,
+            list: `${ROOTS.MAIN_PAGE}/holiday/holiday-list`,
+            leaveCreate : `${ROOTS.MAIN_PAGE}/holiday/leave/apply-leave`,
+            assignLeave : `${ROOTS.MAIN_PAGE}/holiday/leave/assign-leave`
+        }
+
     },
     dashboard: {
         root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}`,
@@ -55,6 +65,8 @@ export const paths = {
             root: (projectId) => `${ROOTS.DASHBOARD}/stages/${projectId}`,
             create: (projectId) => `${ROOTS.DASHBOARD}/stages/${projectId}/new`,
             task: (projectId, id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/view`,
+            taskview: (projectId, id, taskid) =>
+                `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/${taskid}/view`,
             edit: (projectId, id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/edit`,
         },
         sprints: {

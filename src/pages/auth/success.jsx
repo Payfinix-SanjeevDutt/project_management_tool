@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
+
 import { useRouter, useSearchParams } from 'src/routes/hooks';
+
 import { useAuthContext } from 'src/auth/hooks';
-import { STORAGE_KEY } from 'src/auth/context/constant';
 import { setSession } from 'src/auth/context/auth-jwt';
+import { STORAGE_KEY } from 'src/auth/context/constant';
 
 
 export default function MicrosoftAuthCallback() {
