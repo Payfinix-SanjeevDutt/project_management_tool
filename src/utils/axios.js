@@ -131,11 +131,12 @@ export const endpoints = {
         createpolicy : '/leave/create-policy',
         assignleave : '/leave/leave-assign',
         listLeave : '/leave/list-leave',
+        listEmployeeLeave: '/leave/list-employee-leave',
         historyLeave : '/leave/leave-history'
-    },    
+    },
     email_notification:{
       create : 'email_notification/create',
       get : 'email_notification/',
       delete : 'email_notification/delete'
-    }
+    },
 };
