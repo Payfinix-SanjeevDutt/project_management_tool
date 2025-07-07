@@ -106,22 +106,25 @@ function formatTimeDuration(minutes) {
     return '0mins';
 }
 
-// Function to calculate missed time in minutes
-function calculateMissedTime(clockIn, clockOut, expectedHours = 8) {
-    if (!clockIn || !clockOut) return 0;
+// Function to calculate worked time and missed time in minutes
+function calculateWorkedAndMissedTime(clockIn, clockOut) {
+    if (!clockIn || !clockOut) return { workedMinutes: 0, missedMinutes: 480 }; // 8 hours in minutes if no clock in/out
 
     try {
         const [inHours, inMinutes] = clockIn.split(':').map(Number);
         const [outHours, outMinutes] = clockOut.split(':').map(Number);
 
         const totalMinutesWorked = outHours * 60 + outMinutes - (inHours * 60 + inMinutes);
-        const expectedMinutes = expectedHours * 60;
+        const expectedMinutes = 8 * 60; // 8 hours in minutes
 
         const missedTime = Math.max(0, expectedMinutes - totalMinutesWorked);
-        return missedTime;
+        return {
+            workedMinutes: totalMinutesWorked,
+            missedMinutes: missedTime
+        };
     } catch (error) {
-        console.error('Error calculating missed time:', error);
-        return 0;
+        console.error('Error calculating worked and missed time:', error);
+        return { workedMinutes: 0, missedMinutes: 480 };
     }
 }
 
@@ -162,15 +165,15 @@ function HomeUserView() {
 
             if (response.data?.status) {
                 const logs = response.data.data.map((log) => {
-                    const missedTime = calculateMissedTime(log.clock_in, log.clock_out);
+                    const { workedMinutes, missedMinutes } = calculateWorkedAndMissedTime(log.clock_in, log.clock_out);
                     return {
                         date: formatDate(log.date),
                         checkin: log.clock_in,
                         checkout: log.clock_out,
                         status: log.clock_in && log.clock_out ? 'Present' : 'Absent',
-                        isDelay: log.is_delay,
-                        totalHours: log.total_hours,
-                        missedTime: log.missedTime,
+                        isDelay: missedMinutes > 0,
+                        totalHours: workedMinutes,
+                        missedTime: missedMinutes,
                     };
                 });
                 setLogData(logs);
@@ -180,7 +183,7 @@ function HomeUserView() {
                         emp.employee_id === employeeId
                             ? {
                                   ...emp,
-                                  time_overrun: response.data.delay_count || 0,
+                                  time_overrun: logs.filter(log => log.missedTime > 0).length,
                                   total_missed_time: logs.reduce(
                                       (sum, log) => sum + log.missedTime,
                                       0
@@ -205,23 +208,19 @@ function HomeUserView() {
     const handleOpenDelayDetails = (employee) => {
         setCurrentEmployee(employee);
 
-        // Format the delay details before setting them
+        // Format the delay details with accurate worked and missed time calculations
         const formattedDetails = (employee.missed_logs || []).map((log) => {
-            const missedTime = calculateMissedTime(log.clock_in, log.clock_out);
+            const { workedMinutes, missedMinutes } = calculateWorkedAndMissedTime(log.clock_in, log.clock_out);
             return {
                 ...log,
                 date: formatDate(log.date),
                 displayDate: formatDisplayDate(log.date),
-                totalHoursInMinutes:
-                    log.total_hours?.split(':').length >= 2
-                        ? parseInt(log.total_hours.split(':')[0], 10) * 60 +
-                          parseInt(log.total_hours.split(':')[1], 10)
-                        : 0,
-                missedTimeInMinutes: missedTime,
+                totalHoursInMinutes: workedMinutes,
+                missedTimeInMinutes: missedMinutes,
                 clock_in: log.clock_in || 'N/A',
                 clock_out: log.clock_out || 'N/A',
             };
-        });
+        }).filter(log => log.missedTimeInMinutes > 0); // Only include days with missed time
 
         setDelayDetails(formattedDetails);
         setFilteredDelayDetails(formattedDetails); // Show all records by default
@@ -390,9 +389,20 @@ function HomeUserView() {
                             let missedLogs = [];
 
                             if (timeLogResponse.data?.status) {
-                                delayCount = timeLogResponse.data.delay_count || 0;
-                                missedLogs = timeLogResponse.data.data
-                                    .filter((log) => log.is_delay)
+                                // Calculate delays based on actual worked hours
+                                const logsWithMissedTime = timeLogResponse.data.data.map(log => {
+                                    const { workedMinutes, missedMinutes } = calculateWorkedAndMissedTime(log.clock_in, log.clock_out);
+                                    return {
+                                        ...log,
+                                        missed_time: missedMinutes,
+                                        worked_minutes: workedMinutes
+                                    };
+                                });
+
+                                // Only count as delay if worked less than 8 hours
+                                delayCount = logsWithMissedTime.filter(log => log.missed_time > 0).length;
+                                missedLogs = logsWithMissedTime
+                                    .filter(log => log.missed_time > 0)
                                     .map((log) => ({
                                         ...log,
                                         date: log.date,
@@ -400,10 +410,7 @@ function HomeUserView() {
                                         clock_in: log.clock_in,
                                         clock_out: log.clock_out,
                                         total_hours: log.total_hours,
-                                        missed_time: calculateMissedTime(
-                                            log.clock_in,
-                                            log.clock_out
-                                        ),
+                                        missed_time: log.missed_time,
                                     }));
 
                                 totalMissedTime = missedLogs.reduce(
@@ -682,20 +689,11 @@ function HomeUserView() {
                                                     ) : col.key === 'time_overrun' ? (
                                                         <Box
                                                             sx={{
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                alignItems: 'center',
-                                                                cursor:
-                                                                    row.total_missed_time > 0
-                                                                        ? 'pointer'
-                                                                        : 'default',
+                                                                cursor: row.time_overrun > 0 ? 'pointer' : 'default',
                                                             }}
                                                             onClick={
-                                                                row.total_missed_time > 0
-                                                                    ? () =>
-                                                                          handleOpenDelayDetails(
-                                                                              row
-                                                                          )
+                                                                row.time_overrun > 0
+                                                                    ? () => handleOpenDelayDetails(row)
                                                                     : undefined
                                                             }
                                                         >
@@ -720,17 +718,6 @@ function HomeUserView() {
                                                                 }}
                                                             >
                                                                 {row.time_overrun} day(s)
-                                                            </Typography>
-                                                            <Typography
-                                                                variant="caption"
-                                                                sx={{
-                                                                    color:
-                                                                        row.total_missed_time > 0
-                                                                            ? 'error.main'
-                                                                            : 'text.secondary',
-                                                                }}
-                                                            >
-                                                                {/* {formatTimeDuration(row.total_missed_time)} */}
                                                             </Typography>
                                                         </Box>
                                                     ) : col.key === 'timelog' ? (
@@ -940,10 +927,7 @@ function HomeUserView() {
                                                     sx={{
                                                         width: '33%',
                                                         py: 1.25,
-                                                        color:
-                                                            detail.missedTimeInMinutes > 0
-                                                                ? 'error.main'
-                                                                : 'inherit',
+                                                        color: 'error.main',
                                                     }}
                                                 >
                                                     {formatTimeDuration(detail.missedTimeInMinutes)}

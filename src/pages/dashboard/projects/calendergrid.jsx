@@ -442,7 +442,6 @@ const CalendarGrid = ({ logs = [] }) => {
                 return '#FFEB99';
             default:
                 return '#FFFFFF';
-                return '#white';
         }
     };
 
