@@ -370,8 +370,7 @@ function HomeUserView() {
                 const filteredData = response.data.filter(
                     (emp) =>
                         emp.employee_id !== 'ELKHGFJJKEHLKJG4102836' &&
-                        emp.employee_id !== 'Nischal0001' &&
-                        emp.employee_id !== 'HR12345'
+                        emp.employee_id !== 'Nischal0001' 
                 );
 
                 const reportWithDelays = await Promise.all(

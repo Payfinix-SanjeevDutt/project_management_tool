@@ -175,7 +175,7 @@ const DailyTimeLogView = () => {
                 });
                 if (response.data?.status && response.data?.data?.logs) {
                     const logsWithoutHR12345 = response.data.data.logs.filter(
-                        (log) => log.employee_id !== 'HR12345'
+                        (log) => log.employee_id !== 'HR123456'
                     );
 
                     const enriched = logsWithoutHR12345.map((log, index) => ({
