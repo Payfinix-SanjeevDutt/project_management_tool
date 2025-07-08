@@ -139,6 +139,7 @@ const columns = (handleAvatarClick, handleEmployeeNameClick) => [
 ];
 
 const DailyTimeLogView = () => {
+    console.log("hari")
     const [dailyLogs, setDailyLogs] = useState([]);
     const [filteredLogs, setFilteredLogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -155,7 +156,8 @@ const DailyTimeLogView = () => {
     const [reportDialogOpen, setReportDialogOpen] = useState(false);
     const [selectedMonth, setSelectedMonth] = useState(dayjs().month());
     const [selectedYear, setSelectedYear] = useState(dayjs().year());
-
+    
+    
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
@@ -259,7 +261,6 @@ const DailyTimeLogView = () => {
         setSelectedAvatar('');
         setSelectedName('');
     };
-
     const generateMonthlyReport = async (month, year) => {
         setLoading(true);
         try {
@@ -395,6 +396,7 @@ const DailyTimeLogView = () => {
         }
     };
 
+    
     const handleGenerateCurrentMonthReport = () => {
         generateMonthlyReport(dayjs().month(), dayjs().year());
         handleMenuClose();
