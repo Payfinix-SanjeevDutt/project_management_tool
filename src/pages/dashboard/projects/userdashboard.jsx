@@ -129,6 +129,7 @@ function calculateWorkedAndMissedTime(clockIn, clockOut) {
 }
 
 function HomeUserView() {
+    console.log("hari")
     const [report, setReport] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
