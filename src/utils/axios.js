@@ -116,11 +116,17 @@ export const endpoints = {
         delete : '/timesheet/delete',
         getallList : '/timesheet/get-all-list'
     },
-    timelog:{
-        create : '/timelog/create',
-        list : '/timelog/list',
-        update : '/timelog/update',
-        daily: '/timelog/getdaily'
+    timelog: {
+        create: '/timelog/create',
+        list: '/timelog/list',
+        update: '/timelog/update',
+        daily: '/timelog/getdaily',
+        monthly: '/timelog/monthly'
+    // timelog:{
+    //     create : '/timelog/create',
+    //     list : '/timelog/list',
+    //     update : '/timelog/update',
+    //     daily: '/timelog/getdaily'
     },
     holiday:{
         create : '/holiday/create-holiday',

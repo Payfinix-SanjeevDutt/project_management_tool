@@ -22,6 +22,7 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
     const today = dayjs();
     const [nationalHolidays, setNationalHolidays] = useState([]);
     const [leaves, setLeaves] = useState([]);
+
     const startOfMonth = currentMonth.startOf('month');
     const daysInMonth = currentMonth.daysInMonth();
     const startDay = startOfMonth.day();
@@ -29,7 +30,7 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
     useEffect(() => {
         const fetchHolidays = async () => {
             try {
-                const response = await axiosInstance.post(endpoints.holiday.list);
+                const response = await axiosInstance.get(endpoints.holiday.list);
 
                 if (response.data.status) {
                     const holidays = [];
@@ -77,6 +78,36 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
         setCurrentMonth((prev) => prev.add(direction, 'month'));
     };
 
+    const calculateTotalTime = (checkin, checkout) => {
+        if (!checkin || !checkout || checkin === '--' || checkout === '--') return '--';
+
+        try {
+            const checkinSuffix = checkin.includes(' ') ? '' : ' AM';
+            const checkoutSuffix = checkout.includes(' ') ? '' : ' AM';
+            const checkinTime = dayjs(`2000-01-01 ${checkin}${checkinSuffix}`);
+            const checkoutTime = dayjs(`2000-01-01 ${checkout}${checkoutSuffix}`);
+
+            if (!checkinTime.isValid() || !checkoutTime.isValid()) return '--';
+
+            const timeDiff = checkoutTime.diff(checkinTime);
+
+            let adjustedTimeDiff = timeDiff;
+            if (timeDiff < 0) {
+                adjustedTimeDiff = checkoutTime.add(1, 'day').diff(checkinTime);
+            }
+
+            const durationObj = dayjs.duration(adjustedTimeDiff);
+
+            const hours = Math.floor(durationObj.asHours());
+            const minutes = durationObj.minutes();
+
+            return `${hours}h ${minutes}m`;
+        } catch (error) {
+            console.error('Error calculating total time:', error);
+            return '--';
+        }
+    };
+
     const getDayData = (day) => {
         const dateObj = currentMonth.date(day);
         const dateStr = dateObj.format('YYYY-MM-DD');
@@ -85,6 +116,7 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
         const isWeekend = [0, 6].includes(dateObj.day());
         const holiday = nationalHolidays.find((h) => h.date === dateStr);
         const isHoliday = Boolean(holiday);
+
         const leave = leaves.find((l) => {
             const start = dayjs(l.start_date);
             const end = dayjs(l.end_date || l.start_date);
@@ -106,12 +138,36 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
             status = '';
         }
 
-        const totalTime =
-            log?.checkin && log?.checkout
-                ? dayjs
-                      .duration(dayjs(log.checkout, 'HH:mm').diff(dayjs(log.checkin, 'HH:mm')))
-                      .format('H[h] mm[m]')
-                : '--';
+        const formatTime = (timeStr) => {
+            if (!timeStr || timeStr === '--') return '--';
+            try {
+                if (/^\d{1,2}:\d{2} [AP]M$/i.test(timeStr)) {
+                    return timeStr.replace(/^(\d{1,2}):(\d{2}) ([AP]M)$/i, (match, h, m, ap) => `${parseInt(h, 10)}:${m} ${ap.toUpperCase()}`);
+                }
+
+                if (/^\d{2}:\d{2}(:\d{2})?$/.test(timeStr)) {
+                    const [hours, minutes] = timeStr.split(':');
+                    const hourInt = parseInt(hours, 10);
+                    const period = hourInt >= 12 ? 'PM' : 'AM';
+                    const displayHour = hourInt % 12 || 12;
+                    return `${displayHour}:${minutes} ${period}`;
+                }
+
+                const time = dayjs(timeStr);
+                if (time.isValid()) {
+                    return time.format('h:mm A');
+                }
+
+                return '--';
+            } catch (error) {
+                console.error('Error formatting time:', error);
+                return '--';
+            }
+        };
+
+        const checkinTime = log?.checkin ? formatTime(log.checkin) : '--';
+        const checkoutTime = log?.checkout ? formatTime(log.checkout) : '--';
+        const totalTime = calculateTotalTime(checkinTime, checkoutTime);
 
         return {
             status,
@@ -281,9 +337,7 @@ const CalendarGrid = ({ logs = [], employeeId }) => {
         </Box>
     );
 };
-
 export default CalendarGrid;
-
 
 
 // previous code---
