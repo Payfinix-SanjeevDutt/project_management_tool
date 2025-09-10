@@ -5,7 +5,6 @@ import { Modal, Stack } from '@mui/material';
 import Taskview from './taskview';
 
 const TaskModelView = ({ open, onClose, issueKey, isChild , taskname}) => (
-    // Define the issueKey variable her
 
 
         <Modal open={open} onClose={onClose}>
@@ -21,10 +20,9 @@ const TaskModelView = ({ open, onClose, issueKey, isChild , taskname}) => (
                     p: 3,
                     borderRadius: 2,
                     minHeight: '85vh',
-                    maxHeight: '90vh',
+                    maxHeight: '100vh',
                 }}
             >
-                {/* Pass the issueKey as a prop to Taskview */}
                 <Taskview handleClose={onClose} issueKey={issueKey} isChild={isChild} taskname={taskname}/>
             </Stack>
         </Modal>

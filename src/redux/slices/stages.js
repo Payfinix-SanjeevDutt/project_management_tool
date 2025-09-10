@@ -23,7 +23,7 @@ const slice = createSlice({
                 actualStartDate:stage.actual_start_date,
                 actualEndDate:stage.actual_end_date,
                 project_id:stage.project_id,
-                path: paths.dashboard.stages.task(stage.stage_id) || '',
+                path: paths.dashboard.stages.task(stage.project_id,stage.stage_id) || '',
             }));
         },
 

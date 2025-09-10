@@ -1,12 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
+import { paths } from 'src/routes/paths';
+
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import axiosInstance, { endpoints } from 'src/utils/axios';
+
 import { _notifications } from 'src/_mock';
+import { CONFIG } from 'src/config-global';
 import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { bulletColor } from 'src/components/nav-section';
@@ -18,7 +23,6 @@ import { layoutClasses } from '../classes';
 import { NavVertical } from './nav-vertical';
 import { NavHorizontal } from './nav-horizontal';
 import { HeaderBase } from '../core/header-base';
-import { _workspaces } from '../config-nav-workspace';
 import { LayoutSection } from '../core/layout-section';
 // import { navData as dashboardNavData } from '../config-nav-dashboard';
 import { useNavConfig } from '../config-nav-dashboard';
@@ -26,6 +30,9 @@ import { accountData } from '../config-nav-account-data';
 // ----------------------------------------------------------------------
 
 export function DashboardLayout({ sx, children, data }) {
+    const [reportData, setReportData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const theme = useTheme();
 
     const mobileNavOpen = useBoolean();
@@ -45,6 +52,34 @@ export function DashboardLayout({ sx, children, data }) {
     const isNavHorizontal = settings.navLayout === 'horizontal';
 
     const isNavVertical = isNavMini || settings.navLayout === 'vertical';
+
+    const [workspaces, setWorkspaces] = useState([]);
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await axiosInstance.get(endpoints.project.project_stage_report);
+                if (response.data.projects && Array.isArray(response.data.projects)) {
+                    const projects = response.data.projects.map((project) => ({
+                        id: project.project_id,
+                        name: project.project_name,
+                        logo: `${CONFIG.site.basePath}/assets/icons/workspaces/logo-1.webp`,
+                        status: 'Active',
+                        path: paths.dashboard.projectdashboard.homestages(project.project_id),
+                    }));
+    
+                    setWorkspaces(projects);
+                } else {
+                    console.error('Invalid data format:', response.data);
+                }
+            } catch (err) {
+                console.error('Error fetching projects:', err);
+            }
+        };
+    
+        fetchProjects();
+    }, []);
+    
 
     return (
         <>
@@ -67,7 +102,7 @@ export function DashboardLayout({ sx, children, data }) {
                         data={{
                             nav: navData,
                             account: accountData,
-                            workspaces: _workspaces,
+                            workspaces,
                             notifications: _notifications,
                         }}
                         slotsDisplay={{

@@ -97,7 +97,7 @@ export default function StageCreateForm() {
             if (error === 0) {
                 dispatch(setStage({ stage_name: data.stage_name, id: data.stage_id }));
                 toast.success('Stage created successfully!');
-                navigate(paths.dashboard.stages.task(data.stage_id));
+                navigate(paths.dashboard.stages.task(project_id,data.stage_id));
             } else {
                 toast.error(message);
             }
@@ -140,10 +140,10 @@ export default function StageCreateForm() {
                     })
                 );
 
-                dispatch(fetchStages(projectId));
+                dispatch(fetchStages(project_id));
 
                 toast.success('Stage updated successfully!');
-                navigate(paths.dashboard.stages.task(formData.stageId));
+                navigate(paths.dashboard.stages.task(project_id,formData.stageId));
             } else {
                 toast.error(message);
             }

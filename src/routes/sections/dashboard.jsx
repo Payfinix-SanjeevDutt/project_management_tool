@@ -25,11 +25,18 @@ const EmployeeCreate = lazy(() => import('src/pages/dashboard/employees/create')
 const EmployeeAccount = lazy(() => import('src/pages/dashboard/employees/account'));
 const FileManager = lazy(() => import('src/pages/dashboard/file-manager/manager'));
 const ReportsSample = lazy(() => import('src/pages/dashboard/reports/sample'));
-
+const Timesheet = lazy(() => import('src/pages/dashboard/timesheet/view'));
+const TimesheetCreateDaily = lazy(() => import('src/sections/timesheet/daily-timesheet'));
+const TimesheetCreateWeekly = lazy(() => import('src/sections/timesheet/weekly-timesheet'));
 const ProjectCreate = lazy(() => import('src/pages/dashboard/projects/create'));
 const ProjectList = lazy(() => import('src/pages/dashboard/projects/lists'));
 const ProjectDashboard = lazy(() => import('src/pages/dashboard/projects/userdashboard'));
+const MainProjectDashboard = lazy(() => import('src/pages/dashboard/projects/projectdashboard'));
+const ListProjectDashboard = lazy(
+    () => import('src/pages/dashboard/projects/projestlistdashboard')
+);
 const SettingsDetailsPage = lazy(() => import('src/pages/dashboard/settings/details'));
+const Dashboard = lazy(() => import('src/pages/dashboard/Timesheet Dashboard/Dashboard'));
 
 // ----------------------------------------------------------------------
 
@@ -78,6 +85,19 @@ export const dashboardRoutes = [
                 children: [
                     { element: <ProjectDashboard />, index: true },
                     { path: 'user-dashboard', element: <Userdashboard /> },
+                    { path: 'project-dashboard', element: <MainProjectDashboard /> },
+                    { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
+                ],
+            },
+            {
+                path: 'timesheet',
+                children: [
+                    { element: <Timesheet />, index: true },
+                    { path: 'timesheet', element: <Timesheet /> },
+                    { path: 'DashboardView', element: <Dashboard/> },
+                    { path: 'create-daily', element: <TimesheetCreateDaily /> },
+                    { path: 'create-weekly', element: <TimesheetCreateWeekly /> },
+                    { path: 'edit/:timesheetId/:employeeId', element: <TimesheetCreateDaily /> },
                 ],
             },
         ],
@@ -101,7 +121,7 @@ export const dashboardRoutes = [
                 ],
             },
             {
-                path: 'sprints',
+                path: 'sprints/:project_id',
                 children: [
                     { element: <SprintTimeline />, index: true },
                     { path: 'timeline', element: <SprintTimeline /> },
@@ -109,11 +129,11 @@ export const dashboardRoutes = [
                 ],
             },
             {
-                path: 'employee',
+                path: 'employee/:project_id',
                 children: [{ path: 'list', element: <EmployeeList /> }],
             },
             {
-                path: 'stages',
+                path: 'stages/:project_id',
                 children: [
                     { element: <StageCreate />, index: true },
                     { path: 'new', element: <StageCreate /> },
@@ -122,29 +142,29 @@ export const dashboardRoutes = [
                 ],
             },
 
-        {
-            path: 'filemanager',
-            children: [{ element: <FileManager />, index: true }],
-        },
-        {
-            path: 'settings',
-            children: [
-                { element: <SettingsDetailsPage />, index: true },
-                { path: 'details', element: <SettingsDetailsPage /> },
-            ],
-        },
-        {
-            path: 'reports',
-            children: [
-                { element: <ReportsSample />, index: true },
-                { path: 'employeeReports', element: <ReportsSample /> },
-                { path: 'taskProgress', element: <ReportsSample /> },
-                { path: 'sprintProgress', element: <ReportsSample /> },
-            ],
-        },
-        {
-            path : 'project-access/:token',
-        }
-    ],
-},
+            {
+                path: 'filemanager/:project_id',
+                children: [{ element: <FileManager />, index: true }],
+            },
+            {
+                path: 'settings/:project_id',
+                children: [
+                    { element: <SettingsDetailsPage />, index: true },
+                    { path: 'details', element: <SettingsDetailsPage /> },
+                ],
+            },
+            {
+                path: 'reports',
+                children: [
+                    { element: <ReportsSample />, index: true },
+                    { path: 'employeeReports', element: <ReportsSample /> },
+                    { path: 'taskProgress', element: <ReportsSample /> },
+                    { path: 'sprintProgress', element: <ReportsSample /> },
+                ],
+            },
+            {
+                path: 'project-access/:token',
+            },
+        ],
+    },
 ];

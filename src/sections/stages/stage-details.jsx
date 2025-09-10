@@ -31,7 +31,7 @@ import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 export function StageDetails() {
-    const { id: stage_id } = useParams();
+    const {project_id, id: stage_id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -41,6 +41,7 @@ export function StageDetails() {
 
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const popover = usePopover();
+
 
     useEffect(() => {
         const fetchStageDetails = async () => {
@@ -97,7 +98,7 @@ export function StageDetails() {
     };
 
     const handleEditStage = () => {
-        navigate(paths.dashboard.stages.edit(stage_id));
+        navigate(paths.dashboard.stages.edit(project_id,stage_id));
     };
 
     if (loading || (!stageDetails && !error)) {

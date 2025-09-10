@@ -43,13 +43,14 @@ import { TableSelectedAction } from '../table-selected-actions';
 import { TaskTableFiltersResult } from '../task-table-filter-result';
 
 export default function TaskCreate() {
-    const { tasks, order, orderBy, fetchTasks, setFilters, deleteAllTasks } = useTasks();
+    const { tasks, fetchTasks, setFilters, deleteAllTasks, subTasks } = useTasks();
     const isModalOpen = useBoolean();
     const dispatch = useDispatch();
     const { id: stage_id } = useParams();
     const [loading, setLoading] = useState(true);
-    const [anchorEl, setAnchorEl] = useState(null);
     const [isModaOpen, setIsModalOpen] = useState(false);
+    const [order, setOrder] = useState('asc');
+    const [orderBy, setOrderBy] = useState('key');
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -60,14 +61,16 @@ export default function TaskCreate() {
     };
 
     const handleConfirmDelete = () => {
-        handleDelete(); 
+        handleDelete();
         handleCloseModal();
     };
 
     const handleRequestSort = (event, property) => {
+        if (property === 'start_date' || property === 'end_date' || property === 'actual_end_date' || property === 'actual_start_date') return; 
+
         const isAsc = orderBy === property && order === 'asc';
-        dispatch(setFilters({ name: 'order', value: isAsc ? 'desc' : 'asc' }));
-        dispatch(setFilters({ name: 'orderBy', value: property }));
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property); 
     };
 
     const table = useTable({ defaultOrderBy: 'key' });
@@ -88,7 +91,7 @@ export default function TaskCreate() {
     );
 
     const dateError = useMemo(
-        () =>
+        () => 
             filters.state.startDate && filters.state.endDate
                 ? new Date(filters.state.startDate).getTime() >
                   new Date(filters.state.endDate).getTime()
@@ -106,23 +109,24 @@ export default function TaskCreate() {
 
     const dataFiltered = useMemo(() => {
         const { status, startDate, endDate, name } = filters.state;
+        const combinedTasks = { ...tasks, ...subTasks };
 
-        let filteredData = {};
-
-        filteredData = Object.entries(tasks).filter(([key, task]) => {
+        const filteredData = Object.entries(tasks).filter(([key, task]) => {
             const taskStartDate = new Date(task.start_date).getTime();
             const taskEndDate = new Date(task.end_date).getTime();
+            const sub_task = subTasks?.[key];
+
             const nameMatch =
-                name === '' ||
+                !name ||
                 task.task_name.toLowerCase().includes(name.toLowerCase()) ||
-                (task.status && task.status.toLowerCase().includes(name.toLowerCase())) ||
-                (task.priority && task.priority.toLowerCase().includes(name.toLowerCase())) ||
-                (task.reporter_name &&
-                    task.reporter_name.toLowerCase().includes(name.toLowerCase())) ||
-                (task.assignee_name &&
-                    task.assignee_name.toLowerCase().includes(name.toLowerCase())) ||
-                (task.task_id && task.task_id.toLowerCase().includes(name.toLowerCase()));
+                sub_task?.task_name?.toLowerCase().includes(name.toLowerCase()) ||
+                task.status?.toLowerCase().includes(name.toLowerCase()) ||
+                task.priority?.toLowerCase().includes(name.toLowerCase()) ||
+                task.reporter_name?.toLowerCase().includes(name.toLowerCase()) ||
+                task.assignee_name?.toLowerCase().includes(name.toLowerCase()) 
+
             const statusMatch = status === 'all' || status === task.status;
+
             const dateMatch =
                 (!startDate || taskStartDate >= new Date(startDate).getTime()) &&
                 (!endDate || taskEndDate <= new Date(endDate).getTime());
@@ -130,8 +134,8 @@ export default function TaskCreate() {
             return nameMatch && statusMatch && dateMatch;
         });
 
-        return filteredData;
-    }, [tasks, filters]);
+        return filteredData.sort(getComparator(order, orderBy));
+    }, [tasks, filters,subTasks, order, orderBy]); 
 
     useEffect(() => {
         setLoading(true);
@@ -139,16 +143,11 @@ export default function TaskCreate() {
         // eslint-disable-next-line
     }, [stage_id]);
 
-    const mergedTasks = dataFiltered.reduce((acc, [taskKey, taskValue]) => {
-        acc[taskKey] = taskValue;
-        return acc;
-    }, {});
-
     const handleDelete = () => {
         deleteAllTasks([...table.selected])
             .then((success) => {
                 if (success) {
-                    table.setSelected([]); // Clear selected rows after deletion
+                    table.setSelected([]);
                 }
             })
             .catch((error) => {
@@ -156,6 +155,25 @@ export default function TaskCreate() {
             });
     };
 
+    // const taskArray = Array.isArray(tasks) ? tasks : Object.values(tasks || {});
+    const getAllTasks = (taskList) => {
+        const taskArray = Array.isArray(taskList) ? taskList : Object.values(taskList || {});
+    
+        return taskArray.flatMap(task => 
+            task.subTasks ? [task, ...getAllTasks(task.subTasks)] : [task]
+        );
+    };
+    
+    const allTasks = getAllTasks([...Object.values(tasks || {}), ...Object.values(subTasks || {})]);
+    
+    const taskCounts = {
+        all: allTasks.length,
+        TODO: allTasks.filter((task) => task?.status === 'TODO').length,
+        IN_PROGRESS: allTasks.filter((task) => task?.status === 'IN_PROGRESS').length,
+        DONE: allTasks.filter((task) => task?.status === 'DONE').length,
+    };
+    
+      
     return (
         <DashboardContent>
             <Stack gap={3}>
@@ -182,7 +200,11 @@ export default function TaskCreate() {
                 <StageDetails />
 
                 <Card>
-                    <TaskTabs handleFilterStatus={handleFilterStatus} filters={filters} />
+                    <TaskTabs
+                        handleFilterStatus={handleFilterStatus}
+                        filters={filters}
+                        taskCounts={taskCounts}
+                    />
                     <TaskTableToolbar
                         filters={filters}
                         onResetPage={table.onResetPage}
@@ -344,17 +366,22 @@ export default function TaskCreate() {
 }
 
 function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
+    const aValue = a[1]?.task_name?.toLowerCase() ?? ''; 
+    const bValue = b[1]?.task_name?.toLowerCase() ?? ''; 
+
+    if (orderBy === 'task_name') {
+        return aValue.localeCompare(bValue); 
     }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
+
+    if (bValue < aValue) return -1;
+    if (bValue > aValue) return 1;
     return 0;
 }
 
+
+
 function getComparator(order, orderBy) {
     return order === 'desc'
-        ? (a, b) => descendingComparator(a[1], b[1], orderBy)
-        : (a, b) => -descendingComparator(a[1], b[1], orderBy);
+        ? (a, b) => descendingComparator(a, b, orderBy)
+        : (a, b) => -descendingComparator(a, b, orderBy);
 }

@@ -16,15 +16,29 @@ export const paths = {
     },
     // DASHBOARD
     main: {
-        dashboard:{
+        dashboard: {
             user: `${ROOTS.MAIN_PAGE}/dashboard/user-dashboard`,
-            root: `${ROOTS.MAIN_PAGE}/dashboard`
+            project: `${ROOTS.MAIN_PAGE}/dashboard/project-dashboard`,
+            listProject: `${ROOTS.MAIN_PAGE}/dashboard/list-project-dashboard`,
+            root: `${ROOTS.MAIN_PAGE}/dashboard`,
         },
         project: {
             root: `${ROOTS.MAIN_PAGE}/projects`,
             create: `${ROOTS.MAIN_PAGE}/projects/create`,
             access: (token) => `${ROOTS.MAIN_PAGE}/project-access/${token}`,
         },
+        timesheet: {
+            root: `${ROOTS.MAIN_PAGE}/timesheet`,
+            create: `${ROOTS.MAIN_PAGE}/timesheet/create`,
+            dashboard: `${ROOTS.MAIN_PAGE}/timesheet/DashboardView`,
+            daily: `${ROOTS.MAIN_PAGE}/timesheet/create-daily`,
+            weekly: `${ROOTS.MAIN_PAGE}/timesheet/create-weekly`,
+            edit: (timesheetId, employeeId) => `${ROOTS.MAIN_PAGE}/timesheet/edit/${timesheetId}/${employeeId}`,
+        },
+        // dashboardCompo: {
+        //     root: `${ROOTS.MAIN_PAGE}/timesheet`,
+        //     dashboard: `${ROOTS.MAIN_PAGE}/dashboardCompo/DashboardView`,
+        // },
         user: {
             root: `${ROOTS.MAIN_PAGE}/user`,
             account: `${ROOTS.MAIN_PAGE}/user/account`,
@@ -32,32 +46,33 @@ export const paths = {
     },
     dashboard: {
         root: (projectId) => `${ROOTS.DASHBOARD}/${projectId}`,
-
         projectdashboard: {
             root: (projectId) => `${ROOTS.DASHBOARD}/projectdashboard/${projectId}`,
-            homesprints: (projectId) => `${ROOTS.DASHBOARD}/projectdashboard/${projectId}/homesprints`,
-            homestages: (projectId) => `${ROOTS.DASHBOARD}/projectdashboard/${projectId}/homestages`,
+            homesprints: (projectId) =>
+                `${ROOTS.DASHBOARD}/projectdashboard/${projectId}/homesprints`,
+            homestages: (projectId) =>
+                `${ROOTS.DASHBOARD}/projectdashboard/${projectId}/homestages`,
             homeusers: (projectId) => `${ROOTS.DASHBOARD}/projectdashboard/${projectId}/homeusers`,
         },
         stages: {
-            root: `${ROOTS.DASHBOARD}/stages/`,
-            create: `${ROOTS.DASHBOARD}/stages/new`,
-            task: (id) => `${ROOTS.DASHBOARD}/stages/${id}/view`,
-            edit: (id) => `${ROOTS.DASHBOARD}/stages/${id}/edit`,
+            root: (projectId) => `${ROOTS.DASHBOARD}/stages/${projectId}`,
+            create: (projectId) => `${ROOTS.DASHBOARD}/stages/${projectId}/new`,
+            task: (projectId, id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/view`,
+            edit: (projectId, id) => `${ROOTS.DASHBOARD}/stages/${projectId}/${id}/edit`,
         },
         sprints: {
-            root: `${ROOTS.DASHBOARD}/sprints/`,
-            backlog: `${ROOTS.DASHBOARD}/sprints/backlog`,
-            timeline: `${ROOTS.DASHBOARD}/sprints/timeline`,
+            root: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}`,
+            backlog: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}/backlog`,
+            timeline: (projectId) => `${ROOTS.DASHBOARD}/sprints/${projectId}/timeline`,
         },
         employees: {
-            list: `${ROOTS.DASHBOARD}/employee/list`,
+            list: (projectId) => `${ROOTS.DASHBOARD}/employee/${projectId}/list`,
         },
         settings: {
-            root: `${ROOTS.DASHBOARD}/settings/`,
-            details: `${ROOTS.DASHBOARD}/settings/details`,
+            root: (projectId) => `${ROOTS.DASHBOARD}/settings/${projectId}`,
+            details: (projectId) => `${ROOTS.DASHBOARD}/settings/${projectId}/details`,
         },
-        fileManager: `${ROOTS.DASHBOARD}/filemanager/`,
+        fileManager: (projectId) => `${ROOTS.DASHBOARD}/filemanager/${projectId}`,
         reports: {
             root: `${ROOTS.DASHBOARD}/reports/`,
             employeeReports: `${ROOTS.DASHBOARD}/reports/employeeReports`,

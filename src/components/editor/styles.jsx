@@ -131,9 +131,7 @@ export const StyledRoot = styled(Stack, {
                 lineHeight: 2,
                 '& > p': { margin: 0, display: 'inline-block' },
             },
-            /**
-             * Blockquote
-             */
+           
             [`& .${editorClasses.content.blockquote}`]: {
                 lineHeight: 1.5,
                 fontSize: '1.5em',

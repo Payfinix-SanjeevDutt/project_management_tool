@@ -45,7 +45,10 @@ export const endpoints = {
     user: {
         list: '/employee/',
         account: '/employee/update',
-        security: '/employee/security'
+        security: '/employee/security',
+        completed_overrun: '/employee/completed-overrun',
+        inprogress_overrun: 'employee/inprogress-overrun',
+        todo: '/employee/todo',
     },
     project:{
         create: '/project/create-project',
@@ -57,7 +60,11 @@ export const endpoints = {
         send_invite:'/project/send-invite',
         delete:'/project/delete-project',
         project_employee_report: '/project/project-employee-report',
-        project_user_delete: '/project/project-user-delete'
+        project_user_delete: '/project/project-user-delete',
+        project_stage_report: '/project/project-stages-report',
+        project_completed_overrun: '/project/project-task-overdue',
+        project_inprogress_overrun: '/project/project-task-inprogress',
+        project_todo_overrun: 'project/project-task-todo',
     },
     tasks:{
         create:'/task/create-task',
@@ -82,6 +89,10 @@ export const endpoints = {
         update: '/stage/update-stage',
         delete:'/stage/delete-stage',
         singlelist:'/stage/getstage',
+        stageEmployeeReport : "/stage/stage-employee-report",
+        stageOverdue: "/stage/stage-overdue",
+        stageInprogress: "/stage/stage-inprogress",
+        stageTodo:"/stage/stage-todo"
     },
     sprints:{
         create:'/sprint/createsprint',
@@ -96,5 +107,14 @@ export const endpoints = {
     },
     history:{
         list:'/task/history',
+    },
+    timesheet:{
+        create :'/timesheet/create',
+        list : '/timesheet/list',
+        update: '/timesheet/update',
+        getsingleTimesheet : '/timesheet/get-single-timesheet',
+        delete : '/timesheet/delete',
+        getallList : '/timesheet/get-all-list'
     }
+
 };

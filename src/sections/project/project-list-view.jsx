@@ -1,12 +1,9 @@
-// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useContext, useCallback } from 'react';
 
 import TextField from '@mui/material/TextField';
-// import Box from '@mui/material/Box';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import {
     Box,
@@ -85,7 +82,7 @@ export default function CustomProjectView() {
 
     const handleViewRow = useCallback(
         (id) => {
-            router.push(paths.dashboard.projectdashboard.homeusers(id));
+            router.push(paths.dashboard.projectdashboard.homestages(id));
             dispatch(setProject({ projectId: id }));
         },
         [router, dispatch]
@@ -193,7 +190,6 @@ export default function CustomProjectView() {
                 </Stack>
             ),
         },
-        
 
         {
             field: 'status',

@@ -24,7 +24,7 @@ import CreateTask from './createtask_modal';
 import ChildIssuesRow from './child-issue-row';
 
 const HEADER_CONFIG = [
-    { id: 'task_id', label: 'Id', align: 'left' },
+    // { id: 'task_id', label: 'Id', align: 'left' },
     { id: 'task_name', label: 'Name', align: 'center' },
     { id: 'status', label: 'Status', align: 'center' },
     { id: 'priority', label: 'Priority', align: 'center' },

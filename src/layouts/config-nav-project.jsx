@@ -31,13 +31,15 @@ const ICONS = {
 
 export const navData = [
     {
-        subheader: 'Overview',
         items: [
             {
                 title: 'Dashboard',
                 path: paths.main.dashboard.root,
                 icon: ICONS.dashboard,
-                children: [{ title: 'dashboard', path: paths.main.dashboard.user }],
+                children: [
+                    { title: 'Employee', path: paths.main.dashboard.user },
+                    { title: 'Project', path: paths.main.dashboard.listProject },
+                ],
             },
             {
                 title: 'Projects',
@@ -46,6 +48,18 @@ export const navData = [
                 children: [
                     { title: 'list', path: paths.main.project.root },
                     { title: 'create', path: paths.main.project.create },
+                ],
+            },
+            {
+                title: 'Timesheet',
+                path: paths.main.timesheet.root,
+                icon: ICONS.library,
+                children: [
+                    {
+                        title: 'Time sheet',
+                        path: paths.main.timesheet.root,
+                    },
+                    { title: 'Dashboard', path: paths.main.timesheet.dashboard},
                 ],
             },
             {
