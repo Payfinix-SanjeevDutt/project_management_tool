@@ -57,7 +57,7 @@ export default function StageCreateForm() {
             toast.error('Project Name is required.');
             return;
         }
-       
+
         if (!formData.workItem.trim()) {
             toast.error('Task is required.');
             return;
@@ -70,20 +70,23 @@ export default function StageCreateForm() {
             toast.error('Total Hours is required.');
             return;
         }
-        if (formData.selectedTimeMode === 'startEnd' && (!formData.startTime || !formData.endTime)) {
+        if (
+            formData.selectedTimeMode === 'startEnd' &&
+            (!formData.startTime || !formData.endTime)
+        ) {
             toast.error('Start Time and End Time are required.');
             return;
         }
         const payload = {
-            timesheet_id:timesheetId,
+            timesheet_id: timesheetId,
             project_name: formData.projectName,
             employee_id: user.employee_id,
             job_name: formData.jobName,
             work_item: formData.workItem,
             description: formData.description,
             total_hours: formData.totalHours || calculateDuration(),
-            startDate : formData.startDate,
-            billable_status : formData.billableStatus
+            startDate: formData.startDate,
+            billable_status: formData.billableStatus,
         };
 
         try {
@@ -93,7 +96,7 @@ export default function StageCreateForm() {
             } else {
                 response = await axiosInstance.post(endpoints.timesheet.create, payload);
             }
-    
+
             if (response.status) {
                 toast.success(`Timesheet ${timesheetId ? 'updated' : 'submitted'} successfully!`);
                 navigate(paths.main.timesheet.root);
@@ -106,10 +109,13 @@ export default function StageCreateForm() {
     useEffect(() => {
         if (timesheetId) {
             axiosInstance
-                .post(endpoints.timesheet.getsingleTimesheet,{timesheet_id:timesheetId,employee_id:employeeId})
+                .post(endpoints.timesheet.getsingleTimesheet, {
+                    timesheet_id: timesheetId,
+                    employee_id: employeeId,
+                })
                 .then((response) => {
                     if (response.data.status) {
-                        const {data} = response.data;
+                        const { data } = response.data;
                         setFormData({
                             projectName: data.project_name,
                             jobName: data.job_name,
@@ -120,7 +126,8 @@ export default function StageCreateForm() {
                             totalHours: data.total_hours,
                             startTime: data.startTime ? dayjs(data.startTime) : null,
                             endTime: data.endTime ? dayjs(data.endTime) : null,
-                            selectedTimeMode: data.startTime && data.endTime ? 'startEnd' : 'manual',
+                            selectedTimeMode:
+                                data.startTime && data.endTime ? 'startEnd' : 'manual',
                         });
                     }
                 })
@@ -131,16 +138,15 @@ export default function StageCreateForm() {
         }
         // eslint-disable-next-line
     }, []);
-    
 
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axiosInstance.get(endpoints.project.project_stage_report);
-                const projectsArray = Array.isArray(response.data)
-                    ? response.data
-                    : response.data.projects;
-                setProjects(projectsArray || []);
+                const response = await axiosInstance.post(endpoints.project.list, {
+                    employee_id: user.employee_id,
+                });
+                const projectsArray = response.data.data;
+                setProjects(Array.isArray(projectsArray) ? projectsArray : []);
             } catch (error) {
                 console.error('Error fetching projects:', error);
                 toast.error('Failed to load projects.');
@@ -188,7 +194,7 @@ export default function StageCreateForm() {
     }, [formData.startTime, formData.endTime]);
 
     return (
-        <Card sx={{ mx: 'auto', my:'auto',width: '80%' }}>
+        <Card sx={{ mx: 'auto', my: 'auto', width: '80%' }}>
             <CardHeader
                 title="Create Timesheet"
                 subheader="Fill in the details below"
@@ -197,7 +203,7 @@ export default function StageCreateForm() {
             <Divider />
             <CardContent>
                 <Stack gap={3} padding={3}>
-                    <FormControl fullWidth >
+                    <FormControl fullWidth>
                         <InputLabel>Project</InputLabel>
                         <Select
                             name="projectName"
@@ -206,38 +212,12 @@ export default function StageCreateForm() {
                         >
                             <MenuItem value="">Select</MenuItem>
                             {projects.map((project) => (
-                                <MenuItem key={project.project_id} value={project.project_name}>
-                                    {project.project_name}
+                                <MenuItem key={project.id} value={project.name}>
+                                    {project.name}
                                 </MenuItem>
                             ))}
-                            <MenuItem value="Project management Tool">
-                                Project management Tool
-                            </MenuItem>
                         </Select>
                     </FormControl>
-
-                    {/* <FormControl fullWidth>
-                        <InputLabel>Job Name</InputLabel>
-                        <Select
-                            name="jobName"
-                            value={formData.jobName}
-                            onChange={handleInputChange}
-                        >
-                            <MenuItem value="">Select</MenuItem>
-                            <MenuItem value="Frontend and Backend">Frontend and Backend</MenuItem>
-                            <MenuItem value="AI and ML training and development">
-                                AI and ML training and development
-                            </MenuItem>
-                            <MenuItem value="API Service Testing">API Service Testing</MenuItem>
-                            <MenuItem value="Kiosk Integration">Kiosk Integration</MenuItem>
-                            <MenuItem value="MDM Development">MDM Development</MenuItem>
-                            <MenuItem value="Middle Layer and Backend Development">
-                                Middle Layer and Backend Development
-                            </MenuItem>
-                            <MenuItem value="Payrastra">Payrastra</MenuItem>
-                            <MenuItem value="Trueread Analysis">Trueread Analysis</MenuItem>
-                        </Select>
-                    </FormControl> */}
 
                     <TextField
                         fullWidth

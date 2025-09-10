@@ -1,35 +1,35 @@
     import axios from 'axios';
- 
+
 import { CONFIG } from 'src/config-global';
- 
+
 // ----------------------------------------------------------------------
- 
+
 const axiosInstance = axios.create({ baseURL: CONFIG.site.serverUrl });
- 
+
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong!')
 );
- 
+
 export default axiosInstance;
- 
+
 // ----------------------------------------------------------------------
- 
+
 export const fetcher = async (args) => {
     try {
         const [url, config] = Array.isArray(args) ? args : [args];
- 
+
         const res = await axiosInstance.get(url, { ...config });
- 
+
         return res.data;
     } catch (error) {
         console.error('Failed to fetch:', error);
         throw error;
     }
 };
- 
+
 // ----------------------------------------------------------------------
- 
+
 export const endpoints = {
     auth: {
         me: 'auth/me',
@@ -115,6 +115,34 @@ export const endpoints = {
         getsingleTimesheet : '/timesheet/get-single-timesheet',
         delete : '/timesheet/delete',
         getallList : '/timesheet/get-all-list'
-    }
-
+    },
+    timelog: {
+        create: '/timelog/create',
+        list: '/timelog/list',
+        update: '/timelog/update',
+        daily: '/timelog/getdaily',
+        monthly: '/timelog/monthly'
+    // timelog:{
+    //     create : '/timelog/create',
+    //     list : '/timelog/list',
+    //     update : '/timelog/update',
+    //     daily: '/timelog/getdaily'
+    },
+    holiday:{
+        create : '/holiday/create-holiday',
+        list: '/holiday/list-holidays',
+        delete: '/holiday/delete-holiday',
+        deleteall : '/holiday/delete-holidays',
+        applyleave : '/leave/apply-leave',
+        createpolicy : '/leave/create-policy',
+        assignleave : '/leave/leave-assign',
+        listLeave : '/leave/list-leave',
+        listEmployeeLeave: '/leave/list-employee-leave',
+        historyLeave : '/leave/leave-history'
+    },
+    email_notification:{
+      create : 'email_notification/create',
+      get : 'email_notification/',
+      delete : 'email_notification/delete'
+    },
 };

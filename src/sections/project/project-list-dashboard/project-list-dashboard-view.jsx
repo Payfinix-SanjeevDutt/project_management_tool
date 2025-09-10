@@ -213,7 +213,7 @@ function ProjectListDashboardView() {
                                     <TableCell colSpan={columns.length} align="center">
                                         <EmptyContent
                                             title="No project data found."
-                                            sx={{ py: 10 }}
+                                            sx={{ py: 10 }} 
                                         />
                                     </TableCell>
                                 </TableRow>

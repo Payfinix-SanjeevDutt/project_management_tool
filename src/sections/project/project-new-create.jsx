@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { useState, useEffect, useContext } from 'react';
 
 import MenuItem from '@mui/material/MenuItem';
@@ -63,16 +62,16 @@ const PROJECT_STATUS = [
 export default function CreateProject() {
     const { user } = useContext(AuthContext);
     const pathName = usePathname();
-    const { currentProjectId: project_id } = useSelector((state) => state.projects);
+    // const { currentProjectId: project_id } = useSelector((state) => state.projects);
     const [formData, setFormData] = useState(STATE);
-    const navigate = useNavigate()
-    const isUpdate = pathName !== '/main/projects/create';
-
+    const navigate = useNavigate();
+    const isUpdate = pathName !== '/main/projects/create' ;
     const handleFormData = (event) => {
         const { name, value } = event.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
-
+    const { project_id } = useParams();
+    
     const createProject = async () => {
         try {
             if (!user?.employee_id) {
@@ -87,7 +86,7 @@ export default function CreateProject() {
                 throw new Error(message);
             }
             toast.success(message);
-        navigate(paths.main.project.root);
+            navigate(paths.main.project.root);
         } catch (error) {
             const errormsg =
                 (error instanceof Error && error.message) ||
@@ -98,16 +97,19 @@ export default function CreateProject() {
     };
 
     const convertDayjs = (date) => (date ? dayjs(date) : null);
-
+    console.log(project_id)
     const displayProject = async () => {
         try {
             const response = await axiosInstance.post(endpoints.project.display, {
                 project_id,
             });
-            const { error_code, message, data } = response.data;
-            if (error_code !== 0) {
-                throw new Error(message);
+
+            const { error_code, message, data } = response?.data || {};
+
+            if (error_code !== 0 || !data) {
+                throw new Error(message || 'Failed to fetch project');
             }
+
             setFormData({
                 ...data,
                 start_date: convertDayjs(data.start_date),

@@ -3,13 +3,21 @@ import { Outlet } from 'react-router-dom';
 
 import { CONFIG } from 'src/config-global';
 import { DashboardLayout } from 'src/layouts/dashboard';
+import LeaveCreate from 'src/pages/dashboard/Leave/create';
 import { ProjectLayout } from 'src/layouts/projects/layout';
+import TimelogView from 'src/pages/dashboard/Timelog Dashboard/view';
 import Userdashboard from 'src/pages/dashboard/projects/userdashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
+import HolidayList from 'src/sections/holiday/list';
+import Applyleave from 'src/sections/Leave/applyleave';
+import HolidayCreate from 'src/sections/holiday/create';
+import AssignLeave from 'src/sections/Leave/assignLeave';
+
 import { AuthGuard } from 'src/auth/guard';
-// ----------------------------------------------------------------------
+
+const MicrosoftAuthCallback = lazy(() => import('src/pages/auth/success'));
 
 // Overview
 const IndexPage = lazy(() => import('src/pages/dashboard/analytics/home'));
@@ -37,8 +45,6 @@ const ListProjectDashboard = lazy(
 );
 const SettingsDetailsPage = lazy(() => import('src/pages/dashboard/settings/details'));
 const Dashboard = lazy(() => import('src/pages/dashboard/Timesheet Dashboard/Dashboard'));
-
-// ----------------------------------------------------------------------
 
 const projectLayoutContent = (
     <ProjectLayout>
@@ -73,6 +79,17 @@ export const dashboardRoutes = [
                 ],
             },
             {
+                path: 'dashboard',
+                children: [
+                    { element: <ProjectDashboard />, index: true },
+                    { path: 'user-dashboard', element: <Userdashboard /> },
+                    { path: 'project-dashboard', element: <MainProjectDashboard /> },
+                    { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
+                    { path: 'time-log-dashboard', element: <TimelogView /> },
+                    { path: 'leave-dashboard', element: <LeaveCreate/>}
+                ],
+            },
+            {
                 path: 'user',
                 children: [
                     { element: <EmployeeAccount />, index: true },
@@ -81,12 +98,13 @@ export const dashboardRoutes = [
                 ],
             },
             {
-                path: 'dashboard',
+                path: 'holiday',
                 children: [
-                    { element: <ProjectDashboard />, index: true },
-                    { path: 'user-dashboard', element: <Userdashboard /> },
-                    { path: 'project-dashboard', element: <MainProjectDashboard /> },
-                    { path: 'list-project-dashboard', element: <ListProjectDashboard /> },
+                    { element: <HolidayCreate />, index: true },
+                    { path: 'holiday-create', element: <HolidayCreate /> },
+                    { path: 'holiday-list', element: <HolidayList /> },
+                    { path: 'leave/apply-leave', element: <Applyleave/>},
+                    { path: 'leave/assign-leave', element: <AssignLeave/>}
                 ],
             },
             {
@@ -94,7 +112,7 @@ export const dashboardRoutes = [
                 children: [
                     { element: <Timesheet />, index: true },
                     { path: 'timesheet', element: <Timesheet /> },
-                    { path: 'DashboardView', element: <Dashboard/> },
+                    { path: 'DashboardView', element: <Dashboard /> },
                     { path: 'create-daily', element: <TimesheetCreateDaily /> },
                     { path: 'create-weekly', element: <TimesheetCreateWeekly /> },
                     { path: 'edit/:timesheetId/:employeeId', element: <TimesheetCreateDaily /> },
@@ -139,9 +157,9 @@ export const dashboardRoutes = [
                     { path: 'new', element: <StageCreate /> },
                     { path: ':id/edit', element: <StageCreate /> },
                     { path: ':id/view', element: <TaskView /> },
+                    { path: ':id/:taskid/view', element: <TaskView /> },
                 ],
             },
-
             {
                 path: 'filemanager/:project_id',
                 children: [{ element: <FileManager />, index: true }],
@@ -166,5 +184,9 @@ export const dashboardRoutes = [
                 path: 'project-access/:token',
             },
         ],
+    },
+    {
+        path: 'auth/success',
+        element: <MicrosoftAuthCallback />, // Route for Microsoft login redirect
     },
 ];

@@ -313,7 +313,7 @@ export default function CustomProjectView() {
                     icon={<Iconify icon="iconamoon:settings-fill" />}
                     label="Project settings"
                     onClick={() => {
-                        navigate(paths.dashboard.settings.details);
+                        navigate(paths.dashboard.settings.details(params.row.id));
                     }}
                 />,
                 <GridActionsCellItem

@@ -74,11 +74,11 @@ const TimeLogTable = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axiosInstance.get(endpoints.project.project_stage_report);
-                const projectsArray = Array.isArray(response.data)
-                    ? response.data
-                    : response.data.projects;
-                setProjects(projectsArray || []);
+                const response = await axiosInstance.post(endpoints.project.list, {
+                    employee_id: user.employee_id,
+                });
+                const projectsArray = response.data.data;
+                setProjects(Array.isArray(projectsArray) ? projectsArray : []);
             } catch (error) {
                 console.error('Error fetching projects:', error);
                 toast.error('Failed to load projects.');
@@ -248,10 +248,10 @@ const TimeLogTable = () => {
                                             <MenuItem value="">Select</MenuItem>
                                             {projects.map((project) => (
                                                 <MenuItem
-                                                    key={project.project_id}
-                                                    value={project.project_name}
+                                                    key={project.id}
+                                                    value={project.name}
                                                 >
-                                                    {project.project_name}
+                                                    {project.name}
                                                 </MenuItem>
                                             ))}
                                             <MenuItem value="Project management Tool">

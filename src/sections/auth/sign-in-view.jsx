@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -49,6 +49,13 @@ export function AmplifySignInView() {
 
     const { checkUserSession } = useAuthContext();
 
+    useEffect(() => {
+        const error = searchParams.get('error');
+        if (error) {
+            setErrorMsg(decodeURIComponent(error));
+        }
+    }, [searchParams]);
+
     const defaultValues = {
         email: '',
         password: '',
@@ -69,11 +76,20 @@ export function AmplifySignInView() {
             await signInWithPassword({ email: data.email, password: data.password });
             await checkUserSession?.();
             const redirect = searchParams.get('redirect') || `${paths.main.dashboard.user}`;
-            router.push(redirect); 
+            router.push(redirect);
         } catch (error) {
             setErrorMsg(error instanceof Error ? error.message : error);
         }
     });
+
+    const handleMicrosoftLogin = () => {
+        try {
+            const platform="web";
+            window.location.href = `${import.meta.env.VITE_PROJECT_APP_API}/auth/microsoft-sign-in?platform=${platform}`;
+        } catch (error) {
+            setErrorMsg(error instanceof Error ? error.message : error);
+        }
+    };
 
     const renderHead = (
         <Stack spacing={1.5} sx={{ mb: 5 }}>
@@ -140,6 +156,17 @@ export function AmplifySignInView() {
                 loadingIndicator="Sign in..."
             >
                 Sign in
+            </LoadingButton>
+
+            <LoadingButton
+                fullWidth
+                size="large"
+                variant="outlined"
+                color="primary"
+                startIcon={<Iconify icon="logos:microsoft-icon" width={20} height={20} />}
+                onClick={handleMicrosoftLogin}
+            >
+                Sign In with Office 365
             </LoadingButton>
         </Stack>
     );

@@ -226,7 +226,7 @@ const ActivitySection = ({ issueKey, refreshActivity }) => {
                                 const descriptionRegex = /(.+?) changed (\w+) from (.+) to (.+)/i;
                                 const match = descriptionRegex.exec(entry.description);
 
-                                const commentRegex = /(\w+) added a comment : (.+)/i;
+                                const commentRegex = /(.+?) added a comment : (.+)/i;
                                 const commentMatch = commentRegex.exec(entry.description);
 
                                 const formatDate = (value) => {
