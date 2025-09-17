@@ -129,7 +129,7 @@ function calculateWorkedAndMissedTime(clockIn, clockOut) {
 }
 
 function HomeUserView() {
-    console.log("hari")
+    // console.log("hari")
     const [report, setReport] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -173,7 +173,7 @@ function HomeUserView() {
                         checkout: log.clock_out,
                         status: log.clock_in && log.clock_out ? 'Present' : 'Absent',
                         isDelay: missedMinutes > 0,
-                        totalHours: workedMinutes,
+                        totalHours: log.total_hours || workedMinutes,
                         missedTime: missedMinutes,
                     };
                 });
@@ -371,7 +371,7 @@ function HomeUserView() {
                 const filteredData = response.data.filter(
                     (emp) =>
                         emp.employee_id !== 'ELKHGFJJKEHLKJG4102836' &&
-                        emp.employee_id !== 'Nischal0001' 
+                        emp.employee_id !== 'Nischal0001'
                 );
 
                 const reportWithDelays = await Promise.all(
